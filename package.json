@@ -7,7 +7,7 @@
  "scripts": {
     "backend": "npm run dev -w backend",
     "frontend": "npm run dev -w frontend",
-    "start": "concurrently \"npm run backend\" \"npm run frontend\""
+    "dev": "concurrently \"npm run backend\" \"npm run frontend\""
 },
   "workspaces": [
     "backend",
