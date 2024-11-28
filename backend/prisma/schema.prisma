@@ -1,0 +1,53 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+
+model Ong {
+  id           String   @id @default(uuid())
+  login        String
+  senha        String   
+  nome         String  
+  descricao    String   @db.VarChar(3000)
+  cnpj         String?  @db.VarChar(14) 
+  localizacao  String
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @default(now()) @updatedAt @map("updated_at")
+
+  ongContato   OngContato[] 
+  @@index([login], map: "fk_ong_login_idx")
+  @@index([nome], map: "fk_ong_nome_idx")
+  @@index([cnpj], map: "fk_ong_cnpj_idx")
+  @@map("ong")
+}
+
+model OngContato {
+  tipoContatoId   String        @map("tipos_contato_id")
+  ongId           String        @map("ong_id") 
+  valor           String
+  createdAt       DateTime      @default(now()) @map("created_at")
+  updatedAt       DateTime      @default(now()) @updatedAt @map("updated_at")
+
+  tiposContato    TipoContato   @relation(fields: [tipoContatoId], references: [id])
+  ong             Ong           @relation(fields: [ongId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@id([tipoContatoId, ongId])
+  @@index([valor], map: "fk_ong_contato_valor_idx")
+  @@map("ong_contato")
+}
+
+model TipoContato {
+  id         String       @id @default(uuid())
+  tipo       String       @db.VarChar(45)
+  createdAt  DateTime     @default(now()) @map("created_at")
+  updatedAt  DateTime     @default(now()) @updatedAt @map("updated_at")
+
+  ongContato OngContato[]
+
+  @@map("tipos_contato")
+}
