@@ -10,11 +10,11 @@ datasource db {
 
 model Ong {
   id           String   @id @default(uuid())
-  login        String
+  login        String   
   senha        String   
   nome         String  
   descricao    String   @db.VarChar(3000)
-  cnpj         String?  @db.VarChar(14) 
+  cnpj         String?  @db.VarChar(18) 
   localizacao  String
   createdAt    DateTime @default(now()) @map("created_at")
   updatedAt    DateTime @default(now()) @updatedAt @map("updated_at")
