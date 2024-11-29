@@ -3,7 +3,7 @@
 ## Para rodar o APP
 ```
 docker compose up -d
-docker exec -it acolhemais sh -c "cd ./backend && npx prisma migrate deploy
+docker exec -it acolhemais sh -c "cd ./backend && npx prisma migrate deploy"
 ```
 Para visualizar os logs, você pode ver diretamente pelo Docker Desktop, ou execute este comando
 ```
