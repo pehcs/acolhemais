@@ -11,8 +11,7 @@ services:
       - mysql_acolhemais_data:/var/lib/mysql
 
   app:
-    build: 
-      context: .
+    build: .
     container_name: acolhemais
     volumes:
       - ./frontend:/app/frontend
