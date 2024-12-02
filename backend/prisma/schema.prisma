@@ -27,27 +27,27 @@ model Ong {
 }
 
 model OngContato {
+  id              String        @id @default(uuid())
   tipoContatoId   String        @map("tipos_contato_id")
   ongId           String        @map("ong_id") 
   valor           String
   createdAt       DateTime      @default(now()) @map("created_at")
   updatedAt       DateTime      @default(now()) @updatedAt @map("updated_at")
 
-  tiposContato    TipoContato   @relation(fields: [tipoContatoId], references: [id])
+  tipoContato    TipoContato   @relation(fields: [tipoContatoId], references: [id])
   ong             Ong           @relation(fields: [ongId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
-  @@id([tipoContatoId, ongId])
   @@index([valor], map: "fk_ong_contato_valor_idx")
   @@map("ong_contato")
 }
 
 model TipoContato {
   id         String       @id @default(uuid())
-  tipo       String       @db.VarChar(45)
+  tipo       String       @db.VarChar(45) @unique
   createdAt  DateTime     @default(now()) @map("created_at")
   updatedAt  DateTime     @default(now()) @updatedAt @map("updated_at")
 
   ongContato OngContato[]
 
-  @@map("tipos_contato")
+  @@map("tipo_contato")
 }

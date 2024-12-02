@@ -1,4 +1,4 @@
-import { ONGCompleteResponse } from "../dtos/ONGResponseDtos"
+import { Contact, ONGCompleteResponse } from "../dtos/ONGResponseDtos"
 
 export default class ONGMapper {
 
@@ -9,18 +9,22 @@ export default class ONGMapper {
             nome: ong.nome,
             descricao: ong.descricao,
             cnpj: ong.cnpj, 
-            localizacao: ong.localizacao
+            localizacao: ong.localizacao,
+            contatos: ong?.ongContato.map(contato => {
+                return ONGMapper.toContactResponse(contato)       
+            })
         }
     }
     static toCompleteResponseList(ong): ONGCompleteResponse[] {
-        return ong.map(o => ({
-            id: o.id,
-            login: o.login,
-            nome: o.nome,
-            descricao: o.descricao,
-            cnpj: o.cnpj, 
-            localizacao: o.localizacao
-        })
+        return ong.map(o => this.toCompleteResponse(o)
         ) 
+    }
+
+    static toContactResponse(contato): Contact {
+        return { 
+            id: contato.id,
+            tipo: contato.tipoContato.tipo,
+            valor: contato.valor
+        }
     }
 }

@@ -2,20 +2,68 @@ import db from '../db.ts'
 import { CreateONG } from './dto/ONGDtos.ts';
 
 class ONGRepository {
-
+    
     async save(createONG: CreateONG) {
+        const contactTypes = await Promise.all(
+            createONG.contatos.map(async (contato) => {
+                const contactType = await db.tipoContato.findUnique({
+                    where: { tipo: contato.tipo },
+                });
+    
+                if (!contactType) {
+                    throw new Error(`Tipo de contato '${contato.tipo}' não encontrado.`);
+                }
+    
+                return {
+                    tipo: contato.tipo,
+                    id: contactType.id,
+                };
+            })
+        );
+    
+        const ongContatos = createONG.contatos.map((contato) => {
+            const contactType = contactTypes.find((type) => type.tipo === contato.tipo);
+            return {
+                tipoContatoId: contactType!.id,
+                valor: contato.valor,
+            };
+        });
+    
         return await db.ong.create({
             data: {
-                ...createONG
-            }
-        }); 
+                login: createONG.login,
+                senha: createONG.senha,
+                nome: createONG.nome,
+                descricao: createONG.descricao,
+                cnpj: createONG.cnpj,
+                localizacao: createONG.localizacao,
+                ongContato: {
+                    create: ongContatos,
+                },
+            },
+            include: {
+                ongContato: {
+                    include: {
+                        tipoContato: true, // Inclui detalhes do tipo de contato, se necessário
+                    },
+                },
+            },
+        });
     }
+    
 
     async findById(id: string) {
         return await db.ong.findUnique({
             where: {
                 id
-            }
+            },
+            include: {
+                ongContato: {
+                    include: {
+                        tipoContato: true
+                },
+            },
+        },
         });
     }
     
@@ -29,7 +77,15 @@ class ONGRepository {
     }
 
     async findAll() {
-        return await db.ong.findMany(); 
+        return await db.ong.findMany({
+        include: {
+            ongContato: {
+                include: {
+                    tipoContato: true
+                },
+            },
+        }}
+        ); 
     }
 }
 

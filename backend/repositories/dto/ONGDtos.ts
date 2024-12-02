@@ -5,4 +5,10 @@ export type CreateONG = {
     descricao: string;
     cnpj?: string; 
     localizacao: string;
+    contatos: AddContact[];
+}
+
+export type AddContact = {
+    tipo: "EMAIL" | "TELEFONE";
+    valor: string;
 }

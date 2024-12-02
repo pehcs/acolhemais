@@ -4,6 +4,7 @@ import basicError from "../utils/BasicError"
 import bcrypt from 'bcrypt';
 import { CreateONG } from "../repositories/dto/ONGDtos"
 import ONGMapper from './mappers/ONGMapper';
+import ONGContactRepository from "../repositories/ONGContactRepository";
 
 export default class ONGController {
 
@@ -20,16 +21,36 @@ export default class ONGController {
             const createONG: CreateONG = req.body
             createONG.senha = await bcrypt.hash(createONG.senha, 10)
             const savedOng = await ONGRepository.save(req.body)
+            console.log(savedOng)
             return res.status(201).json(
                 ONGMapper.toCompleteResponse(savedOng)
             )
         } catch (error) {
             return res.status(500).json(basicError("Erro ao tentar salvar ONG, tente novamente mais tarde"));
         }
-        
     }
 
-    static async findAll(req: Request, res: Response): Promise<any> {
+    static async addContact(req: Request, res: Response): Promise<any> {
+        try {
+            const { id } = req.params;
+            const contact = await ONGContactRepository.addContact(id, req.body)
+            res.status(201).json(ONGMapper.toContactResponse(contact))
+        } catch (error) {
+            return res.status(500).json(basicError("Erro ao tentar salvar o contato da ONG, tente novamente mais tarde"));
+        }
+    }
+
+    static async removeContact(req: Request, res: Response): Promise<any> {
+        try {
+            const { id } = req.params;
+            await ONGContactRepository.removeContact(id)
+            res.status(204).end()
+        } catch (error) {
+            return res.status(500).json(basicError("Erro ao tentar remover o contato da ONG, tente novamente mais tarde"));
+        }
+    }
+
+    static async findAll(_: Request, res: Response): Promise<any> {
         return res.status(200).json(
             ONGMapper.toCompleteResponseList(
                 await ONGRepository.findAll()

@@ -18,6 +18,7 @@ CREATE TABLE `ong` (
 
 -- CreateTable
 CREATE TABLE `ong_contato` (
+    `id` VARCHAR(191) NOT NULL,
     `tipos_contato_id` VARCHAR(191) NOT NULL,
     `ong_id` VARCHAR(191) NOT NULL,
     `valor` VARCHAR(191) NOT NULL,
@@ -25,21 +26,22 @@ CREATE TABLE `ong_contato` (
     `updated_at` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
 
     INDEX `fk_ong_contato_valor_idx`(`valor`),
-    PRIMARY KEY (`tipos_contato_id`, `ong_id`)
+    PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- CreateTable
-CREATE TABLE `tipos_contato` (
+CREATE TABLE `tipo_contato` (
     `id` VARCHAR(191) NOT NULL,
     `tipo` VARCHAR(45) NOT NULL,
     `created_at` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updated_at` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
 
+    UNIQUE INDEX `tipo_contato_tipo_key`(`tipo`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- AddForeignKey
-ALTER TABLE `ong_contato` ADD CONSTRAINT `ong_contato_tipos_contato_id_fkey` FOREIGN KEY (`tipos_contato_id`) REFERENCES `tipos_contato`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE `ong_contato` ADD CONSTRAINT `ong_contato_tipos_contato_id_fkey` FOREIGN KEY (`tipos_contato_id`) REFERENCES `tipo_contato`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE `ong_contato` ADD CONSTRAINT `ong_contato_ong_id_fkey` FOREIGN KEY (`ong_id`) REFERENCES `ong`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
