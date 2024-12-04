@@ -1,4 +1,4 @@
-import db from '../db.ts'
+import db from '../db.ts';
 import { AddContact } from './dto/ONGDtos.ts';
 
 class ONGContactRepository {
@@ -32,6 +32,6 @@ class ONGContactRepository {
        
 }
 
-export default new ONGContactRepository() 
+export default new ONGContactRepository();
 
 

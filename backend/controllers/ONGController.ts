@@ -1,8 +1,8 @@
-import { Request, Response } from "express"
-import ONGRepository from "../repositories/ONGRepository"
-import basicError from "../utils/BasicError"
+import { Request, Response } from "express";
+import ONGRepository from "../repositories/ONGRepository";
+import basicError from "../utils/BasicError";
 import bcrypt from 'bcrypt';
-import { CreateONG } from "../repositories/dto/ONGDtos"
+import { CreateONG } from "../repositories/dto/ONGDtos";
 import ONGMapper from './mappers/ONGMapper';
 import ONGContactRepository from "../repositories/ONGContactRepository";
 
@@ -73,4 +73,130 @@ export default class ONGController {
         }
     }
 
+    static async update(req: Request, res: Response): Promise<any> {
+        const { id } = req.params;
+        const updateData = req.body;
+        
+        try {
+
+            const ong = await ONGRepository.findById(id);
+            if (!ong) {
+                return res.status(404).json(basicError("ONG não encontrada"));
+            }
+
+            if (updateData.contatos) {
+                const contactTypes = ['EMAIL', 'TELEFONE'];
+                const invalidContacts = updateData.contatos.filter(
+                    contact => !contactTypes.includes(contact.tipo)
+                );
+
+                if (invalidContacts.length > 0) {
+                    return res.status(400).json(basicError(
+                        `Tipos de contato inválidos: ${invalidContacts.map(c => c.tipo).join(', ')}`
+                    ));
+                }
+            }
+
+            if (updateData.senha) {
+                updateData.senha = await bcrypt.hash(updateData.senha, 10);
+            }
+
+            const updatedOng = await ONGRepository.update(id, updateData);
+            return res.status(200).json(ONGMapper.toCompleteResponse(updatedOng));
+        } catch (error) {
+            console.error('Update error:', error);
+            return res.status(500).json(basicError("Erro ao atualizar ONG"));
+        }
+    }
+
+    static async updateLogin(req: Request, res: Response): Promise<any> {
+        const { id } = req.params;
+        const { login } = req.body;
+
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(login)) {
+            return res.status(400).json(basicError("O campo 'login' deve ser um email válido"));
+        }
+
+        try {
+            const updatedOng = await ONGRepository.updateLogin(id, login);
+            if (!updatedOng) {
+                return res.status(404).json(basicError("ONG não encontrada."));
+            }
+            console.log('Updated ONG:', updatedOng);
+            return res.status(200).json(ONGMapper.toCompleteResponse(updatedOng));
+        } catch (error) {
+            console.error('Update login error:', error);
+            if (error.message === "Este email já está em uso") {
+                return res.status(400).json(basicError("Este email já está em uso."));
+            }
+            return res.status(500).json(basicError("Erro ao atualizar login"));
+        }
+    }
+
+    static async updateSenha(req: Request, res: Response): Promise<any> {
+        const { id } = req.params;
+        const { senha } = req.body;
+
+        try {
+            const hashedSenha = await bcrypt.hash(senha, 10);
+            const updatedOng = await ONGRepository.update(id, { senha: hashedSenha });
+            return res.status(200).json(ONGMapper.toCompleteResponse(updatedOng));
+        } catch (error) {
+            console.error('Update senha error:', error);
+            return res.status(500).json(basicError("Erro ao atualizar senha"));
+        }
+    }
+
+    static async updateNome(req: Request, res: Response): Promise<any> {
+        const { id } = req.params;
+        const { nome } = req.body;
+
+        try {
+            const updatedOng = await ONGRepository.update(id, { nome });
+            return res.status(200).json(ONGMapper.toCompleteResponse(updatedOng));
+        } catch (error) {
+            console.error('Update nome error:', error);
+            return res.status(500).json(basicError("Erro ao atualizar nome"));
+        }
+    }
+
+    static async updateDescricao(req: Request, res: Response): Promise<any> {
+        const { id } = req.params;
+        const { descricao } = req.body;
+
+        try {
+            const updatedOng = await ONGRepository.update(id, { descricao });
+            return res.status(200).json(ONGMapper.toCompleteResponse(updatedOng));
+        } catch (error) {
+            console.error('Update descricao error:', error);
+            return res.status(500).json(basicError("Erro ao atualizar descricao"));
+        }
+    }
+
+    static async updateCnpj(req: Request, res: Response): Promise<any> {
+        const { id } = req.params;
+        const { cnpj } = req.body;
+
+        try {
+            const updatedOng = await ONGRepository.update(id, { cnpj });
+            return res.status(200).json(ONGMapper.toCompleteResponse(updatedOng));
+        } catch (error) {
+            console.error('Update cnpj error:', error);
+            return res.status(500).json(basicError("Erro ao atualizar cnpj"));
+        }
+    }
+
+    static async updateLocalizacao(req: Request, res: Response): Promise<any> {
+        const { id } = req.params;
+        const { localizacao } = req.body;
+
+        try {
+            const updatedOng = await ONGRepository.update(id, { localizacao });
+            return res.status(200).json(ONGMapper.toCompleteResponse(updatedOng));
+        } catch (error) {
+            console.error('Update localizacao error:', error);
+            return res.status(500).json(basicError("Erro ao atualizar localizacao"));
+        }
+    }
 }

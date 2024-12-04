@@ -44,7 +44,7 @@ class ONGRepository {
             include: {
                 ongContato: {
                     include: {
-                        tipoContato: true, // Inclui detalhes do tipo de contato, se necessário
+                        tipoContato: true,
                     },
                 },
             },
@@ -87,8 +87,82 @@ class ONGRepository {
         }}
         ); 
     }
+
+    async update(id: string, updateData: Partial<CreateONG>) {
+        try {
+            const { contatos, ...data } = updateData;
+            
+            if (contatos) {
+               
+                await db.ongContato.deleteMany({
+                    where: { ongId: id }
+                });
+
+             
+                const contactPromises = contatos.map(async (contato) => {
+                    const contactType = await db.tipoContato.findUnique({
+                        where: { tipo: contato.tipo }
+                    });
+
+                    if (!contactType) {
+                        throw new Error(`Tipo de contato '${contato.tipo}' não encontrado`);
+                    }
+
+                    return {
+                        tipoContatoId: contactType.id,
+                        valor: contato.valor,
+                        ongId: id
+                    };
+                });
+
+                const contacts = await Promise.all(contactPromises);
+                await db.ongContato.createMany({
+                    data: contacts
+                });
+            }
+
+            return await db.ong.update({
+                where: { id },
+                data,
+                include: {
+                    ongContato: {
+                        include: {
+                            tipoContato: true
+                        }
+                    }
+                }
+            });
+        } catch (error) {
+            console.error('Repository update error:', error);
+            throw error;
+        }
+    }
+
+    async updateLogin(id: string, newLogin: string) {
+        try {
+            const exists = await this.existsByLogin(newLogin);
+            if (exists) {
+                throw new Error("Este email já está em uso");
+            }
+
+            const updatedOng = await db.ong.update({
+                where: { id },
+                data: { login: newLogin },
+                include: {
+                    ongContato: {
+                        include: {
+                            tipoContato: true
+                        }
+                    }
+                }
+            });
+
+            return updatedOng;
+        } catch (error) {
+            console.error('Repository updateLogin error:', error);
+            throw error;
+        }
+    }
 }
 
-export default new ONGRepository() 
-
-
+export default new ONGRepository();
