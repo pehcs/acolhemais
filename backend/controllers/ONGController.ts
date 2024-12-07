@@ -97,10 +97,6 @@ export default class ONGController {
                 }
             }
 
-            if (updateData.senha) {
-                updateData.senha = await bcrypt.hash(updateData.senha, 10);
-            }
-
             const updatedOng = await ONGRepository.update(id, updateData);
             return res.status(200).json(ONGMapper.toCompleteResponse(updatedOng));
         } catch (error) {
@@ -136,11 +132,21 @@ export default class ONGController {
 
     static async updateSenha(req: Request, res: Response): Promise<any> {
         const { id } = req.params;
-        const { senha } = req.body;
+        const { senhaAntiga, senhaNova } = req.body;
 
         try {
-            const hashedSenha = await bcrypt.hash(senha, 10);
-            const updatedOng = await ONGRepository.update(id, { senha: hashedSenha });
+            const ong = await ONGRepository.findById(id);
+            if (!ong) {
+                return res.status(404).json(basicError("ONG não encontrada"));
+            }
+
+            const senhaValida = await bcrypt.compare(senhaAntiga, ong.senha);
+            if (!senhaValida) {
+                return res.status(400).json(basicError("Senha antiga incorreta"));
+            }
+
+            const hashedSenhaNova = await bcrypt.hash(senhaNova, 10);
+            const updatedOng = await ONGRepository.update(id, { senha: hashedSenhaNova });
             return res.status(200).json(ONGMapper.toCompleteResponse(updatedOng));
         } catch (error) {
             console.error('Update senha error:', error);
