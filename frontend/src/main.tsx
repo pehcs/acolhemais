@@ -1,9 +1,9 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
-import RegisterONG from './pages/RegisterONG'
+import CadastroONG from './pages/CadastroONG'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <RegisterONG />
+    <CadastroONG />
   </StrictMode>,
 )
