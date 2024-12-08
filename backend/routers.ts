@@ -1,5 +1,6 @@
 import { Router } from "express";
 import ONGController from "./controllers/ONGController";
+import BeneficiarioController from "../controllers/BeneficiarioController";
 
 const router = Router();
 
@@ -15,5 +16,8 @@ router.put('/v1/ong/:id/nome', ONGController.updateNome);
 router.put('/v1/ong/:id/descricao', ONGController.updateDescricao);
 router.put('/v1/ong/:id/cnpj', ONGController.updateCnpj);
 router.put('/v1/ong/:id/localizacao', ONGController.updateLocalizacao);
+
+router.post("/beneficiarios", BeneficiarioController.create);
+router.put("/beneficiarios/:id", BeneficiarioController.update);
 
 export default router;
