@@ -1,5 +1,9 @@
 # Documentação do projeto
 
+REFS:
+- SHADCN -> https://ui.shadcn.com/docs/components/separator
+- TAILWINDCSS -> https://v2.tailwindcss.com/docs
+
 ## Para rodar o APP
 ```
 docker compose up -d
