@@ -5,6 +5,7 @@ export type ONGCompleteResponse = {
     descricao: string;
     cnpj?: string; 
     anoFundacao: Date;
+    deficiente: Boolean;
     localizacao: string;
     contatos: Contact[]
 }
