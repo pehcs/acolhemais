@@ -36,6 +36,7 @@ class ONGRepository {
                 nome: createONG.nome,
                 descricao: createONG.descricao,
                 cnpj: createONG.cnpj,
+                anoFundacao: createONG.anoFundacao,
                 localizacao: createONG.localizacao,
                 ongContato: {
                     create: ongContatos,

@@ -4,6 +4,7 @@ export type CreateONG = {
     nome: string;
     descricao: string;
     cnpj?: string; 
+    anoFundacao: Date;
     localizacao: string;
     contatos: AddContact[];
 }
