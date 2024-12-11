@@ -15,7 +15,7 @@ model Ong {
   nome         String  
   descricao    String   @db.VarChar(3000)
   cnpj         String?  @db.VarChar(18) 
-  anoFundacao  Date
+  anoFundacao  DateTime @default(now())
   deficiente   Boolean  @default(false)
   localizacao  String
   createdAt    DateTime @default(now()) @map("created_at")

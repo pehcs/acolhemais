@@ -6,7 +6,7 @@ CREATE TABLE `ong` (
     `nome` VARCHAR(191) NOT NULL,
     `descricao` VARCHAR(3000) NOT NULL,
     `cnpj` VARCHAR(18) NULL,
-    `ano_fundacao` DATE NULL,
+    `ano_fundacao` DATETIME(3) NULL,
     `deficiente` BOOLEAN DEFAULT 0,
     `localizacao` VARCHAR(191) NOT NULL,
     `created_at` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
