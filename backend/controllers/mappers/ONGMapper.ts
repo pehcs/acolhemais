@@ -9,6 +9,8 @@ export default class ONGMapper {
             nome: ong.nome,
             descricao: ong.descricao,
             cnpj: ong.cnpj, 
+            anoFundacao: ong.ano_fundacao,
+            deficiente: ong.deficiente,
             localizacao: ong.localizacao,
             contatos: ong?.ongContato.map(contato => {
                 return ONGMapper.toContactResponse(contato)       
