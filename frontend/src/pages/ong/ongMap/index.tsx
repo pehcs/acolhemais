@@ -1,27 +1,9 @@
-import { useEffect, useRef } from 'react';
-import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
+import createMap  from '../../../components/map/map.tsx';
+
 
 export default function OngMap() {
-  const mapRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (mapRef.current) {
-      // Inicializa o mapa
-      const map = L.map(mapRef.current).setView([-8.061533458553534, -34.87065511707905], 13);
-
-
-      // Adiciona o tile layer (OpenStreetMap neste caso)
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap contributors',
-      }).addTo(map);
-
-      // Cleanup do mapa ao desmontar o componente
-      return () => {
-        map.remove();
-      };
-    }
-  }, []);
+  const Map = createMap({ lat: -8.061533458553534, lng: -34.87065511707905 });
 
   return (
     <div>
@@ -45,14 +27,15 @@ export default function OngMap() {
       <input type="text" />
 
       <div
-        ref={mapRef}
         style={{
           width: '80%',
           height: '25vh',
           borderRadius: '1vh',
           border: '2px solid #AFB1B6',
         }}
-      />
+      >
+        <Map></Map>
+      </div>
 
       <button type="button">button</button>
 
