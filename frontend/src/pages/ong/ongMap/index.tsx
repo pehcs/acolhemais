@@ -1,21 +1,27 @@
 import 'leaflet/dist/leaflet.css';
 import createMap  from '../../../components/map/map.tsx';
 import getUserLocation from '../../../components/map/geolocation.tsx';
-import React, { useEffect } from 'react';
+import { useEffect, useState } from 'react';
+
+type Point = {
+  latitude: number;
+  longitude: number;
+}
 
 export default function OngMap() {
 
   // uxar a localização atual
-  useEffect(() => {
-    const fetchLocation = async () => {
-        const [latitude, longitude] = await getUserLocation();
-    };
+  const [point, setPoint] = useState<Point>({ latitude: 0, longitude: 0 });
 
-    fetchLocation();
+  useEffect(() => {
+      (async ()=> {
+        const [latitude, longitude] = await getUserLocation();
+        setPoint({latitude, longitude})
+      })()
   }, []);
 
-  const Map = createMap({ lat: latitude, lng: longitude });
-
+  const Map = createMap({ lat: point.latitude, lng: point.longitude });
+  console.log(point.latitude)
   return (
     <div>
       
