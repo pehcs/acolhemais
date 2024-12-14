@@ -10,9 +10,9 @@ type Point = {
 
 export default function OngMap() {
 
-  // uxar a localização atual
+  // Esse cara aqui vai setar um estado no componente e vai ser a base
   const [point, setPoint] = useState<Point>({ latitude: 0, longitude: 0 });
-
+  // Usa o useEffect com função assincrona desse jeito que ele monta certinho
   useEffect(() => {
       (async ()=> {
         const [latitude, longitude] = await getUserLocation();
