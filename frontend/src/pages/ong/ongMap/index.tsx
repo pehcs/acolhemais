@@ -2,6 +2,7 @@ import 'leaflet/dist/leaflet.css';
 import createMap  from '../../../components/map/map.tsx';
 import getUserLocation from '../../../components/map/geolocation.tsx';
 import { useEffect, useState } from 'react';
+import L from 'leaflet';
 
 type Point = {
   latitude: number;
@@ -10,18 +11,17 @@ type Point = {
 
 export default function OngMap() {
 
-  // Esse cara aqui vai setar um estado no componente e vai ser a base
   const [point, setPoint] = useState<Point>({ latitude: 0, longitude: 0 });
-  // Usa o useEffect com função assincrona desse jeito que ele monta certinho
+
+
   useEffect(() => {
-      (async ()=> {
-        const [latitude, longitude] = await getUserLocation();
-        setPoint({latitude, longitude})
-      })()
+    (async () => {
+      const [latitude, longitude] = await getUserLocation();
+      setPoint({ latitude, longitude });
+    })();
   }, []);
 
-  const Map = createMap({ lat: point.latitude, lng: point.longitude });
-  console.log(point.latitude)
+
   return (
     <div>
       
@@ -51,7 +51,7 @@ export default function OngMap() {
           border: '2px solid #AFB1B6',
         }}
       >
-        <Map></Map>
+         <Map latitude={point.latitude} longitude={point.longitude} />
       </div>
 
       <div>
@@ -61,4 +61,25 @@ export default function OngMap() {
       
     </div>
   );
+}
+
+type MapProps = {
+  latitude: number;
+  longitude: number;
+};
+
+function Map({ latitude, longitude }: MapProps) {
+  useEffect(() => {
+    const map = L.map('map').setView([latitude, longitude], 13);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; OpenStreetMap contributors',
+    }).addTo(map);
+
+    return () => {
+      map.remove(); // Limpa o mapa ao desmontar o componente
+    };
+  }, [latitude, longitude]);
+
+  return <div id="map" style={{ width: '100%', height: '100%' }} />;
 }
