@@ -1,6 +1,6 @@
 import L from 'leaflet';
 import { useEffect} from 'react';
-
+import { addMarkerOnClick } from './marker';
 
 type MapProps = {
   latitude: number;
@@ -14,6 +14,8 @@ function Map({ latitude, longitude }: MapProps) {
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '&copy; OpenStreetMap contributors',
     }).addTo(map);
+
+    addMarkerOnClick(map, latitude, longitude);
 
     return () => {
       map.remove(); // Limpa o mapa ao desmontar o componente

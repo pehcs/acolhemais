@@ -2,6 +2,9 @@ import 'leaflet/dist/leaflet.css';
 import Map  from './map/map.tsx';
 import getUserLocation from './map/geolocation.tsx';
 import { useEffect, useState } from 'react';
+import { Button } from '@/components/ui/button.tsx';
+import { Input } from '@/components/ui/input.tsx';
+
 
 type Point = {
   latitude: number;
@@ -40,7 +43,7 @@ export default function OngMap() {
 
       <p>Endereço ou CEP</p>
       
-      <input type="text" />
+      <Input type="text" />
 
       <div
         style={{
@@ -51,11 +54,13 @@ export default function OngMap() {
         }}
       >
          <Map latitude={point.latitude} longitude={point.longitude} />
+
+         
       </div>
 
       <div>
-        <button>pular</button>
-        <button>continuar</button>
+        <Button>pular</Button>
+        <Button>continuar</Button>
       </div>
       
     </div>
