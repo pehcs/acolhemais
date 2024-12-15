@@ -4,6 +4,7 @@ import getUserLocation from './map/geolocation.tsx';
 import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button.tsx';
 import { Input } from '@/components/ui/input.tsx';
+import getLatLonFromCep from './map/input.tsx'
 
 
 type Point = {
@@ -14,8 +15,6 @@ type Point = {
 export default function OngMap() {
 
   const [point, setPoint] = useState<Point>({ latitude: 0, longitude: 0 });
-
-
   useEffect(() => {
     (async () => {
       const [latitude, longitude] = await getUserLocation();
@@ -23,6 +22,24 @@ export default function OngMap() {
     })();
   }, []);
 
+  useEffect(() => {
+    const input = document.getElementById('cepInput') as HTMLInputElement;
+
+    const handleKeyDown = async (event: KeyboardEvent) => {
+      if (event.key === 'Enter') {
+        const cep = input.value.trim();
+        const location = await getLatLonFromCep(cep);
+        if (location) {
+          const { lat, lon } = location;
+          setPoint({ latitude: lat, longitude: lon });
+        } else {
+          console.log("Não foi possível obter a localização para o CEP fornecido.");
+        }
+      }
+    };
+
+    input.addEventListener('keydown', handleKeyDown);
+  }, []);
 
   return (
     <div>
@@ -31,7 +48,7 @@ export default function OngMap() {
         <h1>navbar here</h1>
       </div>
 
-      <h1>Onde você vive?</h1>
+      <h1>Onde a ONG se localiza?</h1>
 
       <img 
         src="/images/img-6.svg" 
@@ -41,9 +58,9 @@ export default function OngMap() {
         }} 
       />
 
-      <p>Endereço ou CEP</p>
+      {/* <p>Endereço ou CEP</p> */}
       
-      <Input type="text" />
+      <Input type="text" id="cepInput" placeholder="Digite o CEP e pressione Enter"/>
 
       <div
         style={{
@@ -55,7 +72,6 @@ export default function OngMap() {
       >
          <Map latitude={point.latitude} longitude={point.longitude} />
 
-         
       </div>
 
       <div>

@@ -8,7 +8,7 @@ type MapProps = {
 };
 
 function Map({ latitude, longitude }: MapProps) {
-  useEffect(() => {
+  useEffect(() => { 
     const map = L.map('map').setView([latitude, longitude], 13);
 
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
