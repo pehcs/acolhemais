@@ -1,8 +1,7 @@
 import 'leaflet/dist/leaflet.css';
-import createMap  from '../../../components/map/map.tsx';
-import getUserLocation from '../../../components/map/geolocation.tsx';
+import Map  from './map/map.tsx';
+import getUserLocation from './map/geolocation.tsx';
 import { useEffect, useState } from 'react';
-import L from 'leaflet';
 
 type Point = {
   latitude: number;
@@ -61,25 +60,4 @@ export default function OngMap() {
       
     </div>
   );
-}
-
-type MapProps = {
-  latitude: number;
-  longitude: number;
-};
-
-function Map({ latitude, longitude }: MapProps) {
-  useEffect(() => {
-    const map = L.map('map').setView([latitude, longitude], 13);
-
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '&copy; OpenStreetMap contributors',
-    }).addTo(map);
-
-    return () => {
-      map.remove(); // Limpa o mapa ao desmontar o componente
-    };
-  }, [latitude, longitude]);
-
-  return <div id="map" style={{ width: '100%', height: '100%' }} />;
 }

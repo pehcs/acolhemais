@@ -1,0 +1,14 @@
+- componente map deve  receber lat e lon na chamada da page:
+    - padrao marco zero caso deixe vazio/pule/nao permita o navegador ✅
+    - pela localizacao do navegador ✅
+    - pela entrada do input
+
+- deve chamar uma outra função junto para criação dos pins, a partir do que for selecionado:
+    - ongs
+    - acoes
+    - ambos
+    - que vao ocorrer
+    - que estao ocorrendo
+    Cada um deve ser de um formato diferente, com um texto contendo a data que irá ocorrer ou informando
+    que está ocorrendo.
+    Só será visível caso se enquadre no Perfil do usuário.
