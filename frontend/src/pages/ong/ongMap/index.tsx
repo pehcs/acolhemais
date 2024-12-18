@@ -57,8 +57,6 @@ export default function OngMap() {
         width: "26vh",
         }} 
       />
-
-      {/* <p>Endereço ou CEP</p> */}
       
       <Input type="text" id="cepInput" placeholder="Digite o CEP e pressione Enter"/>
 

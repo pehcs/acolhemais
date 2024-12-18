@@ -11,7 +11,8 @@ export default class ONGMapper {
             cnpj: ong.cnpj, 
             anoFundacao: ong.ano_fundacao,
             deficiente: ong.deficiente,
-            localizacao: ong.localizacao,
+            lat: ong.lat,
+            lon: ong.lon,
             contatos: ong?.ongContato.map(contato => {
                 return ONGMapper.toContactResponse(contato)       
             })

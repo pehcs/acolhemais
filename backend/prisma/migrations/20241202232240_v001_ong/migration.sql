@@ -8,7 +8,8 @@ CREATE TABLE `ong` (
     `cnpj` VARCHAR(18) NULL,
     `ano_fundacao` DATETIME(3) NULL,
     `deficiente` BOOLEAN DEFAULT 0,
-    `localizacao` VARCHAR(191) NOT NULL,
+    `lat` FLOAT NOT NULL,
+    `lon` FLOAT NOT NULL,
     `created_at` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updated_at` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
 
