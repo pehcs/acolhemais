@@ -1,12 +1,11 @@
-// import OngRegister from './pages/ong/ongRegister/ong-register'
-import OngMap from './pages/ong/ongMap'
 import './index.css'
+import OngRegister from './pages/ong/ongRegister/ong-register'
 
 function App() {
 
   return (
     <>
-      <OngMap></OngMap>
+      <OngRegister/>
     </>
   )
 }

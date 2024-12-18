@@ -18,11 +18,11 @@ function Map({ latitude, longitude }: MapProps) {
     addMarkerOnClick(map, latitude, longitude);
 
     return () => {
-      map.remove(); // Limpa o mapa ao desmontar o componente
+      map.remove(); 
     };
   }, [latitude, longitude]);
 
-  return <div id="map" style={{ width: '100%', height: '100%' }} />;
+  return <div id="map" className="h-full w-full" />;
 }
 
 export default Map;

@@ -1,10 +1,10 @@
 import 'leaflet/dist/leaflet.css';
-import Map  from './map/map.tsx';
-import getUserLocation from './map/geolocation.tsx';
+import Map  from '../../../components/ui/map/map.tsx';
+import getUserLocation from '../../../components/ui/map/geolocation.tsx';
 import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button.tsx';
 import { Input } from '@/components/ui/input.tsx';
-import getLatLonFromCep from './map/input.tsx'
+import getLatLonFromCep from '../../../components/ui/map/input.tsx'
 
 
 type Point = {
