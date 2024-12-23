@@ -2,7 +2,7 @@ import {GoArrowLeft} from "react-icons/go";
 import {z} from "zod";
 import {Progress} from "@/components/ui/progress";
 import {Button} from "@/components/ui/button";
-import {useEffect, useState} from "react";
+import {useState} from "react";
 
 import "leaflet/dist/leaflet.css";
 import {zodResolver} from "@hookform/resolvers/zod";
@@ -10,8 +10,7 @@ import {useForm, useWatch} from "react-hook-form";
 import {Input} from "@/components/ui/input";
 import {Label} from "@/components/ui/label.tsx";
 import {RiArrowDownSLine, RiArrowUpSLine} from "react-icons/ri";
-import Map from "@/components/ui/map/map.tsx"
-import useMap from "@/hooks/useMap.tsx";
+import {Coordinates, Map} from "@/components/ui/map/map.tsx"
 
 function isValidCNPJ(cnpj: string): boolean {
     cnpj = cnpj.replace(/[^\d]+/g, "");
@@ -41,7 +40,11 @@ const ongRegisterSchema = z.object({
         .string()
         .optional()
         .refine((cnpj) => !cnpj || isValidCNPJ(cnpj), {message: "CNPJ inválido"}),
-    localizacao: z.string().optional(),
+    localizacao: z.string()
+        .optional()
+        .refine((cep) => !cep || /^\d{8}$|^\d{5}-\d{3}$/.test(cep), {
+            message: "CEP inválido",
+        }),
     publico_alvo: z.string().optional(),
     necessidades: z.string().optional(),
     login: z.string().optional(),
@@ -104,7 +107,7 @@ export default function OngRegister() {
         "Desastres e emergências",
         "Emprego",
     ];
-    const [currentStep, setCurrentStep] = useState(3);
+    const [currentStep, setCurrentStep] = useState(0);
 
 
     const [error, setError] = useState<string | null>(null);
@@ -127,22 +130,6 @@ export default function OngRegister() {
             image: "/images/img-6.svg",
             title: "Onde a ONG se localiza?"
         },
-        // {
-        //   id: "LOCALIZACAO",
-        //
-        //   label: "CEP",
-        //   field: "localizacao",
-        //
-        //   input: (
-        //     <Controller
-        //       control={form.control}
-        //       name="localizacao"
-        //       render={({ field }) => (
-        //
-        //       )}
-        //     />
-        //   ),
-        // },
         // {
         //   id: "PUBLICO_ALVO",
         //   title: "Selecione o(s) público(s) alvo da sua ONG.",
@@ -301,19 +288,10 @@ export default function OngRegister() {
         }
     };
     const cep = useWatch({control, name: "localizacao"})
-    const {updateCep, updatePoint, coordinates} = useMap();
-    useEffect(() => {
-        updateCep(cep)
-        setValue("localizacao", coordinates.address);
-    }, [cep]);
 
-    useEffect(() => {
-        console.log("Algo mudou aq pra: " + coordinates.latitude)
-        console.log(coordinates.address)
-        setValue("localizacao", coordinates.address);
-        console.log(coordinates.address)
-    }, [updatePoint, coordinates]);
-
+    const handleChangeCoordinates = (newCoordinates: Coordinates) => {
+        console.log(newCoordinates);
+    }
     return (
         <div className="h-screen px-4 overflow-hidden">
             <form onSubmit={handleSubmit(onSubmit)}>
@@ -423,14 +401,16 @@ export default function OngRegister() {
                             <>
                                 <div>
                                     <Label>CEP da ONG</Label>
-                                    {getValues("localizacao")}
                                     <Input
                                         id="localizacao"
                                         {...register("localizacao")}
                                     />
-                                    {error && <p className="text-red-500 text-sm pt-2">{error}</p>}
-                                    <div className={error ? "h-48 mt-2" : "h-52 mt-4"}>
-                                        <Map latitude={coordinates.latitude} longitude={coordinates.longitude}/>
+                                    {errors.localizacao && (
+                                        <p className="text-red-500 ">{errors.localizacao.message}</p>
+                                    )}
+                                    <div
+                                        className={errors.localizacao ? "h-56 mt-2 overflow-hidden" : "h-56 mt-8 overflow-hidden"}>
+                                        <Map cep={cep} onCoordinatesChange={handleChangeCoordinates}/>
                                     </div>
                                 </div>
                             </>

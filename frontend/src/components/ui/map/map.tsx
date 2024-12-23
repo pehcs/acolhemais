@@ -1,41 +1,146 @@
-import L from 'leaflet';
-import {useEffect} from 'react';
-import useMap from "@/hooks/useMap.tsx";
+import {MapContainer, Marker, Popup, TileLayer, useMap, useMapEvents} from "react-leaflet";
+import "leaflet/dist/leaflet.css";
+import {useEffect, useState} from "react";
+import AddressLatLon from "@/components/ui/map/@types/AddressLatLon.ts";
 
-type MapProps = {
+type Coordinates = {
     latitude: number;
     longitude: number;
 };
 
-function Map({latitude, longitude}: MapProps) {
-    const {updatePoint} = useMap();
+const MapUpdater = ({position, setPosition, onCoordinatesChange}: {
+    position: Coordinates | null,
+    setPosition: (position: Coordinates) => void,
+    onCoordinatesChange?: (newCoordinates: Coordinates) => void
+}) => {
+    const map = useMap();
+
     useEffect(() => {
-        const map = L.map('map').setView([latitude, longitude], 13);
+        if (position) {
+            map.setView([position.latitude, position.longitude], 13);
+        }
+    }, [position, map]);
 
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '&copy; OpenStreetMap contributors',
-        }).addTo(map);
+    useMapEvents({
+        click: (e) => {
+            onCoordinatesChange({latitude: e.latlng.lat, longitude: e.latlng.lng})
+            setPosition({latitude: e.latlng.lat, longitude: e.latlng.lng});
+        },
+    });
 
-        let marker: L.Marker | null = null;
-        marker = L.marker([latitude, longitude]).addTo(map);
-        map.on('click', (e: L.LeafletMouseEvent) => {
-            const {lat, lng} = e.latlng;
-            updatePoint({latitude: lat, longitude: lng});
-            if (marker) {
-                marker.setLatLng([lat, lng]);
-            } else {
-                marker = L.marker([lat, lng]).addTo(map);
+    return null;
+};
+const Map = ({pos, cep, onCoordinatesChange, height}: {
+    pos?: Coordinates,
+    cep?: string,
+    height?: number,
+    onCoordinatesChange?: (newCoordinates: Coordinates) => void
+}) => {
+    const [position, setPosition] = useState<Coordinates>({latitude: 0, longitude: 0});
+    useEffect(() => {
+        if (cep) {
+            const fetchLocation = async () => {
+                try {
+                    const isCep = (input: string) => /^\d{8}$|^\d{5}-\d{3}$/.test(input);
+                    if (isCep(cep)) {
+                        const {latitude, longitude} = await getLatLonFromCep(cep);
+                        setPosition({latitude, longitude});
+                        onCoordinatesChange({latitude, longitude})
+                    }
+
+                } catch (_) {
+                }
+            };
+            fetchLocation();
+        }
+    }, [cep]);
+
+    useEffect(() => {
+        if (pos) {
+            setPosition(pos);
+            onCoordinatesChange(pos)
+        }
+    }, [pos]);
+
+    useEffect(() => {
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+                (pos) => {
+                    setPosition({
+                        latitude: pos.coords.latitude,
+                        longitude: pos.coords.longitude,
+                    });
+                    onCoordinatesChange({latitude: pos.coords.latitude, longitude: pos.coords.longitude})
+                },
+                (error) => {
+                    console.log(error);
+                },
+                {
+                    enableHighAccuracy: true,
+                    timeout: 10000,
+                    maximumAge: 0,
+                }
+            );
+        } else {
+            console.error("Geolocalização não é suportada pelo navegador.");
+        }
+    }, []);
+
+    return (
+        <div className={"overflow-none"}>
+            <MapContainer center={[position.latitude, position.longitude]} zoom={13}
+                          style={{width: "100%", height: height ? height : "14rem"}}>
+                <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"/>
+                <Marker position={[position.latitude, position.longitude]}>
+                    <Popup>Você está aqui</Popup>
+                </Marker>
+                <MapUpdater position={position} setPosition={setPosition} onCoordinatesChange={onCoordinatesChange}/>
+            </MapContainer>
+        </div>
+    );
+};
+
+
+const getLatLonFromCep = async (cep: string): Promise<AddressLatLon> => {
+    try {
+        const isValidCep = /^\d{5}-?\d{3}$/.test(cep);
+        if (!isValidCep) {
+            return;
+        }
+
+        const cleanedCep = cep.replace("-", "");
+
+        const response = await fetch(`https://viacep.com.br/ws/${cleanedCep}/json/`);
+        const data = await response.json();
+
+        if (data.erro) {
+            const geoResponse = await fetch(
+                `https://nominatim.openstreetmap.org/search.php?q=${cep}&format=jsonv2`
+            );
+            const geoData = await geoResponse.json();
+            if (geoData.length > 0) {
+                const {lat, lon} = geoData[0];
+                const reverseGeoResponse = await fetch(
+                    `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=jsonv2`
+                );
+                const reverseGeoData = await reverseGeoResponse.json();
+                const address = reverseGeoData.display_name || "Endereço não encontrado";
+                return {latitude: parseFloat(lat), longitude: parseFloat(lon), address};
             }
-            latitude = lat;
-            longitude = lng;
-        });
+        }
+        const address = `${data.logradouro}, ${data.localidade}, ${data.uf}, Brasil`;
+        const geoResponse = await fetch(
+            `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(address)}&format=jsonv2`
+        );
+        const geoData = await geoResponse.json();
 
-        return () => {
-            map.remove();
-        };
-    }, [latitude, longitude, updatePoint]);
+        if (geoData.length > 0) {
+            const {lat, lon} = geoData[0];
+            return {latitude: parseFloat(lat), longitude: parseFloat(lon), address: address};
+        }
+    } catch (error) {
+        console.error("Erro ao buscar dados de CEP ou coordenadas:", error);
+    }
+};
 
-    return <div id="map" className="h-full w-full"/>;
-}
-
-export default Map;
+export {Map, Coordinates} ;
