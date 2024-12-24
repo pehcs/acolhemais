@@ -11,6 +11,7 @@ import {Input} from "@/components/ui/input";
 import {Label} from "@/components/ui/label.tsx";
 import {RiArrowDownSLine, RiArrowUpSLine} from "react-icons/ri";
 import {Coordinates, Map} from "@/components/ui/map/map.tsx"
+import {FiEye, FiEyeOff} from "react-icons/fi";
 
 function isValidCNPJ(cnpj: string): boolean {
     cnpj = cnpj.replace(/[^\d]+/g, "");
@@ -34,85 +35,92 @@ function isValidCNPJ(cnpj: string): boolean {
 }
 
 const ongRegisterSchema = z.object({
-    nome: z.string().min(1, "Informe o nome para continuar"),
+    nome: z.string().min(3, "Informe o nome para continuar"),
     data_criacao: z.number().min(1900, "Ano inválido").max(new Date().getFullYear(), "Ano inválido"),
     cnpj: z
         .string()
         .optional()
         .refine((cnpj) => !cnpj || isValidCNPJ(cnpj), {message: "CNPJ inválido"}),
-    localizacao: z.string()
+    cep: z.string()
         .optional()
         .refine((cep) => !cep || /^\d{8}$|^\d{5}-\d{3}$/.test(cep), {
             message: "CEP inválido",
         }),
-    publico_alvo: z.string().optional(),
-    necessidades: z.string().optional(),
-    login: z.string().optional(),
-    senha: z.string().optional(),
-});
+    localizacao: z
+        .array(z.number())
+        .length(2, {message: "Localização deve conter latitude e longitude."})
+        .refine(
+            ([latitude, longitude]) =>
+                latitude >= -90 && latitude <= 90 && longitude >= -180 && longitude <= 180,
+            {message: "Latitude ou longitude inválida."}
+        ),
+    publico_alvo: z.array(z.string())
+        .min(1, {message: "Selecione ao menos um público."}),
+    necessidades: z.array(z.string())
+        .min(1, {message: "Selecione ao menos um público."}),
+    login: z.string().email({message: "Este email não é valido"}),
+    senha: z.string().min(8, {message: "No mínimo 8 caracteres."}),
+    confirmar_senha: z.string(),
+})
 
 type OngRegisterSchema = z.infer<typeof ongRegisterSchema>
 
+const publicoAlvoOptions = [
+    "Crianças",
+    "Adolescentes",
+    "Adultos",
+    "Idosos",
+    "Homens",
+    "Mulheres",
+    "População negra",
+    "População Indígena",
+    "LGBTQIA+",
+    "Pessoas com Deficiência",
+];
+
+const necessidadesOptions = [
+    "Assistência Social",
+    "Educação",
+    "Saúde",
+    "Saúde Mental",
+    "Meio Ambiente",
+    "Combate à Pobreza e Fome",
+    "Cultura e Arte",
+    "Igualdade de Gênero",
+    "Direitos Humanos",
+    "Justiça Social",
+    "Esporte e Lazer",
+    "Animais",
+    "Desenvolvimento Comunitário",
+    "Desastres e emergências",
+    "Emprego",
+];
 export default function OngRegister() {
     const {
         register,
         handleSubmit,
         setValue,
         getValues,
+        setError,
+        trigger,
         formState: {errors, isValid},
         control
     } = useForm<OngRegisterSchema>({
         resolver: zodResolver(ongRegisterSchema),
+        mode: "all",
         defaultValues: {
             nome: "",
             data_criacao: 2024,
-            localizacao: "",
-            publico_alvo: "",
-            necessidades: "",
+            cep: "",
+            localizacao: [0, 0],
+            publico_alvo: [publicoAlvoOptions[0]],
+            necessidades: [necessidadesOptions[1]],
             cnpj: "",
-            login: "",
-            senha: ""
+            login: "ong@ong.com.br",
+            senha: "12345678",
+            confirmar_senha: "12345678"
         }
     })
-
-    const [finished, setFinished] = useState<boolean>(false);
-
-    const options = [
-        "Crianças",
-        "Adolescentes",
-        "Adultos",
-        "Idosos",
-        "Homens",
-        "Mulheres",
-        "População negra",
-        "População Indígena",
-        "LGBTQIA+",
-        "Pessoas com Deficiência",
-    ];
-
-    const necessidades = [
-        "Assistência Social",
-        "Educação",
-        "Saúde",
-        "Saúde Mental",
-        "Meio Ambiente",
-        "Combate à Pobreza e Fome",
-        "Cultura e Arte",
-        "Igualdade de Gênero",
-        "Direitos Humanos",
-        "Justiça Social",
-        "Esporte e Lazer",
-        "Animais",
-        "Desenvolvimento Comunitário",
-        "Desastres e emergências",
-        "Emprego",
-    ];
-    const [currentStep, setCurrentStep] = useState(0);
-
-
-    const [error, setError] = useState<string | null>(null);
-
-
     const steps: any[] = [
         {
             image: "/images/img-4.svg",
@@ -130,152 +138,49 @@ export default function OngRegister() {
             image: "/images/img-6.svg",
             title: "Onde a ONG se localiza?"
         },
-        // {
-        //   id: "PUBLICO_ALVO",
-        //   title: "Selecione o(s) público(s) alvo da sua ONG.",
-        //   field: "publico_alvo",
-        //   image: "/images/img-7.svg",
-        //   input: (
-        //     <FormItem className="flex flex-col">
-        //       <FormLabel>Selecione o(s) público(s) alvo da sua ONG.</FormLabel>
-        //       <FormControl>
-        //         <div className="flex gap-2 w-11/12 flex-wrap justify-center">
-        //           {options.map((option) => (
-        //             <Button
-        //               onClick={() => {
-        //                 setRegisterOng((prevState: any) => {
-        //                   const updatedPublicoAlvo = new Set(
-        //                     prevState.publico_alvo
-        //                   );
-        //
-        //                   if (updatedPublicoAlvo.has(option)) {
-        //                     updatedPublicoAlvo.delete(option);
-        //                   } else {
-        //                     updatedPublicoAlvo.add(option);
-        //                   }
-        //
-        //                   return {
-        //                     ...prevState,
-        //                     publico_alvo: updatedPublicoAlvo,
-        //                   };
-        //                 });
-        //               }}
-        //               type="button"
-        //               className={`w-auto py-0 hover:bg-${registerOng.publico_alvo.has(option) ? "bg-[#FFCF33]" : "bg-[#EFEFF0]"} ${registerOng.publico_alvo.has(option) ? "bg-[#FFCF33]" : "bg-[#EFEFF0]"} text-[#19191B] focus:outline-none hover:bg-none`}
-        //             >
-        //               {option}
-        //             </Button>
-        //           ))}
-        //         </div>
-        //       </FormControl>
-        //     </FormItem>
-        //   ),
-        // },
-        // {
-        //   id: "NECESSIDADES",
-        //   title: "Selecione a(s) causa(s) que sua ONG atende.",
-        //   field: "necessidades",
-        //   image: "/images/img-8.svg",
-        //   input: (
-        //     <FormItem className="flex flex-col">
-        //       <FormControl>
-        //         <div className="flex gap-2 w-11/12 flex-wrap justify-center h-[62%] overflow-y-scroll">
-        //           {necessidades.map((option) => (
-        //             <Button
-        //               onClick={() => {
-        //                 setRegisterOng((prevState: any) => {
-        //                   const updatedPublicoAlvo = new Set(
-        //                     prevState.necessidades
-        //                   );
-        //
-        //                   if (updatedPublicoAlvo.has(option)) {
-        //                     updatedPublicoAlvo.delete(option);
-        //                   } else {
-        //                     updatedPublicoAlvo.add(option);
-        //                   }
-        //
-        //                   return {
-        //                     ...prevState,
-        //                     necessidades: updatedPublicoAlvo,
-        //                   };
-        //                 });
-        //               }}
-        //               type="button"
-        //               className={`w-auto py-0 hover:bg-${registerOng.necessidades.has(option) ? "bg-[#FFCF33]" : "bg-[#EFEFF0]"} ${registerOng.necessidades.has(option) ? "bg-[#FFCF33]" : "bg-[#EFEFF0]"} text-[#19191B] focus:outline-none hover:bg-none`}
-        //             >
-        //               {option}
-        //             </Button>
-        //           ))}
-        //         </div>
-        //       </FormControl>
-        //     </FormItem>
-        //   ),
-        // },
-        // {
-        //   id: "login",
-        //   title: "Quase lá! Informe um email e senha para acessar a conta.",
-        //   field: "login",
-        //   image: "/images/img-7-var.svg",
-        //   input: (
-        //     <div className="flex flex-col gap-4">
-        //       <FormItem className="flex flex-col">
-        //         <FormLabel>Email</FormLabel>
-        //         <FormControl>
-        //           <Input
-        //             value={registerOng.login}
-        //             onChange={(e) =>
-        //               setRegisterOng((prevState: any) => ({
-        //                 ...prevState,
-        //                 login: e.target.value,
-        //               }))
-        //             }
-        //           />
-        //         </FormControl>
-        //       </FormItem>
-        //       <FormItem className="flex flex-col">
-        //         <FormLabel>Senha</FormLabel>
-        //         <FormControl>
-        //           <div className="relative">
-        //             <Input
-        //               type={viewPassword ? "text" : "password"}
-        //               value={registerOng.senha}
-        //               onChange={(e) =>
-        //                 setRegisterOng((prevState: any) => ({
-        //                   ...prevState,
-        //                   senha: e.target.value,
-        //                 }))
-        //               }
-        //             />
-        //             {viewPassword ? (
-        //               <FiEyeOff
-        //                 onClick={handleView}
-        //                 className="text-[#AFB1B6] absolute right-4 bottom-1/4 w-7 h-6"
-        //               />
-        //             ) : (
-        //               <FiEye
-        //                 onClick={handleView}
-        //                 className="text-[#AFB1B6] absolute right-4 bottom-1/4 w-7 h-6"
-        //               />
-        //             )}
-        //           </div>
-        //         </FormControl>
-        //       </FormItem>
-        //     </div>
-        //   ),
-        // },
+        {
+            title: "Selecione o(s) público(s) alvo da sua ONG.",
+            image: "/images/img-7.svg",
+        },
+        {
+            title: "Selecione a(s) causa(s) que sua ONG atende.",
+            image: "/images/img-8.svg",
+        },
+        {
+            title: "Quase lá! Informe um email e senha para acessar a conta.",
+            image: "/images/img-7-var.svg",
+        },
     ];
 
-    const totalSteps = 4;
-
+    const totalSteps = 7;
+    const [currentStep, setCurrentStep] = useState(0);
+    const [finished, setFinished] = useState<boolean>(false);
     const onSubmit = (data: OngRegisterSchema) => {
+        if (!handleConfirmPassword()) {
+            setError("confirmar_senha", {
+                message: "As senhas não coincidem"
+            })
+            return
+        }
+        setFinished(true)
         console.log(data);
     };
 
-    const handleNextStep = () => {
+    const handleNextStep = async () => {
+        if (currentStep === 3 && (getValues("localizacao")[0] === 0 || getValues("localizacao")[1] === 0)) {
+            setError("cep", {
+                type: "manual",
+                message: "Não encontramos seu endereço.",
+            });
+            return;
+        }
+        if (currentStep === 5) {
+            setValue("login", "")
+            setValue("senha", "")
+            setValue("confirmar_senha", "")
+        }
         if (currentStep < totalSteps - 1) {
             setCurrentStep((prev) => prev + 1);
-        } else {
-            // onSubmit();
         }
     };
 
@@ -283,149 +188,335 @@ export default function OngRegister() {
         if (currentStep > 0) {
             setCurrentStep((prev) => prev - 1);
         }
+        if (currentStep === 6) {
+            setValue("login", "teste@teste.com.br")
+            setValue("senha", "123455677")
+            setValue("confirmar_senha", "123455677")
+        }
         if (finished) {
             setFinished(false);
         }
     };
-    const cep = useWatch({control, name: "localizacao"})
+
+    const handleConfirmPassword = (): boolean => {
+        return getValues("confirmar_senha") === getValues("senha")
+    }
+    const cep = useWatch({control, name: "cep"})
+    const publicoAlvo: string[] = useWatch({control, name: "publico_alvo"})
+    const necessidades: string[] = useWatch({control, name: "necessidades"})
+
+    const [viewPassword, setViewPassword] = useState(false)
+    const [viewConfirmPassword, setViewConfirmPassword] = useState(false)
 
     const handleChangeCoordinates = (newCoordinates: Coordinates) => {
-        console.log(newCoordinates);
+        setValue("localizacao", [newCoordinates.latitude, newCoordinates.longitude])
     }
     return (
         <div className="h-screen px-4 overflow-hidden">
-            <form onSubmit={handleSubmit(onSubmit)}>
-                <div className="flex flex-row items-center w-full mt-8 mb-12 gap-4">
-                    <Button
-                        className="p-0"
-                        variant="icon"
-                        onClick={handlePreviousStep}
-                        disabled={currentStep === 0}
-                    >
-                        <GoArrowLeft className="w-7 h-7"/>
-                    </Button>
-                    <div className="h-2 w-3/4">
-                        <Progress value={(currentStep / (totalSteps - 1)) * 100}/>
-                    </div>
-                </div>
-                <div className="mt-8 h-[44%] p-4 flex flex-col justify-between">
-                    <div className="flex flex-col gap-10 w-full">
-                        <div className="text-[#19191B] text-2xl flex flex-col items-center gap-10">
-                            <h2 className="text-center">{steps[currentStep].title}</h2>
-                            <div className="w-full h-64 flex justify-center">
-                                <img src={steps[currentStep].image}/>
+            {
+                finished ? (
+                        <>
+                            <div className="flex flex-row items-center w-full mt-8 mb-12 gap-4">
+                                <Button
+                                    className="p-0"
+                                    variant="icon"
+                                    onClick={() => setCurrentStep(6)}
+                                    disabled={currentStep === 0}
+                                >
+                                    <GoArrowLeft className="w-7 h-7"/>
+                                </Button>
+                                <div className="h-2 w-3/4">
+                                    <Progress
+                                        className="bg-[#9DEEBC]"
+                                        value={(currentStep / (totalSteps - 1)) * 100}
+                                    />
+                                </div>
                             </div>
-                        </div>
-                        {currentStep === 0 && (
-                            <div className="flex flex-col">
-                                <Label>
-                                    Nome
-                                </Label>
-                                <Input
-                                    id="nome"
-                                    type="text"
-                                    {...register("nome")}
-                                />
-                                {errors.nome && (
-                                    <p className="text-red-500">{errors.nome.message}</p>
-                                )}
+                            <div className="flex flex-col justify-between content-center h-[82%]">
+                                <div className="text-[#19191B] text-2xl flex flex-col items-center gap-10">
+                                    <h2 className="text-center">Tudo Pronto!</h2>
+                                    <div className="w-full h-64 flex justify-center">
+                                        <img src={"/images/img-7.svg"}/>
+                                    </div>
+                                    <p className="text-2xl text-center w-[75%]">
+                                        Que tal personalizar o perfil da <b>{getValues("nome")}</b> para
+                                        atingir ainda mais pessoas?
+                                    </p>
+                                </div>
+                                <div className="w-full flex justify-center">
+                                    <Button className="w-[92%]">Vamos nessa!</Button>
+                                </div>
                             </div>
-                        )}
-                        {
-                            currentStep === 1 && (
-                                <>
-                                    <div className="w-full flex flex-col items-center gap-2">
-                                        <Button
-                                            className="p-0 w-12"
-                                            variant="icon"
-                                            type="button"
-                                            onClick={() => {
-                                                const currentValue = getValues("data_criacao") || new Date().getFullYear();
-                                                if (currentValue < new Date().getFullYear()) {
-                                                    setValue("data_criacao", currentValue + 1);
-                                                }
-                                            }}
-                                        >
-                                            <RiArrowUpSLine
-                                                className="w-7 h-7 text-[#AFB1B6] hover:text-[#2F49F3] transition-colors duration-300"/>
-                                        </Button>
-                                        <div className="flex flex-col w-1/2">
+                        </>
+                    )
+                    :
+                    (
+                        <form onSubmit={handleSubmit(onSubmit)}>
+                            <div className="flex flex-row items-center w-full mt-8 mb-12 gap-4">
+                                <Button
+                                    className="p-0"
+                                    variant="icon"
+                                    onClick={handlePreviousStep}
+                                    disabled={currentStep === 0}
+                                >
+                                    <GoArrowLeft className="w-7 h-7"/>
+                                </Button>
+                                <div className="h-2 w-3/4">
+                                    <Progress value={(currentStep / (totalSteps - 1)) * 100}/>
+                                </div>
+                            </div>
+                            <div className="mt-8 h-[44%] p-4 flex flex-col justify-between">
+                                <div className="flex flex-col gap-10 w-full">
+                                    <div className="text-[#19191B] text-2xl flex flex-col items-center gap-10">
+                                        <h2 className="text-center">{steps[currentStep].title}</h2>
+                                        <div className="w-full h-64 flex justify-center">
+                                            <img src={steps[currentStep].image}/>
+                                        </div>
+                                    </div>
+                                    {currentStep === 0 && (
+                                        <div className="flex flex-col">
+                                            <Label>
+                                                Nome
+                                            </Label>
                                             <Input
-                                                min={1900}
-                                                max={new Date().getFullYear()}
-                                                className="text-center"
-                                                type="number"
-                                                {...register("data_criacao", {valueAsNumber: true})}
+                                                id="nome"
+                                                type="text"
+                                                {...register("nome")}
                                             />
-                                            {errors.data_criacao && (
-                                                <p className="text-red-500">{errors.data_criacao.message}</p>
+                                            {errors.nome && (
+                                                <p className="text-red-500">{errors.nome.message}</p>
                                             )}
                                         </div>
-                                        <Button
-                                            className="p-0 w-12"
-                                            variant="icon"
-                                            type="button"
-                                            onClick={() => {
-                                                const currentValue = getValues("data_criacao") || new Date().getFullYear();
-                                                if (currentValue > 1900) {
-                                                    setValue("data_criacao", currentValue - 1);
-                                                }
-                                            }}
-                                        >
-                                            <RiArrowDownSLine
-                                                className="w-7 h-7 text-[#AFB1B6] hover:text-[#2F49F3] transition-colors duration-300"/>
-                                        </Button>
-                                    </div>
-                                </>
-                            )
-                        }
-                    </div>
-                    {
-                        currentStep === 2 && (
-                            <div className="flex flex-col">
-                                <Label>
-                                    CNPJ
-                                </Label>
-                                <Input
-                                    type="text"
-                                    {...register("cnpj")}
-                                />
-                                {errors.cnpj && (
-                                    <p className="text-red-500">{errors.cnpj.message}</p>
-                                )}
-                            </div>
-                        )
-                    }
-                    {
-                        currentStep === 3 && (
-                            <>
-                                <div>
-                                    <Label>CEP da ONG</Label>
-                                    <Input
-                                        id="localizacao"
-                                        {...register("localizacao")}
-                                    />
-                                    {errors.localizacao && (
-                                        <p className="text-red-500 ">{errors.localizacao.message}</p>
                                     )}
-                                    <div
-                                        className={errors.localizacao ? "h-56 mt-2 overflow-hidden" : "h-56 mt-8 overflow-hidden"}>
-                                        <Map cep={cep} onCoordinatesChange={handleChangeCoordinates}/>
-                                    </div>
+                                    {
+                                        currentStep === 1 && (
+                                            <>
+                                                <div className="w-full flex flex-col items-center gap-2">
+                                                    <Button
+                                                        className="p-0 w-12"
+                                                        variant="icon"
+                                                        type="button"
+                                                        onClick={() => {
+                                                            const currentValue = getValues("data_criacao") || new Date().getFullYear();
+                                                            if (currentValue < new Date().getFullYear()) {
+                                                                setValue("data_criacao", currentValue + 1);
+                                                            }
+                                                        }}
+                                                    >
+                                                        <RiArrowUpSLine
+                                                            className="w-7 h-7 text-[#AFB1B6] hover:text-[#2F49F3] transition-colors duration-300"/>
+                                                    </Button>
+                                                    <div className="flex flex-col w-1/2">
+                                                        <Input
+                                                            min={1900}
+                                                            max={new Date().getFullYear()}
+                                                            className="text-center"
+                                                            type="number"
+                                                            {...register("data_criacao", {valueAsNumber: true})}
+                                                        />
+                                                        {errors.data_criacao && (
+                                                            <p className="text-red-500">{errors.data_criacao.message}</p>
+                                                        )}
+                                                    </div>
+                                                    <Button
+                                                        className="p-0 w-12"
+                                                        variant="icon"
+                                                        type="button"
+                                                        onClick={() => {
+                                                            const currentValue = getValues("data_criacao") || new Date().getFullYear();
+                                                            if (currentValue > 1900) {
+                                                                setValue("data_criacao", currentValue - 1);
+                                                            }
+                                                        }}
+                                                    >
+                                                        <RiArrowDownSLine
+                                                            className="w-7 h-7 text-[#AFB1B6] hover:text-[#2F49F3] transition-colors duration-300"/>
+                                                    </Button>
+                                                </div>
+                                            </>
+                                        )
+                                    }
                                 </div>
-                            </>
-                        )
-                    }
-                    <Button
-                        disabled={!isValid}
-                        className="w-10/12 absolute bottom-12"
-                        type={currentStep === totalSteps - 1 ? "submit" : "button"}
-                        onClick={handleNextStep}
-                    >
-                        {currentStep === totalSteps - 1 ? "Finalizar" : "Continuar"}
-                    </Button>
-                </div>
-            </form>
+                                {
+                                    currentStep === 2 && (
+                                        <div className="flex flex-col">
+                                            <Label>
+                                                CNPJ
+                                            </Label>
+                                            <Input
+                                                type="text"
+                                                {...register("cnpj")}
+                                            />
+                                            {errors.cnpj && (
+                                                <p className="text-red-500">{errors.cnpj.message}</p>
+                                            )}
+                                        </div>
+                                    )
+                                }
+                                {
+                                    currentStep === 3 && (
+                                        <>
+                                            <div>
+                                                <Label>CEP da ONG</Label>
+                                                <Input
+                                                    id="cep"
+                                                    {...register("cep")}
+                                                />
+                                                {errors.cep && (
+                                                    <p className="text-red-500 ">{errors.cep.message}</p>
+                                                )}
+                                                <div
+                                                    className={errors.cep ? "h-56 mt-2 overflow-hidden" : "h-56 mt-8 overflow-hidden"}>
+                                                    <Map cep={cep} onCoordinatesChange={handleChangeCoordinates}/>
+                                                </div>
+                                            </div>
+                                        </>
+                                    )
+                                }
+                                {
+                                    currentStep === 4 && (
+                                        <>
+                                            <div className="mt-10 flex gap-2 w-11/12 flex-wrap justify-center">
+                                                {publicoAlvoOptions.map((option) => (
+                                                    <Button
+                                                        key={option}
+                                                        onClick={() => {
+                                                            let values = getValues("publico_alvo");
+                                                            if (!values.includes(option)) {
+                                                                values.push(option);
+                                                                setValue("publico_alvo", values)
+                                                            } else {
+                                                                values = values.filter((item) => item !== option);
+                                                                setValue("publico_alvo", values)
+                                                            }
+                                                            trigger("publico_alvo")
+                                                        }}
+                                                        type="button"
+                                                        className={`w-auto py-0 hover:bg-${publicoAlvo?.includes(option) ? "bg-[#FFCF33]" : "bg-[#EFEFF0]"} ${publicoAlvo?.includes(option) ? "bg-[#FFCF33]" : "bg-[#EFEFF0]"} text-[#19191B] focus:outline-none hover:bg-none`}
+                                                    >
+                                                        {option}
+                                                    </Button>
+                                                ))}
+                                                {errors.publico_alvo && (
+                                                    <p className="text-red-500 ">{errors.publico_alvo.message}</p>
+                                                )}
+                                            </div>
+                                        </>
+                                    )
+                                }
+                                {
+                                    currentStep === 5 && (
+                                        <>
+                                            <div
+                                                className="flex gap-2 mt-10 w-11/12 flex-wrap justify-center h-60 overflow-y-scroll">
+                                                {necessidadesOptions.map((option) => (
+                                                    <Button
+                                                        key={option}
+                                                        onClick={() => {
+                                                            let values = getValues("necessidades");
+                                                            if (!values.includes(option)) {
+                                                                values.push(option);
+                                                                setValue("necessidades", values)
+                                                            } else {
+                                                                values = values.filter((item) => item !== option);
+                                                                setValue("necessidades", values)
+                                                            }
+                                                            trigger("necessidades")
+                                                        }}
+                                                        type="button"
+                                                        className={`w-auto py-0 hover:bg-${necessidades?.includes(option) ? "bg-[#FFCF33]" : "bg-[#EFEFF0]"} ${necessidades?.includes(option) ? "bg-[#FFCF33]" : "bg-[#EFEFF0]"} text-[#19191B] focus:outline-none hover:bg-none`}
+                                                    >
+                                                        {option}
+                                                    </Button>
+                                                ))}
+                                                {errors.necessidades && (
+                                                    <p className="text-red-500 ">{errors.necessidades.message}</p>
+                                                )}
+                                            </div>
+                                        </>
+                                    )
+                                }
+                                {
+                                    currentStep === 6 && (
+                                        <div className="flex flex-col gap-2">
+                                            <div className="flex flex-col gap-1">
+                                                <Label>Email</Label>
+                                                <Input
+                                                    {...register("login")}
+                                                />
+                                                {
+                                                    errors.login && (
+                                                        <p className="text-red-500 ">{errors.login.message}</p>
+                                                    )
+                                                }
+                                            </div>
+                                            <div className="flex flex-col gap-1">
+                                                <Label>Senha</Label>
+                                                <div className="relative">
+                                                    <Input
+                                                        type={viewPassword ? "text" : "password"}
+                                                        {...register("senha")}
+                                                        icon={
+                                                            viewPassword ? (
+                                                                <FiEyeOff
+                                                                    onClick={() => setViewPassword(false)}
+                                                                    className="text-[#AFB1B6] absolute right-4 bottom-1/4 w-7 h-6"
+                                                                />
+                                                            ) : (
+                                                                <FiEye
+                                                                    onClick={() => setViewPassword(true)}
+                                                                    className="text-[#AFB1B6] absolute right-4 bottom-1/4 w-7 h-6"
+                                                                />
+                                                            )
+                                                        }
+                                                    />
+                                                    {
+                                                        errors.senha && (
+                                                            <p className="text-red-500 ">{errors.senha.message}</p>
+                                                        )
+                                                    }
+                                                </div>
+                                            </div>
+                                            <div className="flex flex-col gap-1">
+                                                <Label>Confirmar senha:</Label>
+                                                <div className="relative">
+                                                    <Input
+                                                        {...register("confirmar_senha")}
+                                                        type={viewConfirmPassword ? "text" : "password"}
+                                                        icon={viewConfirmPassword ? (
+                                                            <FiEyeOff
+                                                                onClick={() => setViewConfirmPassword(false)}
+                                                                className="text-[#AFB1B6] absolute right-4 bottom-1/4 w-7 h-6"
+                                                            />
+                                                        ) : (
+                                                            <FiEye
+                                                                onClick={() => setViewConfirmPassword(true)}
+                                                                className="text-[#AFB1B6] absolute right-4 bottom-1/4 w-7 h-6"
+                                                            />
+                                                        )}
+                                                    />
+                                                    {
+                                                        errors.confirmar_senha && (
+                                                            <p className="text-red-500 ">{errors.confirmar_senha.message}</p>
+                                                        )
+                                                    }
+                                                </div>
+                                            </div>
+                                        </div>
+                                    )
+                                }
+                                <Button
+                                    disabled={!isValid}
+                                    className="w-10/12 absolute bottom-12"
+                                    type={currentStep === totalSteps - 1 ? "submit" : "button"}
+                                    onClick={handleNextStep}
+                                >
+                                    {currentStep === totalSteps - 1 ? "Finalizar" : "Continuar"}
+                                </Button>
+                            </div>
+                        </form>
+                    )
+            }
         </div>
     );
 }
