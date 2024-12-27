@@ -1,36 +1,25 @@
 import db from '../db.ts'
-import {CreateONG} from './dto/ONGDtos.ts';
+import CreateONG from "./dto/ONGCreateDto";
 
 class ONGRepository {
 
     async save(createONG: CreateONG) {
-        const contactTypes = await Promise.all(
-            // TODO procurar necessidades
-            // TODO procurar publico_alvo
-            createONG.contatos.map(async (contato) => {
-                const contactType = await db.tipoContato.findUnique({
-                    where: {tipo: contato.tipo},
-                });
-
-                if (!contactType) {
-                    throw new Error(`Tipo de contato '${contato.tipo}' não encontrado.`);
-                }
-
-                return {
-                    tipo: contato.tipo,
-                    id: contactType.id,
-                };
-            })
-        );
-
-        const ongContatos = createONG.contatos.map((contato) => {
-            const contactType = contactTypes.find((type) => type.tipo === contato.tipo);
-            return {
-                tipoContatoId: contactType!.id,
-                valor: contato.valor,
-            };
-        });
-
+        await Promise.all([
+            Promise.all(
+                createONG.necessidades.map(n =>
+                    db.necessidade.findFirstOrThrow({
+                        where: {tipo: n}
+                    })
+                )
+            ),
+            Promise.all(
+                createONG.publico_alvo.map(pa =>
+                    db.publicoAlvo.findFirstOrThrow({
+                        where: {tipo: pa}
+                    })
+                )
+            )
+        ]);
         return db.ong.create({
             data: {
                 login: createONG.login,
@@ -38,17 +27,48 @@ class ONGRepository {
                 nome: createONG.nome,
                 descricao: createONG.descricao,
                 cnpj: createONG.cnpj,
-                anoFundacao: createONG.anoFundacao,
-                deficiente: createONG.deficiente,
-                localizacao: createONG.localizacao,
-                ongContato: {
-                    create: ongContatos,
+                data_criacao: createONG.data_criacao,
+                lat: createONG.localizacao[0],
+                lon: createONG.localizacao[1],
+                ongNecessidade: {
+                    create: createONG.necessidades.map(n => ({
+                        necessidade: {
+                            connectOrCreate: {
+                                where: {
+                                    tipo: n
+                                }
+                                ,
+                                create: {
+                                    tipo: n
+                                }
+                            }
+                        },
+                    }))
+                },
+                ongPublicoAlvo: {
+                    create: createONG.publico_alvo.map(p => ({
+                        publicoAlvo: {
+                            connectOrCreate: {
+                                where: {
+                                    tipo: p
+                                },
+                                create: {
+                                    tipo: p
+                                }
+                            }
+                        }
+                    }))
                 },
             },
             include: {
-                ongContato: {
+                ongNecessidade: {
                     include: {
-                        tipoContato: true, // Inclui detalhes do tipo de contato, se necessário
+                        necessidade: true
+                    },
+                },
+                ongPublicoAlvo: {
+                    include: {
+                        publicoAlvo: true
                     },
                 },
             },
@@ -62,6 +82,16 @@ class ONGRepository {
                 id
             },
             include: {
+                ongNecessidade: {
+                    include: {
+                        necessidade: true
+                    }
+                },
+                ongPublicoAlvo: {
+                    include: {
+                        publicoAlvo: true
+                    }
+                },
                 ongContato: {
                     include: {
                         tipoContato: true
@@ -81,14 +111,24 @@ class ONGRepository {
     }
 
     async findAll() {
-        return await db.ong.findMany({
+        return db.ong.findMany({
                 include: {
+                    ongNecessidade: {
+                        include: {
+                            necessidade: true
+                        }
+                    },
+                    ongPublicoAlvo: {
+                        include: {
+                            publicoAlvo: true
+                        }
+                    },
                     ongContato: {
                         include: {
                             tipoContato: true
                         },
                     },
-                }
+                },
             }
         );
     }
