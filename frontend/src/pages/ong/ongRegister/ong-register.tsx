@@ -12,6 +12,33 @@ import {Label} from "@/components/ui/label.tsx";
 import {RiArrowDownSLine, RiArrowUpSLine} from "react-icons/ri";
 import {Coordinates, Map} from "@/components/ui/map/map.tsx"
 import {FiEye, FiEyeOff} from "react-icons/fi";
+import {useMutation} from "react-query";
+import api from "@/utils/api.ts";
+import {AiOutlineLoading3Quarters} from "react-icons/ai";
+
+type Necessidade = {
+    id: string;
+    tipo: string;
+};
+
+type PublicoAlvo = {
+    id: string;
+    tipo: string;
+};
+
+type Ong = {
+    id: string;
+    login: string;
+    nome: string;
+    descricao: string;
+    cnpj: string;
+    data_criacao: number;
+    localizacao: Coordinates;
+    necessidades: Necessidade[];
+    publico_alvo: PublicoAlvo[];
+    contatos: any[]; // Substitua 'any[]' pelo tipo correto quando conhecido
+};
+
 
 function isValidCNPJ(cnpj: string): boolean {
     cnpj = cnpj.replace(/[^\d]+/g, "");
@@ -154,16 +181,40 @@ export default function OngRegister() {
 
     const totalSteps = 7;
     const [currentStep, setCurrentStep] = useState(0);
-    const [finished, setFinished] = useState<boolean>(false);
-    const onSubmit = (data: OngRegisterSchema) => {
+    const [registerFinished, setRegisterFinished] = useState<{ finished: boolean, id: string }>({
+        finished: false,
+        id: ""
+    });
+    const registerOngMutation = useMutation({
+        mutationKey: "ongRegister",
+        mutationFn: async (ongRegister: OngRegisterSchema) => {
+            try {
+                const {data}: Ong = await api.post("/v1/ong", ongRegister);
+                return data
+            } catch (error) {
+                console.error(error);
+                throw new Error("Algo falhou na sua solicitação.");
+            }
+
+        },
+        onSuccess: async (data) => {
+            setRegisterFinished({finished: true, id: data.id})
+        },
+    })
+
+    const onSubmit = async (data: OngRegisterSchema) => {
         if (!handleConfirmPassword()) {
             setError("confirmar_senha", {
                 message: "As senhas não coincidem"
             })
             return
         }
-        setFinished(true)
-        console.log(data);
+
+        try {
+            await registerOngMutation.mutateAsync(data);
+        } catch (error) {
+            console.error(error);
+        }
     };
 
     const handleNextStep = async () => {
@@ -189,12 +240,12 @@ export default function OngRegister() {
             setCurrentStep((prev) => prev - 1);
         }
         if (currentStep === 6) {
-            setValue("login", "teste@teste.com.br")
+            setValue("login", "ong@ong.com.br")
             setValue("senha", "123455677")
             setValue("confirmar_senha", "123455677")
         }
-        if (finished) {
-            setFinished(false);
+        if (registerFinished) {
+            setRegisterFinished({finished: false, id: ""})
         }
     };
 
@@ -214,17 +265,9 @@ export default function OngRegister() {
     return (
         <div className="h-screen px-4 overflow-hidden">
             {
-                finished ? (
+                registerFinished.finished ? (
                         <>
-                            <div className="flex flex-row items-center w-full mt-8 mb-12 gap-4">
-                                <Button
-                                    className="p-0"
-                                    variant="icon"
-                                    onClick={() => setCurrentStep(6)}
-                                    disabled={currentStep === 0}
-                                >
-                                    <GoArrowLeft className="w-7 h-7"/>
-                                </Button>
+                            <div className="flex flex-row justify-center items-center w-full mt-12 mb-12 gap-4">
                                 <div className="h-2 w-3/4">
                                     <Progress
                                         className="bg-[#9DEEBC]"
@@ -256,6 +299,7 @@ export default function OngRegister() {
                                 <Button
                                     className="p-0"
                                     variant="icon"
+                                    type="button"
                                     onClick={handlePreviousStep}
                                     disabled={currentStep === 0}
                                 >
@@ -505,14 +549,34 @@ export default function OngRegister() {
                                         </div>
                                     )
                                 }
-                                <Button
-                                    disabled={!isValid}
-                                    className="w-10/12 absolute bottom-12"
-                                    type={currentStep === totalSteps - 1 ? "submit" : "button"}
-                                    onClick={handleNextStep}
-                                >
-                                    {currentStep === totalSteps - 1 ? "Finalizar" : "Continuar"}
-                                </Button>
+                                {
+                                    registerOngMutation.isError && (
+                                        <p className="text-red-500 ">{registerOngMutation.error?.message}</p>
+                                    )
+                                }
+                                {
+                                    registerOngMutation.isLoading ? (
+                                        <Button
+                                            disabled={true}
+                                            className="w-10/12 absolute bottom-12"
+                                            type={currentStep === totalSteps - 1 ? "submit" : "button"}
+                                            onClick={handleNextStep}
+                                        >
+                                            Registrando ONG
+                                            <AiOutlineLoading3Quarters className="animate-spin"/>
+                                        </Button>
+                                    ) : (
+                                        <Button
+                                            disabled={!isValid}
+                                            className="w-10/12 absolute bottom-12"
+                                            type={currentStep === totalSteps - 1 ? "submit" : "button"}
+                                            onClick={handleNextStep}
+                                        >
+                                            {currentStep === totalSteps - 1 ? "Finalizar" : "Continuar"}
+                                        </Button>
+                                    )
+                                }
+
                             </div>
                         </form>
                     )

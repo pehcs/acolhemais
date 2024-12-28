@@ -73,7 +73,7 @@ const Map = ({pos, cep, onCoordinatesChange, height}: {
                     onCoordinatesChange({latitude: pos.coords.latitude, longitude: pos.coords.longitude})
                 },
                 (error) => {
-                    console.log(error);
+                    console.error(error);
                 },
                 {
                     enableHighAccuracy: true,

@@ -51,11 +51,9 @@ export default class ONGController {
     }
 
     static async findAll(_: Request, res: Response): Promise<any> {
-        const ongs = await ONGRepository.findAll();
-        console.log(ongs);
         return res.status(200).json(
             ONGMapper.toCompleteResponseList(
-                ongs
+                await ONGRepository.findAll()
             )
         )
     }

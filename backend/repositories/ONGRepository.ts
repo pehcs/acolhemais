@@ -24,8 +24,8 @@ class ONGRepository {
             data: {
                 login: createONG.login,
                 senha: createONG.senha,
+                descricao: "Não há descrição",
                 nome: createONG.nome,
-                descricao: createONG.descricao,
                 cnpj: createONG.cnpj,
                 data_criacao: createONG.data_criacao,
                 lat: createONG.localizacao[0],
