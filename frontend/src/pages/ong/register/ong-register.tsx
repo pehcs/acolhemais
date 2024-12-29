@@ -186,7 +186,7 @@ export default function OngRegister() {
         id: ""
     });
     const registerOngMutation = useMutation({
-        mutationKey: "ongRegister",
+        mutationKey: "register",
         mutationFn: async (ongRegister: OngRegisterSchema) => {
             try {
                 const {data}: Ong = await api.post("/v1/ong", ongRegister);

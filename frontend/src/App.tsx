@@ -1,5 +1,5 @@
 import './index.css'
-import OngRegister from './pages/ong/ongRegister/ong-register'
+import OngRegister from '@/pages/ong/register/ong-register'
 import 'react-toastify/dist/ReactToastify.css';
 import {ToastContainer} from "react-toastify";
 import {QueryClient, QueryClientProvider} from "react-query";
