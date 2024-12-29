@@ -15,29 +15,7 @@ import {FiEye, FiEyeOff} from "react-icons/fi";
 import {useMutation} from "react-query";
 import api from "@/utils/api.ts";
 import {AiOutlineLoading3Quarters} from "react-icons/ai";
-
-type Necessidade = {
-    id: string;
-    tipo: string;
-};
-
-type PublicoAlvo = {
-    id: string;
-    tipo: string;
-};
-
-type Ong = {
-    id: string;
-    login: string;
-    nome: string;
-    descricao: string;
-    cnpj: string;
-    data_criacao: number;
-    localizacao: Coordinates;
-    necessidades: Necessidade[];
-    publico_alvo: PublicoAlvo[];
-    contatos: any[]; // Substitua 'any[]' pelo tipo correto quando conhecido
-};
+import {Ong} from "@/pages/ong/@types/Ong.ts";
 
 
 function isValidCNPJ(cnpj: string): boolean {

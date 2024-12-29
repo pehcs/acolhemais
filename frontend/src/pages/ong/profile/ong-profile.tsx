@@ -4,9 +4,70 @@ import {FiEdit} from "react-icons/fi";
 import {IoHomeOutline, IoSettingsOutline} from "react-icons/io5";
 import {MdArrowForwardIos} from "react-icons/md";
 import {FaInstagram} from "react-icons/fa";
+import {useParams} from "react-router-dom";
+import {useQuery} from "react-query";
+import api from "@/utils/api.ts";
+import {Ong} from "@/pages/ong/@types/Ong.ts";
+import {Skeleton} from "@/components/ui/skeleton.tsx";
+import {useState} from "react";
+import {AiOutlineLoading3Quarters} from "react-icons/ai";
 
-
+const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 export default function OngProfile() {
+
+    const [address, setAddress] = useState("");
+    const {id} = useParams()
+
+    const ongQuery = useQuery(
+        {
+            queryKey: "ong_profile",
+            queryFn: async (): Ong => {
+                const {data} = await api.get<Ong>(`/v1/ong/${id}`);
+                return data
+            },
+            onSuccess: async (data: Ong) => {
+                const reverseGeoResponse = await fetch(
+                    `https://nominatim.openstreetmap.org/reverse?lat=${data.localizacao.latitude}&lon=${data.localizacao.longitude}&format=jsonv2`
+                );
+                const reverseGeoData = await reverseGeoResponse.json();
+                const address = `${reverseGeoData.address.suburb}, ${reverseGeoData.address.city} - ${reverseGeoData.address.state}` || "Endereço não encontrado";
+                setAddress(address);
+            }
+        })
+
+    const {data: ongData} = ongQuery
+    console.log(ongData)
+    if (ongQuery.isLoading) {
+        return (
+            <>
+                <div className="mt-24 flex w-full flex-col justify-center items-center gap-4">
+                    <Skeleton className="h-24 w-24 rounded-full"/>
+                    <Skeleton className="h-6 w-36 "/>
+                    <Skeleton className="h-4 w-28 "/>
+                    <div className="mt-8 flex gap-4">
+                        <Skeleton className="h-8 w-24 rounded-full"/>
+                        <Skeleton className="h-8 w-24 rounded-full"/>
+                        <Skeleton className="h-8 w-24 rounded-full"/>
+                    </div>
+                </div>
+                <div className="py-4 px-4 mt-6">
+                    <Skeleton className="w-full h-36 rounded-xl"/>
+                    <div className="flex gap-4 py-4">
+                        <Skeleton className="w-32 h-24 rounded-xl"/>
+                        <Skeleton className="w-32 h-24 rounded-xl"/>
+                        <Skeleton className="w-32 h-24 rounded-xl"/>
+                    </div>
+                    <Skeleton className="w-36 h-12 rounded-full"/>
+                </div>
+                <div className="mt-10 flex flex-col content-start items-start gap-4 px-4">
+                    <Skeleton className="h-6 w-36 "/>
+                    <Skeleton className="h-4 w-28 "/>
+                    <Skeleton className="h-4 w-28 "/>
+                </div>
+            </>
+        )
+    }
+
     return (
         <main>
             <header className="bg-[url(/images/circle.svg)] w-full h-52 bg-no-repeat bg-contain">
@@ -29,35 +90,40 @@ export default function OngProfile() {
                 <header>
                     <div className="mt-2 flex flex-col items-center justify-center w-full">
                         <h2 className="font-semibold text-[#19191B]">
-                            ONG Saluz
+                            {ongData?.nome}
                         </h2>
                         <p className="text-xs">
-                            Recife, PE
+                            {address ? address : (
+                                <AiOutlineLoading3Quarters className="animate-spin"/>
+                            )}
                         </p>
                     </div>
                     <div className="p-2 flex items-center justify-center flex-wrap py-6 gap-2">
-                        <div
-                            className={"bg-[#EFEFF0] text-sm text-[#19191B] w-auto py-2  px-6 rounded-full inline-block"}
-                        >
-                            Crianças
-                        </div>
-                        <div
-                            className={"bg-[#EFEFF0] text-sm text-[#19191B] w-auto py-2  px-6 rounded-full inline-block"}
-                        >
-                            Crianças
-                        </div>
+                        {
+                            ongData?.publico_alvo.map((p, key) => (
+                                <div key={key}
+                                     className={"bg-[#EFEFF0] text-sm text-[#19191B] w-auto py-2  px-6 rounded-full inline-block"}
+                                >
+                                    {p.tipo}
+                                </div>
+                            ))
+                        }
+                        {
+                            ongData?.necessidades.map((p, key) => (
+                                <div key={key}
+                                     className={"bg-[#EFEFF0] text-sm text-[#19191B] w-auto py-2  px-6 rounded-full inline-block"}
+                                >
+                                    {p.tipo}
+                                </div>
+                            ))
+                        }
                     </div>
                 </header>
                 <div className="overflow-scroll pb-20">
                     <article>
                         <h3 className="mb-2 font-medium">SOBRE</h3>
                         <p className="overflow-scroll text-sm ">
-                            Excepteur efficient emerging, minim veniam anim aute carefully curated Ginza conversation
-                            exquisite perfect nostrud nisi intricate Content. Qui international first-class nulla ut.
-                            Punctual adipisicing, essential lovely queen tempor eiusmod irure. Exclusive izakaya
-                            charming
-                            Scandinavian impeccable aute quality of life soft power pariatur Melbourne occaecat
-                            discerning.
+                            {ongData.descricao}
                         </p>
                         <div className="flex items-center justify-start w-full overflow-scroll py-4 gap-3">
                             <img className="h-42 w-52 rounded-xl" src={"/images/Wombat-Habitats.jpg"}/>
