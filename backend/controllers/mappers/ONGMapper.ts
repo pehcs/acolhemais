@@ -20,6 +20,9 @@ export default class ONGMapper {
                     tipo: ongNecessidade.necessidade.tipo
                 }
             )) || [],
+            images: ong?.ongImage?.map(image =>
+                image.id,
+            ) || [],
             publico_alvo: ong?.ongPublicoAlvo?.map(ongPublicoAlvo => (
                 {
                     id: ongPublicoAlvo.publicoAlvo.id,

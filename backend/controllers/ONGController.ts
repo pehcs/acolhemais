@@ -5,6 +5,7 @@ import CreateONG from "../repositories/dto/ONGCreateDto"
 import ONGMapper from './mappers/ONGMapper';
 import bcrypt from "bcrypt"
 import ONGContactRepository from "../repositories/ONGContactRepository";
+import {BUCKET_NAME, minioClient} from "../minio";
 
 export default class ONGController {
 
@@ -25,7 +26,6 @@ export default class ONGController {
                 ONGMapper.toCompleteResponse(savedOng)
             )
         } catch (error) {
-            console.error(error)
             return res.status(500).json(basicError("Erro ao tentar salvar ONG, tente novamente mais tarde"));
         }
     }
@@ -70,6 +70,82 @@ export default class ONGController {
             );
         } catch (error) {
             return res.status(500).json(basicError("Erro ao buscar ONG"));
+        }
+    }
+
+    static async saveLogo(req: Request, res: Response): Promise<any> {
+        const {id} = req.params;
+        try {
+            const ong = await ONGRepository.findById(id);
+            if (!ong) {
+                return res.status(404).json(basicError("ONG não encontrada."));
+            }
+            minioClient.putObject(BUCKET_NAME, `${id}-logo`, req.file.buffer, (err, etag) => {
+                if (err) {
+                    return res.status(500).json({message: 'Erro ao enviar o arquivo para o MinIO', error: err});
+                }
+            });
+            return res.status(201).end();
+        } catch (error) {
+            return res.status(500).json(basicError("Erro ao buscar ONG"));
+        }
+    }
+
+    static async getLogo(req: Request, res: Response): Promise<any> {
+        const {id} = req.params;
+        try {
+            const ong = await ONGRepository.findById(id);
+            if (!ong) {
+                return res.status(404).json(basicError("ONG não encontrada."));
+            }
+            minioClient.getObject(BUCKET_NAME, `${id}-logo`, (err, dataStream) => {
+                if (err) {
+                    return res.status(404).json({message: 'Arquivo não encontrado', error: err});
+                }
+                res.setHeader('Content-Type', 'image/png');
+                dataStream.pipe(res);
+            });
+        } catch (error) {
+            return res.status(500).json(basicError("Erro ao buscar ONG"));
+        }
+    }
+
+    static async addImage(req: Request, res: Response): Promise<any> {
+        const {id} = req.params;
+        try {
+            const ong = await ONGRepository.findById(id);
+            if (!ong) {
+                return res.status(404).json(basicError("ONG não encontrada."));
+            }
+            const filename = crypto.randomUUID()
+            minioClient.putObject(BUCKET_NAME, filename, req.file.buffer, async (err, etag) => {
+                if (err) {
+                    return res.status(500).json({message: 'Erro ao enviar o arquivo para o MinIO', error: err});
+                }
+                await ONGRepository.addImage(id, filename)
+            });
+            res.status(201).end();
+        } catch (e) {
+            return res.status(500).json(basicError(e));
+        }
+    }
+
+    static async getImage(req: Request, res: Response): Promise<any> {
+        const {id} = req.params;
+        try {
+            const image = await ONGRepository.getImage(id);
+            if (!image) {
+                return res.status(404).json(basicError("Imagem não encontrada."));
+            }
+            minioClient.getObject(BUCKET_NAME, image.filename, (err, dataStream) => {
+                if (err) {
+                    return res.status(404).json({message: 'Arquivo não encontrado', error: err});
+                }
+                res.setHeader('Content-Type', 'image/png');
+                dataStream.pipe(res);
+            });
+        } catch (e) {
+            return res.status(500).json(basicError(e));
         }
     }
 

@@ -2,20 +2,20 @@ import {Button} from "@/components/ui/button.tsx";
 import {Avatar, AvatarImage} from "@/components/ui/avatar.tsx";
 import {FiEdit} from "react-icons/fi";
 import {IoHomeOutline, IoSettingsOutline} from "react-icons/io5";
-import {MdArrowForwardIos} from "react-icons/md";
-import {FaInstagram} from "react-icons/fa";
+import {MdArrowForwardIos, MdOutlineEmail} from "react-icons/md";
 import {useParams} from "react-router-dom";
 import {useQuery} from "react-query";
-import api from "@/utils/api.ts";
+import {api, serverURI} from "@/utils/api.ts";
 import {Ong} from "@/pages/ong/@types/Ong.ts";
 import {Skeleton} from "@/components/ui/skeleton.tsx";
 import {useState} from "react";
 import {AiOutlineLoading3Quarters} from "react-icons/ai";
+import {FaInstagram, FaPhone, FaWhatsapp} from "react-icons/fa";
 
-const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 export default function OngProfile() {
 
     const [address, setAddress] = useState("");
+    const [isValidLogo, setIsValidLogo] = useState<boolean>(true);
     const {id} = useParams()
 
     const ongQuery = useQuery(
@@ -23,6 +23,11 @@ export default function OngProfile() {
             queryKey: "ong_profile",
             queryFn: async (): Ong => {
                 const {data} = await api.get<Ong>(`/v1/ong/${id}`);
+                try {
+                    await api.get(`/v1/ong/${id}/logo`)
+                } catch (e) {
+                    setIsValidLogo(false)
+                }
                 return data
             },
             onSuccess: async (data: Ong) => {
@@ -36,7 +41,6 @@ export default function OngProfile() {
         })
 
     const {data: ongData} = ongQuery
-    console.log(ongData)
     if (ongQuery.isLoading) {
         return (
             <>
@@ -82,7 +86,13 @@ export default function OngProfile() {
                 </div>
                 <div className="flex items-center justify-center w-full">
                     <Avatar className="w-24 h-24 mt-2 border-2 border-[#2F49F3]">
-                        <AvatarImage src="https://github.com/shadcn.png"/>
+                        {
+                            isValidLogo ? (
+                                <AvatarImage src={serverURI + `/v1/ong/${id}/logo`}/>
+                            ) : (
+                                <AvatarImage src={"/images/invalidLogo.png"}/>
+                            )
+                        }
                     </Avatar>
                 </div>
             </header>
@@ -126,9 +136,17 @@ export default function OngProfile() {
                             {ongData.descricao}
                         </p>
                         <div className="flex items-center justify-start w-full overflow-scroll py-4 gap-3">
-                            <img className="h-42 w-52 rounded-xl" src={"/images/Wombat-Habitats.jpg"}/>
-                            <img className="h-42 w-52 rounded-xl" src={"/images/Wombat-Habitats.jpg"}/>
-                            <img className="h-42 w-52 rounded-xl" src={"/images/Wombat-Habitats.jpg"}/>
+                            {
+                                ongData?.images.length === 0 && (
+                                    <span className="text-sm text-[#61646B]">Não há fotos recentes.</span>
+                                )
+                            }
+                            {
+                                ongData?.images.map((p, key) => (
+                                    <img key={key} className="h-32 w-52 max-w-52 max-h-32 rounded-xl"
+                                         src={serverURI + `/v1/ong-image/${p}`}/>
+                                ))
+                            }
                         </div>
                         <Button className="mt-2 px-6">
                             Eventos e ações <MdArrowForwardIos className="ml-6 h-4 w-4"/>
@@ -137,18 +155,47 @@ export default function OngProfile() {
                     <article className="mt-8 flex flex-col items-start justify-start w-full">
                         <h3 className="mb-2 font-medium">CONTATO</h3>
                         <div className="flex flex-col gap-2">
-                            <div className="flex items-center gap-2 text-sm">
-                                <IoHomeOutline className="h-4 w-4"/> www.saluz.com.br
-                            </div>
-                            <div className="flex items-center gap-2 text-sm">
-                                <FaInstagram className="h-4 w-4"/> Saluz
-                            </div>
-                            <div className="flex items-center gap-2 text-sm">
-                                <IoHomeOutline className="h-4 w-4"/> www.saluz.com.br
-                            </div>
-                            <div className="flex items-center gap-2 text-sm">
-                                <FaInstagram className="h-4 w-4"/> Saluz
-                            </div>
+                            {
+                                ongData?.contatos.length === 0 && (
+                                    <span className="text-sm text-[#61646B]">Não há contatos registrados.</span>
+                                )
+                            }
+                            {
+                                ongData?.contatos.map((p, key) => {
+                                    switch (p.tipo) {
+                                        case "EMAIL":
+                                            return (
+                                                <div className="flex items-center gap-2 text-sm">
+                                                    <MdOutlineEmail/> {p.valor}
+                                                </div>
+                                            );
+                                        case "TELEFONE":
+                                            return (
+                                                <div className="flex items-center gap-2 text-sm">
+                                                    <FaPhone/> {p.valor}
+                                                </div>
+                                            );
+                                        case "SITE":
+                                            return (
+                                                <div className="flex items-center gap-2 text-sm">
+                                                    <IoHomeOutline/> {p.valor}
+                                                </div>
+                                            );
+                                        case "INSTAGRAM":
+                                            return (
+                                                <div className="flex items-center gap-2 text-sm">
+                                                    <FaInstagram/> {p.valor}
+                                                </div>
+                                            );
+                                        case "WHATSAPP":
+                                            return (
+                                                <div className="flex items-center gap-2 text-sm">
+                                                    <FaWhatsapp/> {p.valor}
+                                                </div>
+                                            );
+                                    }
+                                })
+                            }
                         </div>
                     </article>
                 </div>

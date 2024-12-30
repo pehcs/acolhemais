@@ -10,16 +10,21 @@ services:
     volumes:
       - mysql_acolhemais_data:/var/lib/mysql
 
-  app:
-    build: .
-    container_name: acolhemais
+  minio:
+    image: minio/minio
+    container_name: minio
+    restart: always
+    ports:
+      - "9002:9000"
+      - "9003:9001"
+    environment:
+      MINIO_CONSOLE_ADDRESS: ':9001'
+      MINIO_ROOT_USER: acolhemais
+      MINIO_ROOT_PASSWORD: AcolheMais@2025
     volumes:
-      - ./frontend:/app/frontend
-      - ./backend:/app/backend
-    ports: 
-      - 3000:3000
-      - 3001:3001 
-
+      - minio:/data
+    command: server /data
 
 volumes:
   mysql_acolhemais_data:
+  minio:

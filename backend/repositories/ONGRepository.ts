@@ -75,6 +75,23 @@ class ONGRepository {
         });
     }
 
+    async addImage(ongId: string, filename: string) {
+        return db.ongImage.create({
+                data: {
+                    ong: {
+                        connect: {
+                            id: ongId
+                        }
+                    },
+                    filename: filename
+                }
+            }
+        )
+    }
+
+    async getImage(id: string): any {
+        return db.ongImage.findFirstOrThrow({where: {id: id}});
+    }
 
     async findById(id: string) {
         return db.ong.findUnique({
@@ -97,6 +114,7 @@ class ONGRepository {
                         tipoContato: true
                     },
                 },
+                ongImage: true
             },
         });
     }

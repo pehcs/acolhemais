@@ -21,6 +21,7 @@ model Ong {
   updatedAt    DateTime @default(now()) @updatedAt @map("updated_at")
 
   ongContato     OngContato[]
+  ongImage       OngImage[]
   ongNecessidade OngNecessidade[]
   ongPublicoAlvo OngPublicoAlvo[]
 
@@ -28,6 +29,17 @@ model Ong {
   @@index([nome], map: "fk_ong_nome_idx")
   @@index([cnpj], map: "fk_ong_cnpj_idx")
   @@map("ong")
+}
+
+model OngImage {
+  id       String @id @default(uuid())
+  filename String
+  ongId    String @map("ong_id")
+
+  ong Ong @relation(fields: [ongId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@index([filename], map: "fk_ong_image_filename_idx")
+  @@map("ong_image")
 }
 
 model Necessidade {

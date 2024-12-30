@@ -5,6 +5,12 @@ export type Necessidade = {
     tipo: string;
 };
 
+export type Contatos = {
+    id: string;
+    tipo: "EMAIL" | "INSTAGRAM" | "WHATSAPP" | "TELEFONE" | "SITE",
+    valor: string
+};
+
 export type PublicoAlvo = {
     id: string;
     tipo: string;
@@ -19,6 +25,7 @@ export type Ong = {
     data_criacao: number;
     localizacao: Coordinates;
     necessidades: Necessidade[];
+    images: string[];
     publico_alvo: PublicoAlvo[];
-    contatos: any[]; // Substitua 'any[]' pelo tipo correto quando conhecido
+    contatos: Contatos[];
 };

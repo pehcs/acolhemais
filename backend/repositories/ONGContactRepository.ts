@@ -1,18 +1,23 @@
 import db from '../db.ts'
-import { AddContact } from './dto/ONGDtos.ts';
+
+type AddContact = {
+    id: string,
+    tipo: "EMAIL" | "INSTAGRAM" | "WHATSAPP" | "TELEFONE" | "SITE",
+    valor: string,
+}
 
 class ONGContactRepository {
 
     async addContact(ongId: string, addContact: AddContact) {
-        const contactType = await db.tipoContato.findUnique({
-            where: { tipo: addContact.tipo },
+        const contactType: any = await db.tipoContato.findUnique({
+            where: {tipo: addContact.tipo},
         });
-    
+
         if (!contactType) {
             throw new Error(`Tipo de contato '${addContact.tipo}' não encontrado.`);
         }
-    
-        return await db.ongContato.create({
+
+        return db.ongContato.create({
             data: {
                 tipoContatoId: contactType.id,
                 ongId: ongId,
@@ -26,10 +31,10 @@ class ONGContactRepository {
 
     async removeContact(id: string) {
         await db.ongContato.delete({
-            where: { id }
+            where: {id}
         });
     }
-       
+
 }
 
 export default new ONGContactRepository() 
