@@ -93,6 +93,10 @@ class ONGRepository {
         return db.ongImage.findFirstOrThrow({where: {id: id}});
     }
 
+    async deleteImage(id: string): any {
+        return db.ongImage.delete({where: {id: id}});
+    }
+
     async findById(id: string) {
         return db.ong.findUnique({
             where: {

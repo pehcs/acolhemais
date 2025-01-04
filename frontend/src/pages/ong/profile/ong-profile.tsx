@@ -1,23 +1,42 @@
 import {Button} from "@/components/ui/button.tsx";
 import {Avatar, AvatarImage} from "@/components/ui/avatar.tsx";
 import {FiEdit} from "react-icons/fi";
-import {IoHomeOutline, IoSettingsOutline} from "react-icons/io5";
+import {IoCheckboxOutline, IoHomeOutline, IoSettingsOutline} from "react-icons/io5";
 import {MdArrowForwardIos, MdOutlineEmail} from "react-icons/md";
 import {useParams} from "react-router-dom";
-import {useQuery} from "react-query";
+import {useQuery, useQueryClient} from "react-query";
 import {api, serverURI} from "@/utils/api.ts";
 import {Ong} from "@/pages/ong/@types/Ong.ts";
 import {Skeleton} from "@/components/ui/skeleton.tsx";
-import {useState} from "react";
+import {ChangeEvent, useEffect, useRef, useState} from "react";
 import {AiOutlineLoading3Quarters} from "react-icons/ai";
 import {FaInstagram, FaPhone, FaWhatsapp} from "react-icons/fa";
+import {Textarea} from "@/components/ui/textarea.tsx";
+import {z} from "zod";
+import {useForm} from "react-hook-form";
+import {zodResolver} from "@hookform/resolvers/zod";
+import {LuUpload} from "react-icons/lu";
+import {toast} from "react-toastify";
+import {CiCircleRemove} from "react-icons/ci";
+
+const ongDataSchema = z.object({
+    descricao: z.string().min(10, "Dê mais detalhes sobre sua ONG"),
+})
+
+type OngUpdateSchema = z.infer<typeof ongDataSchema>
+
 
 export default function OngProfile() {
 
     const [address, setAddress] = useState("");
-    const [isValidLogo, setIsValidLogo] = useState<boolean>(true);
+    const [logoURL, setLogoURL] = useState<string>('');
+    const [isEditMode, setEditMode] = useState<boolean>(false);
     const {id} = useParams()
 
+    const handleUpdate = () => {
+        setEditMode(false);
+    }
+    const queryClient = useQueryClient();
     const ongQuery = useQuery(
         {
             queryKey: "ong_profile",
@@ -25,8 +44,9 @@ export default function OngProfile() {
                 const {data} = await api.get<Ong>(`/v1/ong/${id}`);
                 try {
                     await api.get(`/v1/ong/${id}/logo`)
+                    setLogoURL(`/v1/ong/${id}/logo`)
                 } catch (e) {
-                    setIsValidLogo(false)
+                    setLogoURL("")
                 }
                 return data
             },
@@ -41,6 +61,84 @@ export default function OngProfile() {
         })
 
     const {data: ongData} = ongQuery
+    const {
+        register,
+        handleSubmit,
+        setValue,
+        getValues,
+        setError,
+        reset,
+        trigger,
+        formState: {errors, isValid},
+        control
+    } = useForm<OngUpdateSchema>({
+        resolver: zodResolver(ongDataSchema),
+        mode: "all",
+        defaultValues: {
+            descricao: ongData?.descricao
+        }
+    })
+    const fileInputRef = useRef<HTMLInputElement | null>(null);
+    const logoInputRef = useRef<HTMLInputElement | null>(null);
+
+    const handleAddImage = async (event: ChangeEvent<HTMLInputElement>) => {
+        const file = event.target.files?.[0];
+        if (!file) return;
+        const formData = new FormData();
+        formData.append("picture", file);
+        try {
+            const response = await api.post(
+                `/v1/ong/${id}/image`,
+                formData
+            );
+            if (response.status === 201) {
+                toast.success("Imagem enviada, aguarde um momento.")
+            } else {
+                toast.error("Não foi possível salvar sua imagem.")
+            }
+        } catch (error) {
+            console.error(error);
+        }
+    };
+
+    const handleRemoveImage = async (id: string) => {
+        await api.delete(`/v1/ong/${id}/image`);
+        queryClient.setQueryData(["ong_profile"], (oldData: any) => {
+            if (!oldData) return oldData;
+            return {
+                ...oldData,
+                images: oldData.images.filter((image: any) => image !== id),
+            };
+        });
+    }
+
+    const handleChangeLogo = async (event: ChangeEvent<HTMLInputElement>) => {
+        const file = event.target.files?.[0];
+        if (!file) return;
+        const formData = new FormData();
+        formData.append("logo", file);
+        try {
+            const response = await api.post(
+                `/v1/ong/${id}/logo`,
+                formData
+            );
+            if (response.status === 201) {
+                toast.success("Logo alterada.")
+            } else {
+                toast.error("Não foi possível salvar sua imagem.")
+            }
+        } catch (error) {
+            console.error(error);
+        }
+
+    };
+    useEffect(() => {
+        if (ongData) {
+            reset({
+                descricao: ongData.descricao || "",
+            });
+        }
+    }, [ongData, reset]);
     if (ongQuery.isLoading) {
         return (
             <>
@@ -80,14 +178,42 @@ export default function OngProfile() {
                         <IoSettingsOutline className="h-6 w-6"/>
                     </Button>
                     <img className="h-20 w-20" src="/images/logo-white.svg" alt={"Logo acolhe+"}/>
-                    <Button>
-                        <FiEdit className="h-6 w-6"/>
-                    </Button>
+                    {
+                        isEditMode ? (
+                            <Button onClick={handleUpdate}>
+                                <IoCheckboxOutline className="h-6 w-6"/>
+                            </Button>
+                        ) : (
+                            <Button onClick={() => setEditMode(true)}>
+                                <FiEdit className="h-6 w-6"/>
+                            </Button>
+                        )
+                    }
+
                 </div>
                 <div className="flex items-center justify-center w-full">
+                    {
+                        isEditMode && (
+                            <button
+                                onClick={() => {
+                                    if (logoInputRef.current) {
+                                        logoInputRef.current.click()
+                                    }
+                                }}
+                                className={"flex border border-white border-2 justify-center items-center absolute bg-black w-24 h-24 mt-2 rounded-full z-50 bg-opacity-40"}>
+                                <FiEdit className="h-6 w-6 text-white"/>
+                            </button>
+                        )
+                    }
+                    <input
+                        className={"hidden"}
+                        type="file"
+                        ref={logoInputRef}
+                        onChange={handleChangeLogo}
+                    />
                     <Avatar className="w-24 h-24 mt-2 border-2 border-[#2F49F3]">
                         {
-                            isValidLogo ? (
+                            logoURL ? (
                                 <AvatarImage src={serverURI + `/v1/ong/${id}/logo`}/>
                             ) : (
                                 <AvatarImage src={"/images/invalidLogo.png"}/>
@@ -132,9 +258,17 @@ export default function OngProfile() {
                 <div className="overflow-scroll pb-20">
                     <article>
                         <h3 className="mb-2 font-medium">SOBRE</h3>
-                        <p className="overflow-scroll text-sm ">
-                            {ongData.descricao}
-                        </p>
+
+                        {
+                            isEditMode ? (
+                                <Textarea {...register("descricao")} />
+                            ) : (
+                                <p className="overflow-scroll text-sm ">
+                                    {ongData.descricao}
+                                </p>
+                            )
+                        }
+
                         <div className="flex items-center justify-start w-full overflow-scroll py-4 gap-3">
                             {
                                 ongData?.images.length === 0 && (
@@ -142,15 +276,45 @@ export default function OngProfile() {
                                 )
                             }
                             {
-                                ongData?.images.map((p, key) => (
-                                    <img key={key} className="h-32 w-52 max-w-52 max-h-32 rounded-xl"
-                                         src={serverURI + `/v1/ong-image/${p}`}/>
+                                ongData?.images.map((imageId, key) => (
+                                    <div className={"relative"}>
+                                        <button className="absolute h-8 w-8 m-2 left-40"
+                                                onClick={() => handleRemoveImage(imageId)}>
+                                            <CiCircleRemove className="h-8 w-8 text-white"/>
+                                        </button>
+                                        <img key={key} className="h-32 w-52 max-w-52 max-h-32 rounded-xl"
+                                             src={serverURI + `/v1/ong-image/${imageId}`}/>
+                                    </div>
                                 ))
                             }
                         </div>
-                        <Button className="mt-2 px-6">
-                            Eventos e ações <MdArrowForwardIos className="ml-6 h-4 w-4"/>
-                        </Button>
+                        {
+                            isEditMode ? (
+                                <div>
+                                    <Button
+                                        className="mt-2 px-6"
+                                        onClick={() => {
+                                            if (fileInputRef.current) {
+                                                fileInputRef.current.click();
+                                            }
+                                        }}
+                                    >
+                                        Adicionar imagem <LuUpload className="ml-6 h-4 w-4"/>
+                                    </Button>
+                                    <input
+                                        className={"hidden"}
+                                        type="file"
+                                        ref={fileInputRef}
+                                        onChange={handleAddImage}
+                                    />
+                                </div>
+                            ) : (
+                                <Button className="mt-2 px-6">
+                                    Eventos e ações <MdArrowForwardIos className="ml-6 h-4 w-4"/>
+                                </Button>
+                            )
+                        }
+
                     </article>
                     <article className="mt-8 flex flex-col items-start justify-start w-full">
                         <h3 className="mb-2 font-medium">CONTATO</h3>

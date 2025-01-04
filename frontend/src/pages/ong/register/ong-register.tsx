@@ -13,9 +13,10 @@ import {RiArrowDownSLine, RiArrowUpSLine} from "react-icons/ri";
 import {Coordinates, Map} from "@/components/ui/map/map.tsx"
 import {FiEye, FiEyeOff} from "react-icons/fi";
 import {useMutation} from "react-query";
-import api from "@/utils/api.ts";
+import {api} from "@/utils/api.ts";
 import {AiOutlineLoading3Quarters} from "react-icons/ai";
 import {Ong} from "@/pages/ong/@types/Ong.ts";
+import {useNavigate} from "react-router-dom";
 
 
 function isValidCNPJ(cnpj: string): boolean {
@@ -101,6 +102,7 @@ const necessidadesOptions = [
     "Emprego",
 ];
 export default function OngRegister() {
+    const navigate = useNavigate()
     const {
         register,
         handleSubmit,
@@ -265,7 +267,8 @@ export default function OngRegister() {
                                     </p>
                                 </div>
                                 <div className="w-full flex justify-center">
-                                    <Button className="w-[92%]">Vamos nessa!</Button>
+                                    <Button onClick={() => navigate(`/ong/admin/${registerFinished.id}`)}
+                                            className="w-[92%]">Vamos nessa!</Button>
                                 </div>
                             </div>
                         </>

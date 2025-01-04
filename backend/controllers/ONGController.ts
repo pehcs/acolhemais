@@ -149,4 +149,22 @@ export default class ONGController {
         }
     }
 
+    static async removeImage(req: Request, res: Response): Promise<any> {
+        const {id} = req.params;
+        try {
+            const image = await ONGRepository.getImage(id);
+            if (!image) {
+                return res.status(404).json(basicError("Imagem não encontrada."));
+            }
+            minioClient.removeObject(BUCKET_NAME, image.filename, (err, _) => {
+                if (err) {
+                    return res.status(404).json({message: 'Arquivo não encontrado', error: err});
+                }
+            });
+            await ONGRepository.deleteImage(id);
+            return res.status(204).end();
+        } catch (e) {
+            return res.status(500).json(basicError(e));
+        }
+    }
 }

@@ -15,6 +15,7 @@ router.post('/v1/ong/:id/logo', upload.single('logo'), ONGController.saveLogo);
 router.get('/v1/ong/:id/logo', ONGController.getLogo);
 
 router.post('/v1/ong/:id/image', upload.single('picture'), ONGController.addImage);
+router.delete('/v1/ong/:id/image', ONGController.removeImage);
 router.get('/v1/ong-image/:id', ONGController.getImage);
 
 export default router
