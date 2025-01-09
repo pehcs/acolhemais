@@ -8,6 +8,7 @@ const router = Router()
 router.post("/v1/ong", ONGController.create)
 router.get("/v1/ong", ONGController.findAll)
 router.get('/v1/ong/:id', ONGController.findById);
+router.patch('/v1/ong/:id/description', ONGController.updateDescription);
 router.post('/v1/ong/:id/contact', ONGController.addContact);
 router.delete('/v1/ong/contact/:id', ONGController.removeContact);
 

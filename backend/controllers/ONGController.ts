@@ -30,6 +30,19 @@ export default class ONGController {
         }
     }
 
+    static async updateDescription(req: Request, res: Response): Promise<any> {
+        try {
+            const {id} = req.params;
+            const {description}: string = req.body
+            const savedOng = await ONGRepository.updateDescription(id, description)
+            return res.status(200).json(
+                ONGMapper.toCompleteResponse(savedOng)
+            )
+        } catch (error) {
+            return res.status(500).json(basicError("Erro ao tentar salvar ONG, tente novamente mais tarde"));
+        }
+    }
+
     static async addContact(req: Request, res: Response): Promise<any> {
         try {
             const {id} = req.params;

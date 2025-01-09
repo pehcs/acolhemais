@@ -1,5 +1,6 @@
 import {Button} from "@/components/ui/button.tsx";
 import {Avatar, AvatarImage} from "@/components/ui/avatar.tsx";
+
 import {FiEdit} from "react-icons/fi";
 import {IoCheckboxOutline, IoHomeOutline, IoSettingsOutline} from "react-icons/io5";
 import {MdArrowForwardIos, MdOutlineEmail} from "react-icons/md";
@@ -13,17 +14,40 @@ import {AiOutlineLoading3Quarters} from "react-icons/ai";
 import {FaInstagram, FaPhone, FaWhatsapp} from "react-icons/fa";
 import {Textarea} from "@/components/ui/textarea.tsx";
 import {z} from "zod";
-import {useForm} from "react-hook-form";
+import {useForm, useWatch} from "react-hook-form";
 import {zodResolver} from "@hookform/resolvers/zod";
 import {LuUpload} from "react-icons/lu";
 import {toast} from "react-toastify";
 import {CiCircleRemove} from "react-icons/ci";
+import {RiAddCircleLine} from "react-icons/ri";
+import {
+    Dialog,
+    DialogClose,
+    DialogContent,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger
+} from "@/components/ui/dialog.tsx";
+import {Input} from "@/components/ui/input.tsx";
+import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "@/components/ui/select.tsx";
 
 const ongDataSchema = z.object({
     descricao: z.string().min(10, "Dê mais detalhes sobre sua ONG"),
 })
+const contactSchema = z.object({
+    tipo: z.string().refine(
+        (value) =>
+            ["EMAIL", "TELEFONE", "SITE", "WHATSAPP", "INSTAGRAM"].includes(value),
+        {
+            message: "Tipo inválido. Escolha uma das opções disponíveis.",
+        }
+    ),
+    valor: z.string().min(2, "Este valor está incorreto"),
+})
 
 type OngUpdateSchema = z.infer<typeof ongDataSchema>
+type AddContactSchema = z.infer<typeof contactSchema>
 
 
 export default function OngProfile() {
@@ -32,10 +56,6 @@ export default function OngProfile() {
     const [logoURL, setLogoURL] = useState<string>('');
     const [isEditMode, setEditMode] = useState<boolean>(false);
     const {id} = useParams()
-
-    const handleUpdate = () => {
-        setEditMode(false);
-    }
     const queryClient = useQueryClient();
     const ongQuery = useQuery(
         {
@@ -59,17 +79,20 @@ export default function OngProfile() {
                 setAddress(address);
             }
         })
-
     const {data: ongData} = ongQuery
     const {
-        register,
-        handleSubmit,
-        setValue,
         getValues,
-        setError,
-        reset,
-        trigger,
+        register: addContactRegister,
         formState: {errors, isValid},
+        setValue,
+        reset: resetContact,
+    } = useForm<AddContactSchema>({
+        resolver: zodResolver(contactSchema),
+        mode: "all"
+    })
+    const {
+        register,
+        reset,
         control
     } = useForm<OngUpdateSchema>({
         resolver: zodResolver(ongDataSchema),
@@ -78,8 +101,33 @@ export default function OngProfile() {
             descricao: ongData?.descricao
         }
     })
+    const descriptionWatch = useWatch({control, name: "descricao"})
+    const handleUpdate = async () => {
+        await api.patch(`/v1/ong/${id}/description`, {description: descriptionWatch})
+        setEditMode(false);
+    }
     const fileInputRef = useRef<HTMLInputElement | null>(null);
     const logoInputRef = useRef<HTMLInputElement | null>(null);
+
+    const handleAddContact = async () => {
+        const {data} = await api.post(`/v1/ong/${id}/contact`, {
+            tipo: getValues("tipo"),
+            valor: getValues("valor"),
+        });
+        queryClient.setQueryData(["ong_profile"], (oldData: any) => {
+            if (!oldData) return oldData;
+            const newData = [...(oldData.contatos) || [], data]
+            return {
+                ...oldData,
+                contatos: newData,
+            };
+        });
+        resetContact({
+            tipo: "",
+            valor: "",
+        });
+
+    }
 
     const handleAddImage = async (event: ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0];
@@ -108,6 +156,17 @@ export default function OngProfile() {
             return {
                 ...oldData,
                 images: oldData.images.filter((image: any) => image !== id),
+            };
+        });
+    }
+
+    const handleRemoveContact = async (id: string) => {
+        await api.delete(`/v1/ong/contact/${id}`);
+        queryClient.setQueryData(["ong_profile"], (oldData: any) => {
+            if (!oldData) return oldData;
+            return {
+                ...oldData,
+                contatos: oldData.contatos.filter((contato: any) => contato.id !== id),
             };
         });
     }
@@ -264,7 +323,7 @@ export default function OngProfile() {
                                 <Textarea {...register("descricao")} />
                             ) : (
                                 <p className="overflow-scroll text-sm ">
-                                    {ongData.descricao}
+                                    {descriptionWatch}
                                 </p>
                             )
                         }
@@ -316,8 +375,63 @@ export default function OngProfile() {
                         }
 
                     </article>
-                    <article className="mt-8 flex flex-col items-start justify-start w-full">
+                    <article className="mt-8 flex flex-col items-start justify-start w-full relative">
                         <h3 className="mb-2 font-medium">CONTATO</h3>
+                        <Dialog>
+                            <DialogTrigger asChild>
+                                {
+                                    isEditMode && (
+                                        <button
+                                            className="flex items-center justify-center w-12 h-12 bg-[#2F49F3] rounded-full absolute right-0">
+                                            <RiAddCircleLine className="h-7 w-7 text-white"/>
+                                        </button>
+                                    )
+                                }
+                            </DialogTrigger>
+
+                            <DialogContent className="w-11/12 bg-white rounded-xl">
+                                <DialogHeader className="flex items-start">
+                                    <DialogTitle>Adicionar um novo contato</DialogTitle>
+                                </DialogHeader>
+                                <div className="flex items-center space-x-2">
+                                    <div className="grid flex-1 gap-2">
+                                        <Select {...addContactRegister("tipo")}
+                                                onValueChange={(e) =>
+                                                    setValue("tipo", e)
+                                                }>
+                                            <SelectTrigger className="w-full border-[#61646B] rounded-full">
+                                                <SelectValue placeholder="Tipo"/>
+                                            </SelectTrigger>
+                                            <SelectContent className="bg-white">
+                                                <SelectItem value="EMAIL">Email</SelectItem>
+                                                <SelectItem value="TELEFONE">Telefone</SelectItem>
+                                                <SelectItem value="SITE">Site</SelectItem>
+                                                <SelectItem value="WHATSAPP">Whatsapp</SelectItem>
+                                                <SelectItem value="INSTAGRAM">Instagram</SelectItem>
+                                            </SelectContent>
+                                        </Select>
+                                        {
+                                            errors.tipo && (
+                                                <p className="text-red-500">{errors.tipo.message}</p>
+                                            )
+                                        }
+                                        <Input {...addContactRegister("valor")}/>
+                                        {
+                                            errors.valor && (
+                                                <p className="text-red-500">{errors.valor.message}</p>
+                                            )
+                                        }
+                                    </div>
+                                </div>
+                                <DialogFooter className="sm:justify-start">
+                                    <DialogClose asChild>
+                                        <Button onClick={handleAddContact} disabled={!isValid}>
+                                            Adicionar
+                                        </Button>
+                                    </DialogClose>
+                                </DialogFooter>
+                            </DialogContent>
+                        </Dialog>
                         <div className="flex flex-col gap-2">
                             {
                                 ongData?.contatos.length === 0 && (
@@ -325,36 +439,62 @@ export default function OngProfile() {
                                 )
                             }
                             {
-                                ongData?.contatos.map((p, key) => {
+                                ongData?.contatos.map((p) => {
                                     switch (p.tipo) {
                                         case "EMAIL":
                                             return (
                                                 <div className="flex items-center gap-2 text-sm">
                                                     <MdOutlineEmail/> {p.valor}
+                                                    {
+                                                        isEditMode && (
+                                                            <CiCircleRemove onClick={() => handleRemoveContact(p.id)}/>
+                                                        )
+                                                    }
                                                 </div>
                                             );
                                         case "TELEFONE":
                                             return (
                                                 <div className="flex items-center gap-2 text-sm">
                                                     <FaPhone/> {p.valor}
+                                                    {
+                                                        isEditMode && (
+                                                            <CiCircleRemove onClick={() => handleRemoveContact(p.id)}/>
+                                                        )
+                                                    }
                                                 </div>
                                             );
                                         case "SITE":
                                             return (
                                                 <div className="flex items-center gap-2 text-sm">
                                                     <IoHomeOutline/> {p.valor}
+                                                    {
+                                                        isEditMode && (
+                                                            <CiCircleRemove onClick={() => handleRemoveContact(p.id)}/>
+                                                        )
+                                                    }
                                                 </div>
                                             );
                                         case "INSTAGRAM":
                                             return (
                                                 <div className="flex items-center gap-2 text-sm">
                                                     <FaInstagram/> {p.valor}
+                                                    {
+                                                        isEditMode && (
+                                                            <CiCircleRemove onClick={() => handleRemoveContact(p.id)}/>
+                                                        )
+                                                    }
                                                 </div>
                                             );
                                         case "WHATSAPP":
                                             return (
                                                 <div className="flex items-center gap-2 text-sm">
                                                     <FaWhatsapp/> {p.valor}
+                                                    {
+                                                        isEditMode && (
+                                                            <CiCircleRemove onClick={() => handleRemoveContact(p.id)}/>
+                                                        )
+                                                    }
+
                                                 </div>
                                             );
                                     }

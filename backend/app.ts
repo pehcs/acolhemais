@@ -6,7 +6,7 @@ const app = express()
 
 app.use(cors({
     origin: 'http://localhost:3000',
-    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
 }));
 app.use(express.raw({type: 'application/octet-stream', limit: '10mb'}));
 app.use(express.json())

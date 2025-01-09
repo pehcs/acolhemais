@@ -123,6 +123,36 @@ class ONGRepository {
         });
     }
 
+    async updateDescription(id: string, description: string) {
+        return db.ong.update({
+            where: {
+                id
+            },
+            data: {
+                descricao: description
+            },
+            include: {
+                ongNecessidade: {
+                    include: {
+                        necessidade: true
+                    }
+                },
+                ongPublicoAlvo: {
+                    include: {
+                        publicoAlvo: true
+                    }
+                },
+                ongContato: {
+                    include: {
+                        tipoContato: true
+                    }
+                },
+                ongImage: true
+            }
+        });
+    }
+
+
     async existsByLogin(login: string): Promise<Boolean> {
         const exists = await db.ong.findFirst({
             where: {
