@@ -4,7 +4,7 @@ import {Avatar, AvatarImage} from "@/components/ui/avatar.tsx";
 import {FiEdit} from "react-icons/fi";
 import {IoCheckboxOutline, IoHomeOutline, IoSettingsOutline} from "react-icons/io5";
 import {MdArrowForwardIos, MdOutlineEmail} from "react-icons/md";
-import {useParams} from "react-router-dom";
+import {useNavigate, useParams} from "react-router-dom";
 import {useQuery, useQueryClient} from "react-query";
 import {api, serverURI} from "@/utils/api.ts";
 import {Ong} from "@/pages/ong/@types/Ong.ts";
@@ -101,6 +101,7 @@ export default function OngProfile() {
             descricao: ongData?.descricao
         }
     })
+    const navigate = useNavigate()
     const descriptionWatch = useWatch({control, name: "descricao"})
     const handleUpdate = async () => {
         await api.patch(`/v1/ong/${id}/description`, {description: descriptionWatch})
@@ -233,7 +234,7 @@ export default function OngProfile() {
         <main>
             <header className="bg-[url(/images/circle.svg)] w-full h-52 bg-no-repeat bg-contain">
                 <div className="w-full flex justify-between items-center p-2">
-                    <Button>
+                    <Button onClick={() => navigate(`/ong/admin/${id}/config`)}>
                         <IoSettingsOutline className="h-6 w-6"/>
                     </Button>
                     <img className="h-20 w-20" src="/images/logo-white.svg" alt={"Logo acolhe+"}/>
@@ -248,7 +249,6 @@ export default function OngProfile() {
                             </Button>
                         )
                     }
-
                 </div>
                 <div className="flex items-center justify-center w-full">
                     {
