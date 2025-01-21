@@ -121,6 +121,7 @@ export default function OngProfileUpdate() {
                                 >
                                     Nome
                                 </label>
+                                <TbEdit className="absolute top-6 right-4 h-6 w-6 text-[#61646B]"/>
                                 <Input
                                     {...register("nome")}
                                     id="nome"

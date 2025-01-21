@@ -339,7 +339,10 @@ export default function OngProfile() {
                                     <div className={"relative"}>
                                         <button className="absolute h-8 w-8 m-2 left-40"
                                                 onClick={() => handleRemoveImage(imageId)}>
-                                            <CiCircleRemove className="h-8 w-8 text-white"/>
+                                            {
+                                                isEditMode && (<CiCircleRemove className="h-8 w-8 text-white"/>)
+                                            }
+
                                         </button>
                                         <img key={key} className="h-32 w-52 max-w-52 max-h-32 rounded-xl"
                                              src={serverURI + `/v1/ong-image/${imageId}`}/>
