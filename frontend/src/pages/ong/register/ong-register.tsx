@@ -547,14 +547,26 @@ export default function OngRegister() {
                                             <AiOutlineLoading3Quarters className="animate-spin"/>
                                         </Button>
                                     ) : (
-                                        <Button
-                                            disabled={!isValid}
-                                            className="w-10/12 absolute bottom-12"
-                                            type={currentStep === totalSteps - 1 ? "submit" : "button"}
-                                            onClick={handleNextStep}
-                                        >
-                                            {currentStep === totalSteps - 1 ? "Finalizar" : "Continuar"}
-                                        </Button>
+                                        // botao provisório para pular apenas no cnpj
+                                        <div className="flex justify-between w-10/12 absolute bottom-12">
+                                            {currentStep === 2 && (
+                                                <Button
+                                                    className="w-4/12 bg-gray-300 text-gray-900 hover:bg-gray-100"
+                                                    type={currentStep === totalSteps - 1 ? "submit" : "button"}
+                                                    onClick={handleNextStep}
+                                                >
+                                                    Pular
+                                                </Button>
+                                            )}
+                                            <Button
+                                                disabled={!isValid}
+                                                className={currentStep === 2 ? "w-7/12" : "w-full"}
+                                                type={currentStep === totalSteps - 1 ? "submit" : "button"}
+                                                onClick={handleNextStep}
+                                            >
+                                                {currentStep === totalSteps - 1 ? "Finalizar" : "Continuar"}
+                                            </Button>
+                                        </div>
                                     )
                                 }
 
