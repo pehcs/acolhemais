@@ -6,6 +6,7 @@ import OngProfile from "@/pages/ong/profile/ong-profile.tsx";
 import {BrowserRouter, Route, Routes} from 'react-router-dom';
 import OngRegister from "@/pages/ong/register/ong-register.tsx";
 import OngProfileUpdate from "@/pages/ong/profile/ong-profile-update.tsx";
+import LoginApp from "@/pages/login/login.tsx";
 
 const queryClient = new QueryClient();
 
@@ -16,6 +17,7 @@ function App() {
             <BrowserRouter>
                 <Routes>
                     <Route path="/" component={<h1>Home</h1>}/>
+                    <Route path="/login" element={<LoginApp/>}/>
                     <Route path="/ong" element={<OngRegister/>}/>
                     <Route path="/ong/admin/:id" element={<OngProfile/>}/>
                     <Route path="/ong/admin/:id/config" element={<OngProfileUpdate/>}/>
