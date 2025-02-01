@@ -293,7 +293,7 @@ export default function OngProfile() {
                         </p>
                     </div>
                     <div
-                        className="flex items-center justify-center flex-wrap gap-2 h-36 overflow-scroll my-6">
+                        className="flex items-center justify-center flex-wrap gap-2 max-h-36 overflow-scroll my-6">
                         {
                             ongData?.publico_alvo.map((p, key) => (
                                 <div key={key}

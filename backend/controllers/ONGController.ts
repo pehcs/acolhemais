@@ -34,7 +34,10 @@ export default class ONGController {
     static async updateDescription(req: Request, res: Response): Promise<any> {
         try {
             const {id} = req.params;
-            const {description}: string = req.body
+            let {description}: string = req.body
+            if (!description) {
+                description = "Não há descrição"
+            }
             const savedOng = await ONGRepository.updateDescription(id, description)
             return res.status(200).json(
                 ONGMapper.toCompleteResponse(savedOng)
