@@ -6,6 +6,7 @@ import ONGMapper from './mappers/ONGMapper';
 import bcrypt from "bcrypt"
 import ONGContactRepository from "../repositories/ONGContactRepository";
 import {BUCKET_NAME, minioClient} from "../minio";
+import ONGUpdateDto from "../repositories/dto/ONGUpdateDto";
 
 export default class ONGController {
 
@@ -40,6 +41,30 @@ export default class ONGController {
             )
         } catch (error) {
             return res.status(500).json(basicError("Erro ao tentar salvar ONG, tente novamente mais tarde"));
+        }
+    }
+
+    static async updatePassword(req: Request, res: Response): Promise<any> {
+        try {
+            const {id} = req.params;
+            const {password}: string = req.body
+            const hashedPassword = await bcrypt.hash(password, 10)
+            await ONGRepository.updatePassword(id, hashedPassword)
+            return res.status(200).end();
+        } catch (error) {
+            return res.status(500).json(basicError("Erro ao trocar senha da ONG, tente novamente mais tarde"));
+        }
+    }
+
+    static async update(req: Request, res: Response): Promise<any> {
+        try {
+            const {id} = req.params;
+            const ongUpdateDto: ONGUpdateDto = req.body
+            await ONGRepository.update(id, ongUpdateDto)
+            return res.status(200).end();
+        } catch (error) {
+            console.log(error)
+            return res.status(500).json(basicError("Erro ao trocar senha da ONG, tente novamente mais tarde"));
         }
     }
 

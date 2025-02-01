@@ -1,5 +1,6 @@
 import db from '../db.ts'
 import CreateONG from "./dto/ONGCreateDto";
+import ONGUpdateDto from "./dto/ONGUpdateDto";
 
 class ONGRepository {
 
@@ -91,6 +92,66 @@ class ONGRepository {
 
     async getImage(id: string): any {
         return db.ongImage.findFirstOrThrow({where: {id: id}});
+    }
+
+    async update(id: string, ongUpdateDto: ONGUpdateDto): Promise<any> {
+        await Promise.all(ongUpdateDto.removed_necessidades.map(removedNecessidadeId =>
+            db.ongNecessidade.delete(
+                {
+                    where: {
+                        id: removedNecessidadeId
+                    }
+                })
+        ));
+        await Promise.all(ongUpdateDto.removed_publico_alvo.map(removedPublicoAlvoId =>
+            db.ongPublicoAlvo.delete(
+                {
+                    where: {
+                        id: removedPublicoAlvoId
+                    }
+                })
+        ));
+        await Promise.all(ongUpdateDto.added_necessidades.map(necessidade =>
+            db.ongNecessidade.create({
+                data: {
+                    ong: {
+                        connect: {id: id},
+                    },
+                    necessidade: {
+                        connectOrCreate: {
+                            where: {tipo: necessidade},
+                            create: {tipo: necessidade}
+                        }
+                    }
+                }
+            })
+        ));
+        await Promise.all(ongUpdateDto.added_publico_alvo.map(publicoAlvo =>
+            db.ongPublicoAlvo.create({
+                data: {
+                    ong: {
+                        connect: {id: id},
+                    },
+                    publicoAlvo: {
+                        connectOrCreate: {
+                            where: {tipo: publicoAlvo},
+                            create: {tipo: publicoAlvo}
+                        }
+                    }
+                }
+            })
+        ));
+        return db.ong.update({
+            where: {id},
+            data: {nome: ongUpdateDto.nome}
+        });
+    }
+
+    async updatePassword(id: string, hashedPassword: string): any {
+        return db.ong.update({
+            where: {id: id},
+            data: {senha: hashedPassword},
+        });
     }
 
     async deleteImage(id: string): any {

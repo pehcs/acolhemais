@@ -16,7 +16,7 @@ export default class ONGMapper {
             },
             necessidades: ong?.ongNecessidade?.map(ongNecessidade => (
                 {
-                    id: ongNecessidade.necessidade.id,
+                    id: ongNecessidade.id,
                     tipo: ongNecessidade.necessidade.tipo
                 }
             )) || [],
@@ -25,7 +25,7 @@ export default class ONGMapper {
             ) || [],
             publico_alvo: ong?.ongPublicoAlvo?.map(ongPublicoAlvo => (
                 {
-                    id: ongPublicoAlvo.publicoAlvo.id,
+                    id: ongPublicoAlvo.id,
                     tipo: ongPublicoAlvo.publicoAlvo.tipo
                 }
             )) || [],

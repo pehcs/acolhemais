@@ -479,8 +479,8 @@ export default function OngRegister() {
                                                 <Label>Senha</Label>
                                                 <div className="relative">
                                                     <Input
-                                                        type={viewPassword ? "text" : "password"}
                                                         {...register("senha")}
+                                                        type={viewPassword ? "text" : "password"}
                                                         icon={
                                                             viewPassword ? (
                                                                 <FiEyeOff

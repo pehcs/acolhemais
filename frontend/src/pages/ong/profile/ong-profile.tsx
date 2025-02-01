@@ -127,7 +127,6 @@ export default function OngProfile() {
             tipo: "",
             valor: "",
         });
-
     }
 
     const handleAddImage = async (event: ChangeEvent<HTMLInputElement>) => {
@@ -293,7 +292,8 @@ export default function OngProfile() {
                             )}
                         </p>
                     </div>
-                    <div className="p-2 flex items-center justify-center flex-wrap py-6 gap-2">
+                    <div
+                        className="flex items-center justify-center flex-wrap gap-2 h-36 overflow-scroll my-6">
                         {
                             ongData?.publico_alvo.map((p, key) => (
                                 <div key={key}

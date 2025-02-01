@@ -1,5 +1,5 @@
 import {useNavigate, useParams} from "react-router-dom";
-import {useQuery} from "react-query";
+import {useQuery, useQueryClient} from "react-query";
 import {api} from "@/utils/api.ts";
 import {Ong} from "@/pages/ong/@types/Ong.ts";
 import {Skeleton} from "@/components/ui/skeleton.tsx";
@@ -10,16 +10,64 @@ import {zodResolver} from "@hookform/resolvers/zod";
 import {Input} from "@/components/ui/input.tsx";
 import {Button} from "@/components/ui/button.tsx";
 import {FaArrowLeft} from "react-icons/fa";
-import {FiLogOut} from "react-icons/fi";
+import {FiEye, FiEyeOff} from "react-icons/fi";
 import {TbEdit} from "react-icons/tb";
+import {
+    Dialog,
+    DialogContent,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger
+} from "@/components/ui/dialog.tsx";
+import {Label} from "@/components/ui/label.tsx";
+import {toast} from "react-toastify";
 
-const ongDataSchema = z.object({
-    nome: z.string().min(2, "Nome inválido")
+const ongUpdatechema = z.object({
+    nome: z.string().min(2, {message: "Nome inválido"}),
+    added_publico_alvo: z.array(),
+    removed_publico_alvo: z.array(),
+    added_necessidades: z.array(),
+    removed_necessidades: z.array(),
 })
-type OngUpdateSchema = z.infer<typeof ongDataSchema>
+const ongPasswordchema = z.object({
+    senha: z.string().min(8, {message: "Use pelo menos 8 caracteres"}),
+    contraSenha: z.string().min(8, {message: "Use pelo menos 8 caracteres"}),
+})
+type OngUpdateSchema = z.infer<typeof ongUpdatechema>
+type OngPasswordSchema = z.infer<typeof ongPasswordchema>
 
+const publicoAlvoOptions = [
+    "Crianças",
+    "Adolescentes",
+    "Adultos",
+    "Idosos",
+    "Homens",
+    "Mulheres",
+    "População negra",
+    "População Indígena",
+    "LGBTQIA+",
+    "Pessoas com Deficiência",
+];
+
+const necessidadesOptions = [
+    "Assistência Social",
+    "Educação",
+    "Saúde",
+    "Saúde Mental",
+    "Meio Ambiente",
+    "Combate à Pobreza e Fome",
+    "Cultura e Arte",
+    "Igualdade de Gênero",
+    "Direitos Humanos",
+    "Justiça Social",
+    "Esporte e Lazer",
+    "Animais",
+    "Desenvolvimento Comunitário",
+    "Desastres e emergências",
+    "Emprego",
+];
 export default function OngProfileUpdate() {
-    const [address, setAddress] = useState("");
     const {id} = useParams()
     const navigate = useNavigate()
     const ongQuery = useQuery(
@@ -28,14 +76,6 @@ export default function OngProfileUpdate() {
             queryFn: async (): Ong => {
                 const {data} = await api.get<Ong>(`/v1/ong/${id}`);
                 return data
-            },
-            onSuccess: async (data: Ong) => {
-                const reverseGeoResponse = await fetch(
-                    `https://nominatim.openstreetmap.org/reverse?lat=${data.localizacao.latitude}&lon=${data.localizacao.longitude}&format=jsonv2`
-                );
-                const reverseGeoData = await reverseGeoResponse.json();
-                const address = `${reverseGeoData.address.suburb}, ${reverseGeoData.address.city} - ${reverseGeoData.address.state}` || "Endereço não encontrado";
-                setAddress(address);
             }
         })
     const {data: ongData} = ongQuery
@@ -44,12 +84,85 @@ export default function OngProfileUpdate() {
         reset,
         errors,
         setValue,
+        getValues,
     } = useForm<OngUpdateSchema>({
-        resolver: zodResolver(ongDataSchema),
+        resolver: zodResolver(ongUpdatechema),
         defaultValues: {
-            nome: ongData?.nome
+            nome: ongData?.nome,
+            added_necessidades: [],
+            removed_publico_alvo: [],
+            added_publico_alvo: [],
+            removed_necessidades: []
         }
     })
+    const {
+        formState: {errors: passwordErrors},
+        setError: passwordSetError,
+        reset: passwordReset,
+        clearErrors,
+        setValue: passwordSetValue,
+        getValues: passwordGetValues,
+    } = useForm<OngPasswordSchema>({
+        resolver: zodResolver(ongPasswordchema),
+        mode: "onChange",
+    })
+    const [viewPassword, setViewPassword] = useState(false)
+    const [viewConfirmPassword, setViewConfirmPassword] = useState(false)
+    const [isEqualsPassword, setIsEqualsPassword] = useState(false)
+    const queryClient = useQueryClient();
+
+    const handleChangePassword = async () => {
+        await api.patch(`/v1/ong/${id}/password`, {password: passwordGetValues("senha")})
+        toast.success("Senha alterada")
+    }
+
+    const handleUpdate = async () => {
+        await api.put(`/v1/ong/${id}`, {
+            nome: getValues("nome"),
+            added_necessidades: getValues("added_necessidades"),
+            removed_publico_alvo: getValues("removed_publico_alvo"),
+            added_publico_alvo: getValues("added_publico_alvo"),
+            removed_necessidades: getValues("removed_necessidades")
+        })
+        toast.success("Informações alteradas")
+    }
+
+    const handleItem = async (novoTipo: string, ongDataKeyOf: string) => {
+        const filteredIfExists = ongData[ongDataKeyOf].filter(n => n.tipo === novoTipo);
+        if (filteredIfExists.length > 0) {
+            queryClient.setQueryData(["ong_profile"], (oldData: any) => {
+                if (!oldData) return oldData;
+                const newData = oldData[ongDataKeyOf].filter(n => n.tipo !== novoTipo);
+                return {
+                    ...oldData,
+                    [ongDataKeyOf]: newData
+                }
+            })
+            if (filteredIfExists[0].id) {
+                const removed = getValues(`removed_${ongDataKeyOf}`) || [];
+                if (!removed.includes(filteredIfExists[0].id)) {
+                    setValue(`removed_${ongDataKeyOf}`, [...removed, filteredIfExists[0].id]);
+                }
+
+            }
+            return
+        }
+        const item = {
+            id: "",
+            tipo: novoTipo,
+        }
+        queryClient.setQueryData(["ong_profile"], (oldData: any) => {
+            if (!oldData) return oldData;
+            const newData = [...(oldData[ongDataKeyOf]) || [], item]
+            return {
+                ...oldData,
+                [ongDataKeyOf]: newData
+            }
+        })
+        const added = getValues(`added_${ongDataKeyOf}`) || []
+        setValue(`added_${ongDataKeyOf}`, [...added, novoTipo])
+    }
+
     useEffect(() => {
         if (ongData) {
             setValue("nome", ongData.nome || "");
@@ -97,14 +210,11 @@ export default function OngProfileUpdate() {
     return (
         <main>
             <header className="w-full h-20 bg-[#2F49F3] bg-contain">
-                <div className="w-full flex justify-between items-center p-2">
+                <div className="w-3/5 flex justify-between items-center p-2">
                     <Button onClick={() => navigate(`/ong/admin/${id}`)}>
                         <FaArrowLeft className="h-6 w-6"/>
                     </Button>
                     <img className="h-20 w-20" src="/images/logo-white.svg" alt={"Logo acolhe+"}/>
-                    <Button>
-                        <FiLogOut className="h-6 w-6"/>
-                    </Button>
                 </div>
             </header>
             <main className="px-4">
@@ -135,18 +245,6 @@ export default function OngProfileUpdate() {
                                 <label
                                     className="absolute top-2 left-3 text-gray-400 text-sm transition-all duration-200"
                                 >
-                                    Localização
-                                </label>
-                                <Input
-                                    disabled
-                                    value={address}
-                                    className="px-3 pt-[2.6rem] pb-6"
-                                />
-                            </div>
-                            <div className="relative w-full">
-                                <label
-                                    className="absolute top-2 left-3 text-gray-400 text-sm transition-all duration-200"
-                                >
                                     Login
                                 </label>
                                 <Input
@@ -162,38 +260,131 @@ export default function OngProfileUpdate() {
                             <h3 className="mb-2 font-medium">Público alvo</h3>
                             <TbEdit className="h-6 w-6 text-[#61646B]"/>
                         </div>
-                        {
-                            ongData?.publico_alvo.map((p, key) => (
-                                <div key={key}
-                                     className={"bg-[#EFEFF0] text-sm text-[#19191B] w-auto py-2  px-6 rounded-full inline-block"}
-                                >
-                                    {p.tipo}
-                                </div>
-                            ))
-                        }
+                        <div className={"flex gap-2 flex-wrap h-36 overflow-scroll"}>
+                            {
+                                publicoAlvoOptions.map(publicoAlvo => (
+                                    <Button
+                                        onClick={() => handleItem(publicoAlvo, "publico_alvo")}
+                                        className={`w-auto py-0 hover:bg-${ongData.publico_alvo.some(pa => pa.tipo === publicoAlvo) ? "bg-[#FFCF33]" : "bg-[#EFEFF0]"}   ${ongData.publico_alvo.some(pa => pa.tipo === publicoAlvo) ? "bg-[#FFCF33]" : "bg-[#EFEFF0]"} text-[#19191B] focus:outline-none hover:bg-none`}
+                                    >
+                                        {publicoAlvo}
+                                    </Button>
+                                ))
+                            }
+                        </div>
                     </article>
                     <article className="mt-6 w-full">
                         <div className="flex w-full justify-between">
                             <h3 className="mb-2 font-medium">Necessidades</h3>
                             <TbEdit className="h-6 w-6 text-[#61646B]"/>
                         </div>
-                        {
-                            ongData?.necessidades.map((p, key) => (
-                                <div key={key}
-                                     className={"bg-[#EFEFF0] text-sm text-[#19191B] w-auto py-2  px-6 rounded-full inline-block"}
-                                >
-                                    {p.tipo}
-                                </div>
-                            ))
+                        <div className={"flex gap-2 flex-wrap h-36 overflow-scroll"}>
+                            {
+                                necessidadesOptions.map(necessidade => (
+                                    <Button
+                                        onClick={() => handleItem(necessidade, "necessidades")}
+                                        className={`w-auto py-0 hover:bg-${ongData.necessidades.some(pa => pa.tipo === necessidade) ? "bg-[#FFCF33]" : "bg-[#EFEFF0]"}   ${ongData.necessidades.some(pa => pa.tipo === necessidade) ? "bg-[#FFCF33]" : "bg-[#EFEFF0]"} text-[#19191B] focus:outline-none hover:bg-none`}
+                                    >
+                                        {necessidade}
+                                    </Button>
+                                ))
+                            }
+                        </div>
+                    </article>
+                    <Dialog onOpenChange={(open) => {
+                        if (!open) {
+                            passwordReset()
                         }
-                    </article>
-                    <article className="flex mt-6 w-full justify-between">
-                        <h3 className="mb-4 font-medium">Alterar senha</h3>
-                        <TbEdit className="h-6 w-6 text-[#61646B]"/>
-                    </article>
+                    }}>
+                        <DialogTrigger asChild>
+                            <button className="flex mt-6 w-full justify-between">
+                                <h3 className="mb-4 font-medium">Alterar senha</h3>
+                                <TbEdit className="h-6 w-6 text-[#61646B]"/>
+                            </button>
+                        </DialogTrigger>
+                        <DialogContent className="w-11/12 bg-white rounded-xl">
+                            <DialogHeader className="flex items-start">
+                                <DialogTitle>Alterar senha</DialogTitle>
+                            </DialogHeader>
+                            <div className="flex items-center space-x-2">
+                                <div className="grid flex-1 gap-2">
+                                    <div>
+                                        <Label>Nova senha</Label>
+                                        <Input
+                                            type={viewPassword ? "text" : "password"}
+                                            icon={
+                                                viewPassword ? (
+                                                    <FiEyeOff
+                                                        onClick={() => setViewPassword(false)}
+                                                        className="text-[#AFB1B6] absolute right-4 bottom-1/4 w-7 h-6"
+                                                    />
+                                                ) : (
+                                                    <FiEye
+                                                        onClick={() => setViewPassword(true)}
+                                                        className="text-[#AFB1B6] absolute right-4 bottom-1/4 w-7 h-6"
+                                                    />
+                                                )
+                                            }
+                                            onChange={e => {
+                                                passwordSetValue("senha", e.target.value)
+                                                if (e.target.value.length < 8) {
+                                                    passwordSetError("senha", {message: "Utilize ao menos 8 caracteres"})
+                                                    return
+                                                }
+                                                if (e.target.value === passwordGetValues("contraSenha")) {
+                                                    setIsEqualsPassword(true)
+                                                    clearErrors("senha");
+                                                } else {
+                                                    passwordSetError("senha", {message: "As senhas não coincidem"})
+                                                    setIsEqualsPassword(false)
+                                                }
+                                            }}/>
+                                    </div>
+                                    <div>
+                                        <Label>Confirmar senha</Label>
+                                        <Input
+                                            type={viewConfirmPassword ? "text" : "password"}
+                                            onChange={e => {
+                                                passwordSetValue("contraSenha", e.target.value)
+                                                if (e.target.value === passwordGetValues("senha")) {
+                                                    setIsEqualsPassword(true)
+                                                    clearErrors("senha");
+                                                } else {
+                                                    passwordSetError("senha", {message: "As senhas não coincidem"})
+                                                    setIsEqualsPassword(false)
+                                                }
+                                            }}
+                                            icon={viewConfirmPassword ? (
+                                                <FiEyeOff
+                                                    onClick={() => setViewConfirmPassword(false)}
+                                                    className="text-[#AFB1B6] absolute right-4 bottom-1/4 w-7 h-6"
+                                                />
+                                            ) : (
+                                                <FiEye
+                                                    onClick={() => setViewConfirmPassword(true)}
+                                                    className="text-[#AFB1B6] absolute right-4 bottom-1/4 w-7 h-6"
+                                                />
+                                            )}
+                                        />
+                                    </div>
+                                    {
+                                        passwordErrors.senha &&
+                                        <p className={"text-red-500"}>{passwordErrors.senha.message}</p>
+                                    }
+                                </div>
+                            </div>
+                            <DialogFooter className="sm:justify-start">
+                                <DialogTrigger asChild>
+                                    <Button disabled={!isEqualsPassword} onClick={handleChangePassword}>
+                                        Salvar
+                                    </Button>
+                                </DialogTrigger>
+                            </DialogFooter>
+                        </DialogContent>
+                    </Dialog>
                 </div>
-                <div className="flex justify-center mt-12">
-                    <Button className="w-11/12">Salvar</Button>
+                <div className="flex justify-center mt-4 mb-6">
+                    <Button className="w-11/12" onClick={handleUpdate}>Salvar</Button>
                 </div>
 
             </main>
