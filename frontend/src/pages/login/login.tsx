@@ -49,16 +49,16 @@ export default function LoginApp() {
             <div className="fixed top-0 left-0 w-full h-[440px] z-[-1] pointer-events-none">
                 {circle.svg}
             </div>
-
-            <div className="flex justify-center items-center w-full mt-8 gap-4">
-                <h1 className="text-[#FAFAFA] text-xl text-center">Acolhe +</h1>
+            <div className={"flex w-full justify-center items-center mt-4"}>
+                <img className="h-16 w-16" src="/images/logo-white.svg" alt={"Logo acolhe+"}/>
             </div>
-
-            <div className="flex flex-col items-center w-full mt-3 mb-12 gap-4">
+            <div className="flex flex-col items-center w-full mt-3 mb-8 gap-4">
                 <h1 className="text-[#FAFAFA] text-3xl text-center mb-4 font-semibold">Bem-vindo!</h1>
                 <img src="/images/img-1.png" alt=""/>
             </div>
-
+            <Button className="w-full mb-4 bg-[#FFCF33] text-black" type="submit" onClick={() => navigate("/")}>
+                Não sou ONG
+            </Button>
             <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-2">
                 <div className="flex flex-col gap-1">
                     <Label>Email</Label>

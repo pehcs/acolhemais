@@ -22,6 +22,12 @@ export default class LoginController {
             sameSite: "strict",
             maxAge: 30 * 24 * 60 * 60 * 1000,
         });
+        res.cookie("ongId", ong.id, {
+            httpOnly: false,
+            secure: process.env.NODE_ENV === "production",
+            sameSite: "strict",
+            maxAge: 30 * 24 * 60 * 60 * 1000, // 30 dias
+        });
         res.status(200).end();
     }
 }

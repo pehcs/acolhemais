@@ -25,8 +25,10 @@ export type Ong = {
     cnpj: string;
     data_criacao: number;
     localizacao: Coordinates;
+    endereco: string;
     necessidades: Necessidade[];
     images: string[];
     publico_alvo: PublicoAlvo[];
     contatos: Contatos[];
 };
+

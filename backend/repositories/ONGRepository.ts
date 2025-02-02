@@ -28,6 +28,7 @@ class ONGRepository {
                 descricao: "Não há descrição",
                 nome: createONG.nome,
                 cnpj: createONG.cnpj,
+                endereco: createONG.endereco,
                 data_criacao: createONG.data_criacao,
                 lat: createONG.localizacao[0],
                 lon: createONG.localizacao[1],
@@ -241,6 +242,7 @@ class ONGRepository {
                             tipoContato: true
                         },
                     },
+                    ongImage: true
                 },
             }
         );

@@ -5,6 +5,7 @@ type CreateONG = {
     cnpj: string;
     data_criacao: number;
     localizacao: number[];
+    endereco: number[];
     publico_alvo: string[],
     necessidades: string[],
 }

@@ -10,6 +10,7 @@ export default class ONGMapper {
             descricao: ong.descricao,
             cnpj: ong.cnpj,
             data_criacao: ong.data_criacao,
+            endereco: ong.endereco,
             localizacao: {
                 latitude: ong.lat,
                 longitude: ong.lon,
