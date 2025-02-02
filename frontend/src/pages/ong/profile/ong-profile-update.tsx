@@ -112,19 +112,27 @@ export default function OngProfileUpdate() {
     const queryClient = useQueryClient();
 
     const handleChangePassword = async () => {
-        await api.patch(`/v1/ong/${id}/password`, {password: passwordGetValues("senha")})
-        toast.success("Senha alterada")
+        try {
+            await api.patch(`/v1/ong/${id}/password`, {password: passwordGetValues("senha")})
+            toast.success("Senha alterada")
+        } catch (e) {
+            toast.error("Falha ao alterar informações")
+        }
     }
 
     const handleUpdate = async () => {
-        await api.put(`/v1/ong/${id}`, {
-            nome: getValues("nome"),
-            added_necessidades: getValues("added_necessidades"),
-            removed_publico_alvo: getValues("removed_publico_alvo"),
-            added_publico_alvo: getValues("added_publico_alvo"),
-            removed_necessidades: getValues("removed_necessidades")
-        })
-        toast.success("Informações alteradas")
+        try {
+            await api.put(`/v1/ong/${id}`, {
+                nome: getValues("nome"),
+                added_necessidades: getValues("added_necessidades"),
+                removed_publico_alvo: getValues("removed_publico_alvo"),
+                added_publico_alvo: getValues("added_publico_alvo"),
+                removed_necessidades: getValues("removed_necessidades")
+            })
+            toast.success("Informações alteradas")
+        } catch (e) {
+            toast.error("Falha ao alterar informações")
+        }
     }
 
     const handleItem = async (novoTipo: string, ongDataKeyOf: string) => {

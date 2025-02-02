@@ -216,6 +216,10 @@ export default function OngRegister() {
     };
 
     const handlePreviousStep = () => {
+        if (currentStep === 0) {
+            navigate("/login")
+            return
+        }
         if (currentStep > 0) {
             setCurrentStep((prev) => prev - 1);
         }
@@ -282,7 +286,6 @@ export default function OngRegister() {
                                     variant="icon"
                                     type="button"
                                     onClick={handlePreviousStep}
-                                    disabled={currentStep === 0}
                                 >
                                     <GoArrowLeft className="w-7 h-7"/>
                                 </Button>

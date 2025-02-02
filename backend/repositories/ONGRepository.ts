@@ -245,6 +245,14 @@ class ONGRepository {
             }
         );
     }
+
+    async findByLogin(login: string) {
+        return db.ong.findFirst({
+            where: {
+                login: login
+            }
+        });
+    }
 }
 
 export default new ONGRepository() 
