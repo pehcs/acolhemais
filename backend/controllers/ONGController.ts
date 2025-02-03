@@ -154,6 +154,7 @@ export default class ONGController {
             });
             return res.status(201).end();
         } catch (error) {
+            console.log(error)
             return res.status(500).json(basicError("Erro ao buscar ONG"));
         }
     }
@@ -165,14 +166,15 @@ export default class ONGController {
             if (!ong) {
                 return res.status(404).json(basicError("ONG não encontrada."));
             }
+            res.setHeader('Content-Type', 'image/png');
             minioClient.getObject(BUCKET_NAME, `${id}-logo`, (err, dataStream) => {
                 if (err) {
                     return res.status(404).json({message: 'Arquivo não encontrado', error: err});
                 }
-                res.setHeader('Content-Type', 'image/png');
                 dataStream.pipe(res);
             });
         } catch (error) {
+            console.log(error)
             return res.status(500).json(basicError("Erro ao buscar ONG"));
         }
     }
