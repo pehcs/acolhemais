@@ -248,7 +248,7 @@ export default function OngRegister() {
         setValue("localizacao", [newCoordinates.latitude, newCoordinates.longitude])
     }
     return (
-        <div className="h-screen px-4 overflow-hidden">
+        <div className="px-4 overflow-scroll pb-8">
             {
                 registerFinished.finished ? (
                         <>
@@ -543,7 +543,7 @@ export default function OngRegister() {
                                     registerOngMutation.isLoading ? (
                                         <Button
                                             disabled={true}
-                                            className="w-10/12 absolute bottom-12"
+                                            className="w-full"
                                             type={currentStep === totalSteps - 1 ? "submit" : "button"}
                                             onClick={handleNextStep}
                                         >
@@ -551,8 +551,7 @@ export default function OngRegister() {
                                             <AiOutlineLoading3Quarters className="animate-spin"/>
                                         </Button>
                                     ) : (
-                                        // botao provisório para pular apenas no cnpj
-                                        <div className="flex justify-between w-10/12 absolute bottom-12">
+                                        <div className="flex justify-between w-full my-12">
                                             {currentStep === 2 && (
                                                 <Button
                                                     className="w-4/12 bg-gray-300 text-gray-900 hover:bg-gray-100"
