@@ -99,7 +99,16 @@ export default function OngAdminProfile() {
     }
     const fileInputRef = useRef<HTMLInputElement | null>(null);
     const logoInputRef = useRef<HTMLInputElement | null>(null);
-
+    const getCookie = (name: string) => {
+        return document.cookie
+            .split("; ")
+            .find(row => row.startsWith(name + "="))
+            ?.split("=")[1] || "";
+    };
+    const ongId = getCookie("ongId");
+    if (ongId !== id) {
+        return navigate("/")
+    }
     const handleAddContact = async () => {
         const {data} = await api.post(`/v1/ong/${id}/contact`, {
             tipo: getValues("tipo"),
