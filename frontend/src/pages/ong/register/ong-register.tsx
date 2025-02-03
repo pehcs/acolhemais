@@ -17,6 +17,7 @@ import {api} from "@/utils/api.ts";
 import {AiOutlineLoading3Quarters} from "react-icons/ai";
 import {Ong} from "@/pages/ong/@types/Ong.ts";
 import {useNavigate} from "react-router-dom";
+import {AxiosResponse} from "axios";
 
 
 function isValidCNPJ(cnpj: string): boolean {
@@ -167,9 +168,9 @@ export default function OngRegister() {
     });
     const registerOngMutation = useMutation({
         mutationKey: "register",
-        mutationFn: async (ongRegister: OngRegisterSchema) => {
+        mutationFn: async (ongRegister: OngRegisterSchema): Ong => {
             try {
-                const {data}: Ong = await api.post("/v1/ong", ongRegister);
+                const {data} = await api.post<AxiosResponse<Ong>>("/v1/ong", ongRegister);
                 return data
             } catch (error) {
                 console.error(error);
@@ -535,7 +536,7 @@ export default function OngRegister() {
                                 }
                                 {
                                     registerOngMutation.isError && (
-                                        <p className="text-red-500 ">{registerOngMutation.error?.message}</p>
+                                        <p className="text-red-500 ">{(registerOngMutation.error as Error)?.message || "Ocorreu um erro."}</p>
                                     )
                                 }
                                 {

@@ -23,7 +23,9 @@ const MapUpdater = ({position, setPosition, onCoordinatesChange}: {
 
     useMapEvents({
         click: (e) => {
-            onCoordinatesChange({latitude: e.latlng.lat, longitude: e.latlng.lng})
+            if (onCoordinatesChange) {
+                onCoordinatesChange({latitude: e.latlng.lat, longitude: e.latlng.lng});
+            }
             setPosition({latitude: e.latlng.lat, longitude: e.latlng.lng});
         },
     });
@@ -45,7 +47,9 @@ const Map = ({pos, cep, onCoordinatesChange, height}: {
                     if (isCep(cep)) {
                         const {latitude, longitude} = await getLatLonFromCep(cep);
                         setPosition({latitude, longitude});
-                        onCoordinatesChange({latitude, longitude})
+                        if (onCoordinatesChange) {
+                            onCoordinatesChange({latitude, longitude})
+                        }
                     }
 
                 } catch (_) {
@@ -58,7 +62,9 @@ const Map = ({pos, cep, onCoordinatesChange, height}: {
     useEffect(() => {
         if (pos) {
             setPosition(pos);
-            onCoordinatesChange(pos)
+            if (onCoordinatesChange) {
+                onCoordinatesChange(pos)
+            }
         }
     }, [pos]);
 
@@ -70,7 +76,10 @@ const Map = ({pos, cep, onCoordinatesChange, height}: {
                         latitude: pos.coords.latitude,
                         longitude: pos.coords.longitude,
                     });
-                    onCoordinatesChange({latitude: pos.coords.latitude, longitude: pos.coords.longitude})
+                    if (onCoordinatesChange) onCoordinatesChange({
+                        latitude: pos.coords.latitude,
+                        longitude: pos.coords.longitude
+                    })
                 },
                 (error) => {
                     console.error(error);
@@ -101,7 +110,7 @@ const Map = ({pos, cep, onCoordinatesChange, height}: {
 };
 
 
-const getLatLonFromCep = async (cep: string): Promise<AddressLatLon> => {
+const getLatLonFromCep = async (cep: string): Promise<AddressLatLon> | null => {
     try {
         const isValidCep = /^\d{5}-?\d{3}$/.test(cep);
         if (!isValidCep) {

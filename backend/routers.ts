@@ -18,11 +18,11 @@ router.put('/v1/ong/:id', authMiddleware, ONGController.update);
 router.post('/v1/ong/:id/contact', authMiddleware, ONGController.addContact);
 router.delete('/v1/ong/contact/:id', authMiddleware, ONGController.removeContact);
 
-router.post('/v1/ong/:id/logo', authMiddleware, upload.single('logo'), ONGController.saveLogo);
+router.post('/v1/ong/:id/logo', upload.single('logo'), ONGController.saveLogo);
 router.get('/v1/ong/:id/logo', ONGController.getLogo);
 
-router.post('/v1/ong/:id/image', authMiddleware, upload.single('picture'), ONGController.addImage);
-router.delete('/v1/ong/:id/image', authMiddleware, ONGController.removeImage);
+router.post('/v1/ong/:id/image', upload.single('picture'), ONGController.addImage);
+router.delete('/v1/ong/:id/image', ONGController.removeImage);
 router.get('/v1/ong-image/:id', ONGController.getImage);
 
 export default router;
