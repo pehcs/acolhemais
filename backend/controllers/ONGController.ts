@@ -7,6 +7,7 @@ import bcrypt from "bcrypt"
 import ONGContactRepository from "../repositories/ONGContactRepository";
 import {BUCKET_NAME, minioClient} from "../minio";
 import ONGUpdateDto from "../repositories/dto/ONGUpdateDto";
+import jwt from "jsonwebtoken";
 
 export default class ONGController {
 
@@ -28,6 +29,25 @@ export default class ONGController {
             createONG.endereco = `${reverseGeoData.address.suburb}, ${reverseGeoData.address.city} - ${reverseGeoData.address.state}` || "Não localizada"
             createONG.senha = await bcrypt.hash(createONG.senha, 10)
             const savedOng = await ONGRepository.save(createONG)
+            try {
+                const token = jwt.sign({id: savedOng.id}, process.env.SECRET_KEY as string, {expiresIn: "30d"});
+
+                res.cookie("AccessToken", token, {
+                    httpOnly: true,
+                    secure: process.env.NODE_ENV === "production",
+                    sameSite: "strict",
+                    maxAge: 30 * 24 * 60 * 60 * 1000,
+                });
+                res.cookie("ongId", savedOng.id, {
+                    httpOnly: false,
+                    secure: process.env.NODE_ENV === "production",
+                    sameSite: "strict",
+                    maxAge: 30 * 24 * 60 * 60 * 1000, // 30 dias
+                });
+            } catch (error) {
+                console.log(error);
+            }
+
             return res.status(201).json(
                 ONGMapper.toCompleteResponse(savedOng)
             )
