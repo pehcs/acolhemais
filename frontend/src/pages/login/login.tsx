@@ -45,7 +45,7 @@ export default function LoginApp() {
     };
 
     return (
-        <div className="h-screen px-6 overflow-hidden">
+        <div className="h-screen px-6 overflow-scroll">
             <div className="fixed top-0 left-0 w-full h-[440px] z-[-1] pointer-events-none">
                 {circle.svg}
             </div>
