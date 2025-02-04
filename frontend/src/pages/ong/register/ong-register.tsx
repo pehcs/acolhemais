@@ -120,7 +120,7 @@ export default function OngRegister() {
             nome: "",
             data_criacao: 2024,
             cep: "",
-            localizacao: [0, 0],
+            localizacao: [-8.063169, -34.871139],
             publico_alvo: [publicoAlvoOptions[0]],
             necessidades: [necessidadesOptions[1]],
             cnpj: "",

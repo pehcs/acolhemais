@@ -38,7 +38,7 @@ const Map = ({pos, cep, onCoordinatesChange, height}: {
     height?: number,
     onCoordinatesChange?: (newCoordinates: Coordinates) => void
 }) => {
-    const [position, setPosition] = useState<Coordinates>({latitude: 0, longitude: 0});
+    const [position, setPosition] = useState<Coordinates>({latitude: -8.063169, longitude: -34.871139});
     useEffect(() => {
         if (cep) {
             const fetchLocation = async () => {
@@ -94,6 +94,48 @@ const Map = ({pos, cep, onCoordinatesChange, height}: {
             console.error("Geolocalização não é suportada pelo navegador.");
         }
     }, []);
+
+    useEffect(() => {
+        const checkPermissionAndGetLocation = async () => {
+            try {
+                const permissionStatus = await navigator.permissions.query({name: "geolocation"});
+
+                if (permissionStatus.state === "granted") {
+                    navigator.geolocation.getCurrentPosition(
+                        (pos) => {
+                            const newPosition = {
+                                latitude: pos.coords.latitude,
+                                longitude: pos.coords.longitude,
+                            };
+                            setPosition(newPosition);
+                            if (onCoordinatesChange) onCoordinatesChange(newPosition);
+                        },
+                        {enableHighAccuracy: true, timeout: 10000, maximumAge: 0}
+                    );
+                }
+
+                permissionStatus.onchange = () => {
+                    if (permissionStatus.state === "granted") {
+                        navigator.geolocation.getCurrentPosition(
+                            (pos) => {
+                                const newPosition = {
+                                    latitude: pos.coords.latitude,
+                                    longitude: pos.coords.longitude,
+                                };
+                                setPosition(newPosition);
+                                if (onCoordinatesChange) onCoordinatesChange(newPosition);
+                            },
+                            {enableHighAccuracy: true, timeout: 10000, maximumAge: 0}
+                        );
+                    }
+                };
+            } catch (error) {
+                console.error(error);
+            }
+        };
+        checkPermissionAndGetLocation();
+    }, []);
+
 
     return (
         <div className={"overflow-none"}>
