@@ -1,11 +1,20 @@
 import axios from "axios";
 
-const serverURI = import.meta.env.VITE_BASE_URL || "http://localhost:3001";
+const serverURI = import.meta.env.VITE_BASE_URL || "http://192.168.0.103:3001";
 
 const api = axios.create({
-    baseURL: serverURI,
-    withCredentials: true,
+    baseURL: serverURI
 });
+api.interceptors.request.use(
+    config => {
+        const token = localStorage.getItem("token");
+        if (token) {
+            config.headers.Authorization = `Bearer ${token}`;
+        }
+        return config;
+    },
+    error => Promise.reject(error)
+);
 
 api.interceptors.response.use(
     response => response,

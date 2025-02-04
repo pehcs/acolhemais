@@ -69,7 +69,7 @@ export default function OngAdminProfile() {
                 return data
             }
         })
-    const {data: ongData} = ongQuery
+    const {data: ongData, refetch} = ongQuery
     const {
         getValues,
         register: addContactRegister,
@@ -94,18 +94,13 @@ export default function OngAdminProfile() {
     const navigate = useNavigate()
     const descriptionWatch = useWatch({control, name: "descricao"})
     const handleUpdate = async () => {
-        await api.patch(`/v1/ong/${id}/description`, {description: descriptionWatch})
+        await api.put(`/v1/ong/${id}/description`, {description: descriptionWatch})
         setEditMode(false);
+        await refetch()
     }
     const fileInputRef = useRef<HTMLInputElement | null>(null);
     const logoInputRef = useRef<HTMLInputElement | null>(null);
-    const getCookie = (name: string) => {
-        return document.cookie
-            .split("; ")
-            .find(row => row.startsWith(name + "="))
-            ?.split("=")[1] || "";
-    };
-    const ongId = getCookie("ongId");
+    const ongId = localStorage.getItem("ongId");
     if (ongId !== id) {
         return navigate("/")
     }
@@ -126,6 +121,7 @@ export default function OngAdminProfile() {
             tipo: "",
             valor: "",
         });
+        await refetch()
     }
 
     const handleAddImage = async (event: ChangeEvent<HTMLInputElement>) => {
@@ -146,6 +142,7 @@ export default function OngAdminProfile() {
         } catch (error) {
             console.error(error);
         }
+        await refetch()
     };
 
     const handleRemoveImage = async (id: string) => {
@@ -157,6 +154,7 @@ export default function OngAdminProfile() {
                 images: oldData.images.filter((image: any) => image !== id),
             };
         });
+        await refetch()
     }
 
     const handleRemoveContact = async (id: string) => {
@@ -168,6 +166,7 @@ export default function OngAdminProfile() {
                 contatos: oldData.contatos.filter((contato: any) => contato.id !== id),
             };
         });
+        await refetch()
     }
 
     const handleChangeLogo = async (event: ChangeEvent<HTMLInputElement>) => {
@@ -180,6 +179,7 @@ export default function OngAdminProfile() {
                 `/v1/ong/${id}/logo`,
                 formData
             );
+            setLogoURL(`/v1/ong/${id}/logo?t=${Date.now()}`);
             if (response.status === 201) {
                 toast.success("Logo alterada.")
             } else {
@@ -188,7 +188,7 @@ export default function OngAdminProfile() {
         } catch (error) {
             console.error(error);
         }
-
+        await refetch()
     };
     useEffect(() => {
         if (ongData) {
@@ -272,7 +272,8 @@ export default function OngAdminProfile() {
                     <Avatar className="w-24 h-24 mt-2 border-2 border-[#2F49F3]">
                         {
                             logoURL ? (
-                                <AvatarImage src={serverURI + `/v1/ong/${id}/logo`}/>
+                                <AvatarImage src={serverURI + logoURL + `?t=${Date.now()}`}/>
+
                             ) : (
                                 <AvatarImage src={"/images/invalidLogo.png"}/>
                             )

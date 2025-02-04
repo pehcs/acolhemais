@@ -248,7 +248,7 @@ export default function OngRegister() {
         setValue("localizacao", [newCoordinates.latitude, newCoordinates.longitude])
     }
     return (
-        <div className="px-4 overflow-scroll pb-8">
+        <div className="px-4 overflow-scroll h-screen">
             {
                 registerFinished.finished ? (
                         <>
@@ -280,300 +280,295 @@ export default function OngRegister() {
                     )
                     :
                     (
-                        <form onSubmit={handleSubmit(onSubmit)}>
-                            <div className="flex flex-row items-center w-full mt-8 mb-12 gap-4">
-                                <Button
-                                    className="p-0"
-                                    variant="icon"
-                                    type="button"
-                                    onClick={handlePreviousStep}
-                                >
-                                    <GoArrowLeft className="w-7 h-7"/>
-                                </Button>
-                                <div className="h-2 w-3/4">
-                                    <Progress value={(currentStep / (totalSteps - 1)) * 100}/>
-                                </div>
-                            </div>
-                            <div className="mt-8 h-[44%] p-4 flex flex-col justify-between">
-                                <div className="flex flex-col gap-10 w-full">
-                                    <div className="text-[#19191B] text-2xl flex flex-col items-center gap-10">
-                                        <h2 className="text-center">{steps[currentStep].title}</h2>
-                                        <div className="w-full h-64 flex justify-center">
-                                            <img src={steps[currentStep].image}/>
-                                        </div>
+                        <form onKeyDown={(e) => e.key === "Enter" && e.preventDefault()}
+                              className={"h-[90%] flex flex-col justify-between py-8"}
+                              onSubmit={handleSubmit(onSubmit)}>
+                            <div className={"flex flex-col gap-4"}>
+                                <div className="flex flex-row items-center w-full gap-4">
+                                    <Button
+                                        className="p-0"
+                                        variant="icon"
+                                        type="button"
+                                        onClick={handlePreviousStep}
+                                    >
+                                        <GoArrowLeft className="w-7 h-7"/>
+                                    </Button>
+                                    <div className="h-2 w-3/4">
+                                        <Progress value={(currentStep / (totalSteps - 1)) * 100}/>
                                     </div>
-                                    {currentStep === 0 && (
-                                        <div className="flex flex-col">
-                                            <Label>
-                                                Nome
-                                            </Label>
-                                            <Input
-                                                id="nome"
-                                                type="text"
-                                                {...register("nome")}
-                                            />
-                                            {errors.nome && (
-                                                <p className="text-red-500">{errors.nome.message}</p>
-                                            )}
+                                </div>
+                                <div className="p-4 flex flex-col gap-2">
+                                    <div className="flex flex-col gap-10 w-full">
+                                        <div
+                                            className="text-[#19191B] h-full text-2xl flex flex-col items-center gap-10">
+                                            <h2 className="text-center">{steps[currentStep].title}</h2>
+                                            <div className="w-full h-36 flex justify-center">
+                                                <img src={steps[currentStep].image}/>
+                                            </div>
                                         </div>
-                                    )}
-                                    {
-                                        currentStep === 1 && (
-                                            <>
-                                                <div className="w-full flex flex-col items-center gap-2">
-                                                    <Button
-                                                        className="p-0 w-12"
-                                                        variant="icon"
-                                                        type="button"
-                                                        onClick={() => {
-                                                            const currentValue = getValues("data_criacao") || new Date().getFullYear();
-                                                            if (currentValue < new Date().getFullYear()) {
-                                                                setValue("data_criacao", currentValue + 1);
-                                                            }
-                                                        }}
-                                                    >
-                                                        <RiArrowUpSLine
-                                                            className="w-7 h-7 text-[#AFB1B6] hover:text-[#2F49F3] transition-colors duration-300"/>
-                                                    </Button>
-                                                    <div className="flex flex-col w-1/2">
-                                                        <Input
-                                                            min={1900}
-                                                            max={new Date().getFullYear()}
-                                                            className="text-center"
-                                                            type="number"
-                                                            {...register("data_criacao", {valueAsNumber: true})}
-                                                        />
-                                                        {errors.data_criacao && (
-                                                            <p className="text-red-500">{errors.data_criacao.message}</p>
-                                                        )}
+                                        {currentStep === 0 && (
+                                            <div className="flex flex-col">
+                                                <Label>
+                                                    Nome
+                                                </Label>
+                                                <Input
+                                                    id="nome"
+                                                    type="text"
+                                                    {...register("nome")}
+                                                />
+                                                {errors.nome && (
+                                                    <p className="text-red-500">{errors.nome.message}</p>
+                                                )}
+                                            </div>
+                                        )}
+                                        {
+                                            currentStep === 1 && (
+                                                <>
+                                                    <div className="w-full flex flex-col items-center gap-2">
+                                                        <Button
+                                                            className="p-0 w-12"
+                                                            variant="icon"
+                                                            type="button"
+                                                            onClick={() => {
+                                                                const currentValue = getValues("data_criacao") || new Date().getFullYear();
+                                                                if (currentValue < new Date().getFullYear()) {
+                                                                    setValue("data_criacao", currentValue + 1);
+                                                                }
+                                                            }}
+                                                        >
+                                                            <RiArrowUpSLine
+                                                                className="w-7 h-7 text-[#AFB1B6] hover:text-[#2F49F3] transition-colors duration-300"/>
+                                                        </Button>
+                                                        <div className="flex flex-col w-1/2">
+                                                            <Input
+                                                                min={1900}
+                                                                max={new Date().getFullYear()}
+                                                                className="text-center"
+                                                                type="number"
+                                                                {...register("data_criacao", {valueAsNumber: true})}
+                                                            />
+                                                            {errors.data_criacao && (
+                                                                <p className="text-red-500">{errors.data_criacao.message}</p>
+                                                            )}
+                                                        </div>
+                                                        <Button
+                                                            className="p-0 w-12"
+                                                            variant="icon"
+                                                            type="button"
+                                                            onClick={() => {
+                                                                const currentValue = getValues("data_criacao") || new Date().getFullYear();
+                                                                if (currentValue > 1900) {
+                                                                    setValue("data_criacao", currentValue - 1);
+                                                                }
+                                                            }}
+                                                        >
+                                                            <RiArrowDownSLine
+                                                                className="w-7 h-7 text-[#AFB1B6] hover:text-[#2F49F3] transition-colors duration-300"/>
+                                                        </Button>
                                                     </div>
-                                                    <Button
-                                                        className="p-0 w-12"
-                                                        variant="icon"
-                                                        type="button"
-                                                        onClick={() => {
-                                                            const currentValue = getValues("data_criacao") || new Date().getFullYear();
-                                                            if (currentValue > 1900) {
-                                                                setValue("data_criacao", currentValue - 1);
-                                                            }
-                                                        }}
-                                                    >
-                                                        <RiArrowDownSLine
-                                                            className="w-7 h-7 text-[#AFB1B6] hover:text-[#2F49F3] transition-colors duration-300"/>
-                                                    </Button>
+                                                </>
+                                            )
+                                        }
+                                    </div>
+                                    {
+                                        currentStep === 2 && (
+                                            <div className="flex flex-col">
+                                                <Label>
+                                                    CNPJ (Opcional)
+                                                </Label>
+                                                <Input
+                                                    type="text"
+                                                    {...register("cnpj")}
+                                                />
+                                                {errors.cnpj && (
+                                                    <p className="text-red-500">{errors.cnpj.message}</p>
+                                                )}
+                                            </div>
+                                        )
+                                    }
+                                    {
+                                        currentStep === 3 && (
+                                            <>
+                                                <div>
+                                                    <Label>CEP da ONG</Label>
+                                                    <Input
+                                                        id="cep"
+                                                        {...register("cep")}
+                                                    />
+                                                    {errors.cep && (
+                                                        <p className="text-red-500 ">{errors.cep.message}</p>
+                                                    )}
+                                                    <div
+                                                        className={errors.cep ? "h-56 mt-2 overflow-hidden" : "h-56 mt-8 overflow-hidden"}>
+                                                        <Map cep={cep} onCoordinatesChange={handleChangeCoordinates}/>
+                                                    </div>
                                                 </div>
                                             </>
                                         )
                                     }
-                                </div>
-                                {
-                                    currentStep === 2 && (
-                                        <div className="flex flex-col">
-                                            <Label>
-                                                CNPJ
-                                            </Label>
-                                            <Input
-                                                type="text"
-                                                {...register("cnpj")}
-                                            />
-                                            {errors.cnpj && (
-                                                <p className="text-red-500">{errors.cnpj.message}</p>
-                                            )}
-                                        </div>
-                                    )
-                                }
-                                {
-                                    currentStep === 3 && (
-                                        <>
-                                            <div>
-                                                <Label>CEP da ONG</Label>
-                                                <Input
-                                                    id="cep"
-                                                    {...register("cep")}
-                                                />
-                                                {errors.cep && (
-                                                    <p className="text-red-500 ">{errors.cep.message}</p>
-                                                )}
-                                                <div
-                                                    className={errors.cep ? "h-56 mt-2 overflow-hidden" : "h-56 mt-8 overflow-hidden"}>
-                                                    <Map cep={cep} onCoordinatesChange={handleChangeCoordinates}/>
+                                    {
+                                        currentStep === 4 && (
+                                            <>
+                                                <div className="mt-10 flex gap-2 w-11/12 flex-wrap justify-center">
+                                                    {publicoAlvoOptions.map((option) => (
+                                                        <Button
+                                                            key={option}
+                                                            onClick={() => {
+                                                                let values = getValues("publico_alvo");
+                                                                if (!values.includes(option)) {
+                                                                    values.push(option);
+                                                                    setValue("publico_alvo", values)
+                                                                } else {
+                                                                    values = values.filter((item) => item !== option);
+                                                                    setValue("publico_alvo", values)
+                                                                }
+                                                                trigger("publico_alvo")
+                                                            }}
+                                                            type="button"
+                                                            className={`w-auto py-0 hover:bg-${publicoAlvo?.includes(option) ? "bg-[#FFCF33]" : "bg-[#EFEFF0]"} ${publicoAlvo?.includes(option) ? "bg-[#FFCF33]" : "bg-[#EFEFF0]"} text-[#19191B] focus:outline-none hover:bg-none`}
+                                                        >
+                                                            {option}
+                                                        </Button>
+                                                    ))}
+                                                    {errors.publico_alvo && (
+                                                        <p className="text-red-500 ">{errors.publico_alvo.message}</p>
+                                                    )}
                                                 </div>
-                                            </div>
-                                        </>
-                                    )
-                                }
-                                {
-                                    currentStep === 4 && (
-                                        <>
-                                            <div className="mt-10 flex gap-2 w-11/12 flex-wrap justify-center">
-                                                {publicoAlvoOptions.map((option) => (
-                                                    <Button
-                                                        key={option}
-                                                        onClick={() => {
-                                                            let values = getValues("publico_alvo");
-                                                            if (!values.includes(option)) {
-                                                                values.push(option);
-                                                                setValue("publico_alvo", values)
-                                                            } else {
-                                                                values = values.filter((item) => item !== option);
-                                                                setValue("publico_alvo", values)
-                                                            }
-                                                            trigger("publico_alvo")
-                                                        }}
-                                                        type="button"
-                                                        className={`w-auto py-0 hover:bg-${publicoAlvo?.includes(option) ? "bg-[#FFCF33]" : "bg-[#EFEFF0]"} ${publicoAlvo?.includes(option) ? "bg-[#FFCF33]" : "bg-[#EFEFF0]"} text-[#19191B] focus:outline-none hover:bg-none`}
-                                                    >
-                                                        {option}
-                                                    </Button>
-                                                ))}
-                                                {errors.publico_alvo && (
-                                                    <p className="text-red-500 ">{errors.publico_alvo.message}</p>
-                                                )}
-                                            </div>
-                                        </>
-                                    )
-                                }
-                                {
-                                    currentStep === 5 && (
-                                        <>
-                                            <div
-                                                className="flex gap-2 mt-10 w-11/12 flex-wrap justify-center h-60 overflow-y-scroll">
-                                                {necessidadesOptions.map((option) => (
-                                                    <Button
-                                                        key={option}
-                                                        onClick={() => {
-                                                            let values = getValues("necessidades");
-                                                            if (!values.includes(option)) {
-                                                                values.push(option);
-                                                                setValue("necessidades", values)
-                                                            } else {
-                                                                values = values.filter((item) => item !== option);
-                                                                setValue("necessidades", values)
-                                                            }
-                                                            trigger("necessidades")
-                                                        }}
-                                                        type="button"
-                                                        className={`w-auto py-0 hover:bg-${necessidades?.includes(option) ? "bg-[#FFCF33]" : "bg-[#EFEFF0]"} ${necessidades?.includes(option) ? "bg-[#FFCF33]" : "bg-[#EFEFF0]"} text-[#19191B] focus:outline-none hover:bg-none`}
-                                                    >
-                                                        {option}
-                                                    </Button>
-                                                ))}
-                                                {errors.necessidades && (
-                                                    <p className="text-red-500 ">{errors.necessidades.message}</p>
-                                                )}
-                                            </div>
-                                        </>
-                                    )
-                                }
-                                {
-                                    currentStep === 6 && (
-                                        <div className="flex flex-col gap-2">
-                                            <div className="flex flex-col gap-1">
-                                                <Label>Email</Label>
-                                                <Input
-                                                    {...register("login")}
-                                                />
-                                                {
-                                                    errors.login && (
-                                                        <p className="text-red-500 ">{errors.login.message}</p>
-                                                    )
-                                                }
-                                            </div>
-                                            <div className="flex flex-col gap-1">
-                                                <Label>Senha</Label>
-                                                <div className="relative">
+                                            </>
+                                        )
+                                    }
+                                    {
+                                        currentStep === 5 && (
+                                            <>
+                                                <div
+                                                    className="flex gap-2 mt-10 w-11/12 flex-wrap justify-center h-60 overflow-y-scroll">
+                                                    {necessidadesOptions.map((option) => (
+                                                        <Button
+                                                            key={option}
+                                                            onClick={() => {
+                                                                let values = getValues("necessidades");
+                                                                if (!values.includes(option)) {
+                                                                    values.push(option);
+                                                                    setValue("necessidades", values)
+                                                                } else {
+                                                                    values = values.filter((item) => item !== option);
+                                                                    setValue("necessidades", values)
+                                                                }
+                                                                trigger("necessidades")
+                                                            }}
+                                                            type="button"
+                                                            className={`w-auto py-0 hover:bg-${necessidades?.includes(option) ? "bg-[#FFCF33]" : "bg-[#EFEFF0]"} ${necessidades?.includes(option) ? "bg-[#FFCF33]" : "bg-[#EFEFF0]"} text-[#19191B] focus:outline-none hover:bg-none`}
+                                                        >
+                                                            {option}
+                                                        </Button>
+                                                    ))}
+                                                    {errors.necessidades && (
+                                                        <p className="text-red-500 ">{errors.necessidades.message}</p>
+                                                    )}
+                                                </div>
+                                            </>
+                                        )
+                                    }
+                                    {
+                                        currentStep === 6 && (
+                                            <div className="flex flex-col gap-2">
+                                                <div className="flex flex-col gap-1">
+                                                    <Label>Email</Label>
                                                     <Input
-                                                        {...register("senha")}
-                                                        type={viewPassword ? "text" : "password"}
-                                                        icon={
-                                                            viewPassword ? (
+                                                        {...register("login")}
+                                                    />
+                                                    {
+                                                        errors.login && (
+                                                            <p className="text-red-500 ">{errors.login.message}</p>
+                                                        )
+                                                    }
+                                                </div>
+                                                <div className="flex flex-col gap-1">
+                                                    <Label>Senha</Label>
+                                                    <div className="relative">
+                                                        <Input
+                                                            {...register("senha")}
+                                                            type={viewPassword ? "text" : "password"}
+                                                            icon={
+                                                                viewPassword ? (
+                                                                    <FiEyeOff
+                                                                        onClick={() => setViewPassword(false)}
+                                                                        className="text-[#AFB1B6] absolute right-4 bottom-1/4 w-7 h-6"
+                                                                    />
+                                                                ) : (
+                                                                    <FiEye
+                                                                        onClick={() => setViewPassword(true)}
+                                                                        className="text-[#AFB1B6] absolute right-4 bottom-1/4 w-7 h-6"
+                                                                    />
+                                                                )
+                                                            }
+                                                        />
+                                                        {
+                                                            errors.senha && (
+                                                                <p className="text-red-500 ">{errors.senha.message}</p>
+                                                            )
+                                                        }
+                                                    </div>
+                                                </div>
+                                                <div className="flex flex-col gap-1">
+                                                    <Label>Confirmar senha:</Label>
+                                                    <div className="relative">
+                                                        <Input
+                                                            {...register("confirmar_senha")}
+                                                            type={viewConfirmPassword ? "text" : "password"}
+                                                            icon={viewConfirmPassword ? (
                                                                 <FiEyeOff
-                                                                    onClick={() => setViewPassword(false)}
+                                                                    onClick={() => setViewConfirmPassword(false)}
                                                                     className="text-[#AFB1B6] absolute right-4 bottom-1/4 w-7 h-6"
                                                                 />
                                                             ) : (
                                                                 <FiEye
-                                                                    onClick={() => setViewPassword(true)}
+                                                                    onClick={() => setViewConfirmPassword(true)}
                                                                     className="text-[#AFB1B6] absolute right-4 bottom-1/4 w-7 h-6"
                                                                 />
+                                                            )}
+                                                        />
+                                                        {
+                                                            errors.confirmar_senha && (
+                                                                <p className="text-red-500 ">{errors.confirmar_senha.message}</p>
                                                             )
                                                         }
-                                                    />
-                                                    {
-                                                        errors.senha && (
-                                                            <p className="text-red-500 ">{errors.senha.message}</p>
-                                                        )
-                                                    }
+                                                    </div>
                                                 </div>
                                             </div>
-                                            <div className="flex flex-col gap-1">
-                                                <Label>Confirmar senha:</Label>
-                                                <div className="relative">
-                                                    <Input
-                                                        {...register("confirmar_senha")}
-                                                        type={viewConfirmPassword ? "text" : "password"}
-                                                        icon={viewConfirmPassword ? (
-                                                            <FiEyeOff
-                                                                onClick={() => setViewConfirmPassword(false)}
-                                                                className="text-[#AFB1B6] absolute right-4 bottom-1/4 w-7 h-6"
-                                                            />
-                                                        ) : (
-                                                            <FiEye
-                                                                onClick={() => setViewConfirmPassword(true)}
-                                                                className="text-[#AFB1B6] absolute right-4 bottom-1/4 w-7 h-6"
-                                                            />
-                                                        )}
-                                                    />
-                                                    {
-                                                        errors.confirmar_senha && (
-                                                            <p className="text-red-500 ">{errors.confirmar_senha.message}</p>
-                                                        )
-                                                    }
-                                                </div>
-                                            </div>
-                                        </div>
-                                    )
-                                }
-                                {
-                                    registerOngMutation.isError && (
-                                        <p className="text-red-500 ">{(registerOngMutation.error as Error)?.message || "Ocorreu um erro."}</p>
-                                    )
-                                }
-                                {
-                                    registerOngMutation.isLoading ? (
+                                        )
+                                    }
+                                    {
+                                        registerOngMutation.isError && (
+                                            <p className="text-red-500 ">{(registerOngMutation.error as Error)?.message || "Ocorreu um erro."}</p>
+                                        )
+                                    }
+                                </div>
+                            </div>
+                            {
+                                registerOngMutation.isLoading ? (
+                                    <Button
+                                        disabled={true}
+                                        className="w-full"
+                                        type={currentStep === totalSteps - 1 ? "submit" : "button"}
+                                        onClick={handleNextStep}
+                                    >
+                                        Registrando ONG
+                                        <AiOutlineLoading3Quarters className="animate-spin"/>
+                                    </Button>
+                                ) : (
+                                    <div className="flex justify-between w-full">
                                         <Button
-                                            disabled={true}
-                                            className="w-full"
+                                            disabled={!isValid}
+                                            className={"w-full"}
                                             type={currentStep === totalSteps - 1 ? "submit" : "button"}
                                             onClick={handleNextStep}
                                         >
-                                            Registrando ONG
-                                            <AiOutlineLoading3Quarters className="animate-spin"/>
+                                            {currentStep === totalSteps - 1 ? "Finalizar" : "Continuar"}
                                         </Button>
-                                    ) : (
-                                        <div className="flex justify-between w-full my-12">
-                                            {currentStep === 2 && (
-                                                <Button
-                                                    className="w-4/12 bg-gray-300 text-gray-900 hover:bg-gray-100"
-                                                    type={currentStep === totalSteps - 1 ? "submit" : "button"}
-                                                    onClick={handleNextStep}
-                                                >
-                                                    Pular
-                                                </Button>
-                                            )}
-                                            <Button
-                                                disabled={!isValid}
-                                                className={currentStep === 2 ? "w-7/12" : "w-full"}
-                                                type={currentStep === totalSteps - 1 ? "submit" : "button"}
-                                                onClick={handleNextStep}
-                                            >
-                                                {currentStep === totalSteps - 1 ? "Finalizar" : "Continuar"}
-                                            </Button>
-                                        </div>
-                                    )
-                                }
-
-                            </div>
+                                    </div>
+                                )
+                            }
                         </form>
                     )
             }

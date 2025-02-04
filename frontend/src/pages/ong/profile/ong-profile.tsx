@@ -86,7 +86,8 @@ export default function OngProfile() {
                     <Button onClick={() => navigate(`/`)}>
                         <TbLogout2 className="h-6 w-6"/>
                     </Button>
-                    <img className="h-20 w-20 -mr-12" src="/images/logo-white.svg" alt={"Logo acolhe+"}/>
+                    <img className="h-20 w-20 -mr-12" src="/images/logo-white.svg" onClick={() => navigate("/")}
+                         alt={"Logo acolhe+"}/>
                 </div>
                 <div className="flex items-center justify-center w-full">
                     <input

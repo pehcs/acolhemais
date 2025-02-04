@@ -15,18 +15,9 @@ export default class LoginController {
         if (!isMatch) return res.status(401).end();
 
         const token = jwt.sign({id: ong.id}, process.env.SECRET_KEY as string, {expiresIn: "30d"});
-
-        res.cookie("AccessToken", token, {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === "production",
-            sameSite: "strict",
-            maxAge: 30 * 24 * 60 * 60 * 1000,
-        });
-        res.cookie("ongId", ong.id, {
-            httpOnly: false,
-            secure: process.env.NODE_ENV === "production",
-            sameSite: "strict",
-            maxAge: 30 * 24 * 60 * 60 * 1000, // 30 dias
+        res.json({
+            "token": token,
+            "ongId": ong.id,
         });
         res.status(200).end();
     }

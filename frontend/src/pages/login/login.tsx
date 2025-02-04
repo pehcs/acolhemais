@@ -34,10 +34,15 @@ export default function LoginApp() {
     };
 
     const [viewPassword, setViewPassword] = useState(false);
-
+    type Credentials = {
+        token: string;
+        ongId: string;
+    }
     const onSubmit = async (data: LoginSchema) => {
         try {
-            await api.post("/login", data);
+            const {data: credentials}: Credentials = await api.post("/login", data);
+            localStorage.setItem("token", credentials.token);
+            localStorage.setItem("ongId", credentials.ongId);
             navigate("/")
         } catch (error) {
             setError("senha", {message: `Credenciais inválidas`});
@@ -46,7 +51,7 @@ export default function LoginApp() {
 
     return (
         <div className="h-screen px-6 overflow-scroll">
-            <div className="fixed top-0 left-0 w-full h-[440px] z-[-1] pointer-events-none">
+            <div className="fixed -top-[5vh] left-0 w-full h-[440px] z-[-1] pointer-events-none">
                 {circle.svg}
             </div>
             <div className={"flex w-full justify-center items-center mt-4"}>
@@ -54,7 +59,7 @@ export default function LoginApp() {
             </div>
             <div className="flex flex-col items-center w-full mt-3 mb-8 gap-4">
                 <h1 className="text-[#FAFAFA] text-3xl text-center mb-4 font-semibold">Bem-vindo!</h1>
-                <img src="/images/img-1.png" alt=""/>
+                <img src="/images/img-1.png" alt="" className={"h-[17vh]"}/>
             </div>
             <Button className="w-full mb-4 bg-[#FFCF33] text-black" type="submit" onClick={() => navigate("/")}>
                 Não sou ONG

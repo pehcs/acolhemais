@@ -113,7 +113,7 @@ export default function OngProfileUpdate() {
 
     const handleChangePassword = async () => {
         try {
-            await api.patch(`/v1/ong/${id}/password`, {password: passwordGetValues("senha")})
+            await api.put(`/v1/ong/${id}/password`, {password: passwordGetValues("senha")})
             toast.success("Senha alterada")
         } catch (e) {
             toast.error("Falha ao alterar informações")
@@ -130,6 +130,7 @@ export default function OngProfileUpdate() {
                 removed_necessidades: getValues("removed_necessidades")
             })
             toast.success("Informações alteradas")
+            navigate(`/ong/admin/${id}`)
         } catch (e) {
             toast.error("Falha ao alterar informações")
         }
@@ -222,7 +223,8 @@ export default function OngProfileUpdate() {
                     <Button onClick={() => navigate(`/ong/admin/${id}`)}>
                         <FaArrowLeft className="h-6 w-6"/>
                     </Button>
-                    <img className="h-20 w-20" src="/images/logo-white.svg" alt={"Logo acolhe+"}/>
+                    <img className="h-20 w-20" src="/images/logo-white.svg" alt={"Logo acolhe+"}
+                         onClick={() => navigate("/")}/>
                 </div>
             </header>
             <main className="px-4">

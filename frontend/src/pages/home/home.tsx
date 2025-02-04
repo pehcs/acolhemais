@@ -27,13 +27,7 @@ export default function HomePage() {
     const filteredOngs = ongList?.filter(ong =>
         ong.nome.toLowerCase().includes(searchTerm.toLowerCase())
     );
-    const getCookie = (name: string) => {
-        return document.cookie
-            .split("; ")
-            .find(row => row.startsWith(name + "="))
-            ?.split("=")[1] || "";
-    };
-    const ongId = getCookie("ongId");
+    const ongId = localStorage.getItem("ongId");
     if (ongQuery.isLoading) {
         return (
             <>
@@ -46,7 +40,6 @@ export default function HomePage() {
             </>
         )
     }
-    console.log(ongId)
     return (
         <>
             <header className="w-full h-20 bg-[#2F49F3] bg-contain">
