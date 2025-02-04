@@ -75,7 +75,13 @@ export default function HomePage() {
                 }
                 {
                     filteredOngs.map((ong: Ong, key) => (
-                        <article className={"py-4"} onClick={() => navigate(`/ong/${ong.id}`)}>
+                        <article className={"py-4"} onClick={() => {
+                            if (localStorage.getItem("ongId") === ong.id) {
+                                navigate(`/ong/admin/${ong.id}`)
+                            } else {
+                                navigate(`/ong/${ong.id}`)
+                            }
+                        }}>
                             <article className={"flex flex-col gap-2 p-3 border border-[#EFEFF0] rounded-xl"}>
                                 {
                                     ong?.images.length > 0 && (

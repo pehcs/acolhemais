@@ -5,6 +5,8 @@ import ONGUpdateDto from "./dto/ONGUpdateDto";
 class ONGRepository {
 
     async save(createONG: CreateONG) {
+        createONG.publico_alvo = [...new Set(createONG.publico_alvo)];
+        createONG.necessidades = [...new Set(createONG.necessidades)];
         await Promise.all([
             Promise.all(
                 createONG.necessidades.map(n =>
@@ -96,6 +98,8 @@ class ONGRepository {
     }
 
     async update(id: string, ongUpdateDto: ONGUpdateDto): Promise<any> {
+        ongUpdateDto.added_publico_alvo = [...new Set(ongUpdateDto.added_publico_alvo)];
+        ongUpdateDto.added_necessidades = [...new Set(ongUpdateDto.added_necessidades)];
         await Promise.all(ongUpdateDto.removed_necessidades.map(removedNecessidadeId =>
             db.ongNecessidade.delete(
                 {
