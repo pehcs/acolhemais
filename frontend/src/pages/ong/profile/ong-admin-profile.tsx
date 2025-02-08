@@ -109,14 +109,14 @@ export default function OngAdminProfile() {
             tipo: getValues("tipo"),
             valor: getValues("valor"),
         });
-        queryClient.setQueryData(["ong_profile"], (oldData: any) => {
-            if (!oldData) return oldData;
-            const newData = [...(oldData.contatos) || [], data]
-            return {
-                ...oldData,
-                contatos: newData,
-            };
-        });
+        // queryClient.setQueryData(["ong_profile"], (oldData: any) => {
+        //     if (!oldData) return oldData;
+        //     const newData = [...(oldData.contatos) || [], data]
+        //     return {
+        //         ...oldData,
+        //         contatos: newData,
+        //     };
+        // });
         resetContact({
             tipo: "",
             valor: "",

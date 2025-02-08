@@ -103,6 +103,7 @@ export default class ONGController {
             const contact = await ONGContactRepository.addContact(id, req.body)
             res.status(201).json(ONGMapper.toContactResponse(contact))
         } catch (error) {
+            console.log(error)
             return res.status(500).json(basicError("Erro ao tentar salvar o contato da ONG, tente novamente mais tarde"));
         }
     }
