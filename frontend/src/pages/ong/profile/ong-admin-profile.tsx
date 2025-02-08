@@ -2,12 +2,13 @@ import {Button} from "@/components/ui/button.tsx";
 import {Avatar, AvatarImage} from "@/components/ui/avatar.tsx";
 
 import {FiEdit} from "react-icons/fi";
-import {IoCheckboxOutline, IoHomeOutline, IoSettingsOutline} from "react-icons/io5";
+import {IoCheckboxOutline, IoSettingsOutline} from "react-icons/io5";
 import {MdArrowForwardIos, MdOutlineEmail} from "react-icons/md";
 import {useNavigate, useParams} from "react-router-dom";
 import {useQuery, useQueryClient} from "react-query";
 import {api, serverURI} from "@/utils/api.ts";
 import {Ong} from "@/pages/ong/@types/Ong.ts";
+import {TbWorld} from "react-icons/tb";
 import {Skeleton} from "@/components/ui/skeleton.tsx";
 import {ChangeEvent, useEffect, useRef, useState} from "react";
 import {FaInstagram, FaPhone, FaWhatsapp} from "react-icons/fa";
@@ -109,14 +110,6 @@ export default function OngAdminProfile() {
             tipo: getValues("tipo"),
             valor: getValues("valor"),
         });
-        // queryClient.setQueryData(["ong_profile"], (oldData: any) => {
-        //     if (!oldData) return oldData;
-        //     const newData = [...(oldData.contatos) || [], data]
-        //     return {
-        //         ...oldData,
-        //         contatos: newData,
-        //     };
-        // });
         resetContact({
             tipo: "",
             valor: "",
@@ -468,7 +461,7 @@ export default function OngAdminProfile() {
                                         case "SITE":
                                             return (
                                                 <div className="flex items-center gap-2 text-sm">
-                                                    <IoHomeOutline/> {p.valor}
+                                                    <TbWorld/> {p.valor}
                                                     {
                                                         isEditMode && (
                                                             <CiCircleRemove onClick={() => handleRemoveContact(p.id)}/>
