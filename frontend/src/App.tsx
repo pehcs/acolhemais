@@ -9,6 +9,7 @@ import LoginApp from "@/pages/login/login.tsx";
 import HomePage from "@/pages/home/home.tsx";
 import OngProfile from "@/pages/ong/profile/ong-profile.tsx";
 import OngAdminProfile from "@/pages/ong/profile/ong-admin-profile.tsx";
+import AcoesOng from './pages/acao/acoes_ong/acoes-ong';
 
 const queryClient = new QueryClient();
 
@@ -24,6 +25,7 @@ function App() {
                     <Route path="/ong/admin/:id" element={<OngAdminProfile/>}/>
                     <Route path="/ong/:id" element={<OngProfile/>}/>
                     <Route path="/ong/admin/:id/config" element={<OngProfileUpdate/>}/>
+                    <Route path="/ong/admin/:id/acoes" element={<AcoesOng/>}/>
                 </Routes>
             </BrowserRouter>
             <ToastContainer/>
