@@ -6,6 +6,7 @@ export type ONGCompleteResponse = {
     cnpj?: string;
     data_criacao: number;
     localizacao: Coordinates;
+    endereco: string;
     necessidades: Necessidades[];
     publico_alvo: PublicoAlvo[];
     contatos: Contact[]

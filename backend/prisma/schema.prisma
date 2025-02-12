@@ -13,6 +13,7 @@ model Ong {
   senha        String
   nome         String
   descricao    String   @db.Text
+  endereco     String   @db.VarChar(255)
   cnpj         String?  @db.VarChar(18)
   data_criacao Int
   lat          Float
