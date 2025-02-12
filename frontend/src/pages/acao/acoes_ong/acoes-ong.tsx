@@ -10,7 +10,7 @@ import { ChevronLeftIcon } from '@radix-ui/react-icons';
 import { FiPlusSquare } from "react-icons/fi";
 import { CiSearch } from "react-icons/ci";
 import { Input } from "@/components/ui/input";
-import { CardX } from "@/components/ui/cardX";
+import { CardY } from "@/components/ui/cardY";
 
 
 export default function AcoesOng() {
@@ -36,24 +36,7 @@ export default function AcoesOng() {
         }
     );
 
-    // Consulta para a lista de ONGs
-    const ongQueryList = useQuery(
-        {
-            queryKey: "ong_list",
-            queryFn: async (): Promise<Ong[]> => {
-                const { data } = await api.get<Ong[]>('/v1/ong/');
-                return data;
-            }
-        }
-    );
-
-    const { data: ongData } = ongQuery;
-    const { data: ongList } = ongQueryList;
-    const [searchTerm, setSearchTerm] = useState("");
-    const filteredOngs = ongList?.filter(ong =>
-        ong.nome.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-    const ongId = localStorage.getItem("ongId");
+    {/* CRIAR QUERY DAS ACOES DA ONG EM QUESTÃO*/ }
 
     if (ongQuery.isLoading) {
         return (
@@ -123,52 +106,48 @@ export default function AcoesOng() {
                             Ações e Eventos
                         </h1>
                         <p className="text-[#61646B]">
-                            {ongData?.nome}
+                            {ongQuery.data?.nome}
                         </p>
                     </div>
                 </header>
 
+                {/* MOCKUP GENERICO DO CARD DAS ACOES, ADICIONAR CHAMADA QUANDO FIZER A QUERY DAS ACOES DA ONG*/}
                 <div className="overflow-scroll pb-20 p-4">
                     <section className={"flex gap-2"}>
                         <Input
                             className="rounded-full px-4 py-2 border border-gray-300"
                             placeholder="Pesquise"
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
+                        // value={searchTerm}
+                        // onChange={(e) => setSearchTerm(e.target.value)}
                         />
                         <Button className={"h-8 w-12"}>
                             <CiSearch className={"h-6 w-6"} />
                         </Button>
                     </section>
-                    {
-                        ongList?.length === 0 && (
-                            <p className={"text-[#61646B] w-full text-center py-4"}>Não há ONGs disponíveis</p>
-                        )
-                    }
-                    {
-                        filteredOngs?.map((ong: Ong, key) => (
-                            <div
-                                key={key}
-                                className={"py-4"}
-                                onClick={() => {
-                                    if (localStorage.getItem("ongId") === ong.id) {
-                                        navigate(`/ong/admin/${ong.id}`);
-                                    } else {
-                                        navigate(`/ong/${ong.id}`);
-                                    }
-                                }}
-                            >
-                                <CardX
-                                    image={ong.images?.length > 0 ? `${serverURI}/v1/ong-image/${ong.images[0]}` : undefined}
-                                    nome={ong.nome}
-                                    endereco={ong.endereco}
-                                    descricao={ong.descricao}
-                                    publicoAlvo={ong.publico_alvo?.map((p) => p.tipo) || []}
-                                    necessidades={ong.necessidades?.map((n) => n.tipo) || []}
-                                />
-                            </div>
-                        ))
-                    }
+
+                    {/* Mock de ações */}
+                    <div className="py-4">
+                        <CardY
+                            image="http://cdn.wallpapersafari.com/64/4/bzPjgi.jpg"
+                            nomeAcao="Ação 1"
+                            nomeOng="Rua Mockada, 123"
+                            dataAcao="13/10/1999"
+                            endereco="Rua tese, 123"
+                            publicoAlvo={["Crianças", "Idosos"]}
+                            necessidades={["Alimentos", "Roupas"]} 
+                        />
+                    </div>
+                    <div className="py-4">
+                        <CardY
+                            image="https://files.usef.org/assets/gB-FFCmn8ug/herdadobestock58776709jpeg_articleshare.jpg"
+                            nomeAcao="Ação 2"
+                            nomeOng="Rua Mockada, 123"
+                            dataAcao="13/10/1999"
+                            endereco="Rua tese, 123"
+                            publicoAlvo={["Crianças", "Idosos"]}
+                            necessidades={["Alimentos", "Roupas"]} 
+                        />
+                    </div>
                 </div>
             </main>
         </main>
