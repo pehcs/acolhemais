@@ -1,4 +1,4 @@
-import {Contact, ONGCompleteResponse} from "../dtos/ONGResponseDtos"
+import {AcaoResponse, Contact, ONGCompleteResponse} from "../dtos/ONGResponseDtos"
 
 export default class ONGMapper {
 
@@ -33,6 +33,22 @@ export default class ONGMapper {
             contatos: ong?.ongContato?.map(contato => {
                 return ONGMapper.toContactResponse(contato)
             }) || []
+        }
+    }
+
+    static toCompleteAcaoResponse(acao): AcaoResponse {
+        return {
+            nome: acao.nome,
+            dia: acao.dia,
+            mes: acao.mes,
+            ano: acao.ano,
+            inicio: acao.inicio,
+            termino: acao.termino,
+            cep: acao.cep,
+            bairro: acao.bairro,
+            endereco: acao.endereco,
+            numero: acao.numero,
+            complemento: acao.complemento || undefined
         }
     }
 

@@ -26,6 +26,7 @@ function App() {
                     <Route path="/ong/:id" element={<OngProfile/>}/>
                     <Route path="/ong/admin/:id/config" element={<OngProfileUpdate/>}/>
                     <Route path="/ong/admin/:id/acoes" element={<AcoesOng/>}/>
+                    <Route path="/ong/:id/acoes" element={<AcoesOng/>}/>
                 </Routes>
             </BrowserRouter>
             <ToastContainer/>

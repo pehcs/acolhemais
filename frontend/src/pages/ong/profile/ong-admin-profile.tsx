@@ -363,7 +363,7 @@ export default function OngAdminProfile() {
                                     />
                                 </div>
                             ) : (
-                                <Button className="mt-2 px-6">
+                                <Button className="mt-2 px-6" onClick={() => navigate(`/ong/${id}/acoes`)}>
                                     Eventos e ações <MdArrowForwardIos className="ml-6 h-4 w-4"/>
                                 </Button>
                             )

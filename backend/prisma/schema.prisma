@@ -25,11 +25,37 @@ model Ong {
   ongImage       OngImage[]
   ongNecessidade OngNecessidade[]
   ongPublicoAlvo OngPublicoAlvo[]
+  ongAcao        Acao[]
 
   @@index([login], map: "fk_ong_login_idx")
   @@index([nome], map: "fk_ong_nome_idx")
   @@index([cnpj], map: "fk_ong_cnpj_idx")
   @@map("ong")
+}
+
+model Acao {
+  id          String  @id @default(uuid())
+  nome        String  @db.VarChar(255)
+  dia         Int
+  mes         String  @db.VarChar(20)
+  ano         Int
+  inicio      String  @db.VarChar(10)
+  termino     String  @db.VarChar(10)
+  cep         String  @db.VarChar(9)
+  bairro      String  @db.VarChar(255)
+  endereco    String  @db.VarChar(255)
+  numero      String  @db.VarChar(10)
+  complemento String? @db.VarChar(255)
+
+  ongId String
+  ong   Ong    @relation(fields: [ongId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@index([nome], map: "fk_acao_nome_idx")
+  @@index([ongId], map: "fk_acao_ong_idx")
+  @@map("acao")
 }
 
 model OngImage {

@@ -3,6 +3,7 @@ import ONGController from "./controllers/ONGController";
 import multer from "multer";
 import LoginController from "./controllers/LoginController";
 import {authMiddleware} from "./controllers/middleware/authMiddleware";
+import ONGAcaoController from "./controllers/ONGAcaoController";
 
 const upload = multer();
 const router = Router();
@@ -17,6 +18,8 @@ router.put('/v1/ong/:id/password', authMiddleware, ONGController.updatePassword)
 router.put('/v1/ong/:id', authMiddleware, ONGController.update);
 router.post('/v1/ong/:id/contact', authMiddleware, ONGController.addContact);
 router.delete('/v1/ong/contact/:id', authMiddleware, ONGController.removeContact);
+
+router.post('/v1/ong/:id/acoes', authMiddleware, ONGAcaoController.create);
 
 router.post('/v1/ong/:id/logo', upload.single('logo'), ONGController.saveLogo);
 router.get('/v1/ong/:id/logo', ONGController.getLogo);

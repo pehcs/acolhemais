@@ -194,4 +194,4 @@ const getLatLonFromCep = async (cep: string): Promise<AddressLatLon> | null => {
     }
 };
 
-export {Map, Coordinates} ;
+export {Map, Coordinates, getLatLonFromCep} ;

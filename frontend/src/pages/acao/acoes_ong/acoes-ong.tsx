@@ -7,38 +7,12 @@ import {Ong} from "@/pages/ong/@types/Ong.ts";
 import {Skeleton} from "@/components/ui/skeleton.tsx";
 import {useState} from "react";
 import {ChevronLeftIcon} from '@radix-ui/react-icons';
-import {FiPlusSquare} from "react-icons/fi";
 import {CiSearch} from "react-icons/ci";
 import {Input} from "@/components/ui/input";
-import {z} from "zod";
-import {
-    Dialog,
-    DialogClose,
-    DialogContent,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-    DialogTrigger
-} from "@/components/ui/dialog.tsx";
-import {Label} from "@/components/ui/label.tsx";
-import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "@/components/ui/select.tsx";
 import {CardY} from "@/components/ui/cardY.tsx";
+import CreateAcaoModal from "@/pages/acao/acoes_ong/acao-register-modal.tsx";
+import {FiPlusSquare} from "react-icons/fi";
 
-const acaoOngSchema = z.object({
-    nome: z.string().min(3, {message: "Insira um nome maior"}),
-    dia: z.number().min(1, {message: "Escolha uma data válida"}).max(31, {message: "Escolha uma data válida"}),
-    mes: z.string(),
-    ano: z.number().min(2025, {message: "Escolha uma data válida"}),
-    hora_inicio: z.string(),
-    hora_termino: z.string(),
-    cep: z.string(),
-    bairro: z.string(),
-    endereco: z.string(),
-    numero: z.string(),
-    complemento: z.string(),
-})
-
-type AcaoOngSchema = z.infer<typeof acaoOngSchema>
 
 export default function AcoesOng() {
 
@@ -101,107 +75,16 @@ export default function AcoesOng() {
         <main>
             <header className="bg-[url(/images/circle.svg)] w-full h-52 bg-no-repeat bg-contain">
                 <div className="flex justify-between items-center p-2">
-                    <Button onClick={() => navigate(`/`)}>
+                    <Button onClick={() => navigate(`/ong/${id}`)}>
                         <ChevronLeftIcon className="h-6 w-6"/>
                     </Button>
-                    <img className="h-20 w-20" src="/images/logo-white.svg" onClick={() => navigate(`/ong/${id}`)}
+                    <img className="h-20 w-20" src="/images/logo-white.svg" onClick={() => navigate(`/`)}
                          alt={"Logo acolhe+"}/>
-                    <Dialog>
-                        <DialogTrigger asChild>
-                            <Button>
-                                <FiPlusSquare className="h-6 w-6"/>
-                            </Button>
-                        </DialogTrigger>
-
-                        <DialogContent className="w-11/12 bg-white rounded-xl">
-                            <DialogHeader className="flex items-start">
-                                <DialogTitle>Criar novo evento</DialogTitle>
-                            </DialogHeader>
-                            <div className={"flex flex-col gap-2"}>
-                                <Label className={"text-[#191918]"}>
-                                    Nome
-                                </Label>
-                                <div className={"relative"}>
-                                    <Label className={"absolute text-[12px] left-3"}>
-                                        Título do evento
-                                    </Label>
-                                    <Input className={"pt-10 pb-6"}/>
-                                </div>
-                            </div>
-                            <div className={"flex flex-col gap-2"}>
-                                <Label className={"text-[#191918]"}>
-                                    Data
-                                </Label>
-                                <div className={"flex justify-between"}>
-                                    <div className={"relative"}>
-                                        <Label className={"absolute text-[12px] left-3"}>
-                                            Dia
-                                        </Label>
-                                        <Select>
-                                            <SelectTrigger className="w-20 border-[#AFB1B6] rounded-xl pt-10 pb-6">
-                                                <SelectValue defaultValue={1}/>
-                                            </SelectTrigger>
-                                            <SelectContent className="bg-white">
-                                                {Array.from({length: 31}, (_, i) => (
-                                                    <SelectItem key={i + 1} value={String(i + 1)}>
-                                                        {i + 1}
-                                                    </SelectItem>
-                                                ))}
-                                            </SelectContent>
-                                        </Select>
-                                    </div>
-                                    <div className={"relative"}>
-                                        <Label className={"absolute text-[12px] left-3"}>
-                                            Dia
-                                        </Label>
-                                        <Select>
-                                            <SelectTrigger className="w-20 border-[#AFB1B6] rounded-xl pt-10 pb-6">
-                                                <SelectValue defaultValue={1}/>
-                                            </SelectTrigger>
-                                            <SelectContent className="bg-white">
-                                                {Array.from({length: 31}, (_, i) => (
-                                                    <SelectItem key={i + 1} value={String(i + 1)}>
-                                                        {i + 1}
-                                                    </SelectItem>
-                                                ))}
-                                            </SelectContent>
-                                        </Select>
-                                    </div>
-                                    <div className={"relative"}>
-                                        <Label className={"absolute text-[12px] left-3"}>
-                                            Dia
-                                        </Label>
-                                        <Select>
-                                            <SelectTrigger className="w-20 border-[#AFB1B6] rounded-xl pt-10 pb-6">
-                                                <SelectValue defaultValue={1}/>
-                                            </SelectTrigger>
-                                            <SelectContent className="bg-white">
-                                                {Array.from({length: 31}, (_, i) => (
-                                                    <SelectItem key={i + 1} value={String(i + 1)}>
-                                                        {i + 1}
-                                                    </SelectItem>
-                                                ))}
-                                            </SelectContent>
-                                        </Select>
-                                    </div>
-                                </div>
-
-                            </div>
-                            <div className="flex items-center space-x-2">
-                                <div className="grid flex-1 gap-2">
-
-                                    <Input/>
-                                </div>
-                            </div>
-                            <DialogFooter className="sm:justify-start">
-                                <DialogClose asChild>
-                                    <Button>
-                                        Adicionar
-                                    </Button>
-                                </DialogClose>
-                            </DialogFooter>
-                        </DialogContent>
-                    </Dialog>
+                    <CreateAcaoModal trigger={
+                        <Button>
+                            <FiPlusSquare className="h-6 w-6"/>
+                        </Button>
+                    }/>
                 </div>
 
                 <div className="flex items-center justify-center w-full">
