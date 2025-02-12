@@ -38,6 +38,7 @@ export default class ONGMapper {
 
     static toCompleteAcaoResponse(acao): AcaoResponse {
         return {
+            id: acao.id,
             nome: acao.nome,
             dia: acao.dia,
             mes: acao.mes,
@@ -48,8 +49,16 @@ export default class ONGMapper {
             bairro: acao.bairro,
             endereco: acao.endereco,
             numero: acao.numero,
-            complemento: acao.complemento || undefined
+            complemento: acao.complemento || undefined,
+            descricao: acao.descricao,
+            como_participar: acao.como_participar,
+            link_contato: acao.link_contato,
         }
+    }
+
+    static toCompleteAcaoResponseList(acao): AcaoResponse[] {
+        return acao.map(o => this.toCompleteAcaoResponse(o)
+        )
     }
 
     static toCompleteResponseList(ong): ONGCompleteResponse[] {

@@ -179,6 +179,16 @@ export default function OngRegister() {
 
         },
         onSuccess: async (data) => {
+            try {
+                const {data: credentials} = await api.post("/login", {
+                    login: getValues("login"),
+                    senha: getValues("senha")
+                });
+                localStorage.setItem("token", credentials.token);
+            } catch (e) {
+                console.log(e)
+            }
+            localStorage.setItem("ongId", data.id);
             setRegisterFinished({finished: true, id: data.id})
         },
     })

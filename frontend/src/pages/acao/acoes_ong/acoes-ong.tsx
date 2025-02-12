@@ -5,13 +5,12 @@ import {useQuery} from "react-query";
 import {api, serverURI} from "@/utils/api.ts";
 import {Ong} from "@/pages/ong/@types/Ong.ts";
 import {Skeleton} from "@/components/ui/skeleton.tsx";
-import {useState} from "react";
+import {useEffect, useState} from "react";
 import {ChevronLeftIcon} from '@radix-ui/react-icons';
-import {CiSearch} from "react-icons/ci";
-import {Input} from "@/components/ui/input";
 import {CardY} from "@/components/ui/cardY.tsx";
 import CreateAcaoModal from "@/pages/acao/acoes_ong/acao-register-modal.tsx";
 import {FiPlusSquare} from "react-icons/fi";
+import {Acao} from "@/pages/acao/acoes_ong/@types/Acao.ts";
 
 
 export default function AcoesOng() {
@@ -20,7 +19,6 @@ export default function AcoesOng() {
     const {id} = useParams();
     const navigate = useNavigate();
 
-    // Consulta para o perfil da ONG
     const ongQuery = useQuery(
         {
             queryKey: ["ong_profile", id],
@@ -36,10 +34,39 @@ export default function AcoesOng() {
             }
         }
     );
+    const [banners, setBanners] = useState<{ [key: string]: string }>({});
 
-    {/* CRIAR QUERY DAS ACOES DA ONG EM QUESTÃO*/
-    }
 
+    const acoesQuery = useQuery(
+        {
+            queryKey: ["ong_acoes", id],
+            queryFn: async (): Promise<Acao[]> => {
+                const {data} = await api.get<Acao[]>(`/v1/ong/${id}/acoes`);
+                return data;
+            }
+        }
+    );
+    const {data: acoesData} = acoesQuery
+    useEffect(() => {
+        const fetchBanners = async () => {
+            const bannersMap: { [key: string]: string } = {};
+            await Promise.all(
+                acoesData?.map(async (acao) => {
+                    try {
+                        await api.get(`/v1/acoes/${acao.id}/banner`);
+                        bannersMap[acao.id] = `/v1/acoes/${acao.id}/banner`;
+                    } catch {
+                        bannersMap[acao.id] = "";
+                    }
+                }) || []
+            );
+            setBanners(bannersMap);
+        };
+
+        if (acoesData?.length) {
+            fetchBanners();
+        }
+    }, [acoesData]);
     if (ongQuery.isLoading) {
         return (
             <>
@@ -80,9 +107,16 @@ export default function AcoesOng() {
                     </Button>
                     <img className="h-20 w-20" src="/images/logo-white.svg" onClick={() => navigate(`/`)}
                          alt={"Logo acolhe+"}/>
-                    <CreateAcaoModal trigger={
-                        <FiPlusSquare className="h-6 w-6"/>
-                    }/>
+                    {
+                        localStorage.getItem("ongId") === id ? (
+                            <CreateAcaoModal trigger={
+                                <FiPlusSquare className="h-6 w-6"/>
+                            }/>
+                        ) : (
+                            <div className={"h-12 w-12"}></div>
+                        )
+                    }
+
                 </div>
 
                 <div className="flex items-center justify-center w-full">
@@ -90,7 +124,7 @@ export default function AcoesOng() {
                         className={"hidden"}
                         type="file"
                     />
-                    <Avatar className="w-28 h-28 mt-2 border-2 border-[#2F49F3]">
+                    <Avatar className="w-24 h-24 mt-2 border-2 border-[#2F49F3]">
                         {
                             logoURL ? (
                                 <AvatarImage src={serverURI + `/v1/ong/${id}/logo`}/>
@@ -112,44 +146,23 @@ export default function AcoesOng() {
                         </p>
                     </div>
                 </header>
-
-                {/* MOCKUP GENERICO DO CARD DAS ACOES, ADICIONAR CHAMADA QUANDO FIZER A QUERY DAS ACOES DA ONG*/}
-                <div className="overflow-scroll pb-20 p-4">
-                    <section className={"flex gap-2"}>
-                        <Input
-                            className="rounded-full px-4 py-2 border border-gray-300"
-                            placeholder="Pesquise"
-                            // value={searchTerm}
-                            // onChange={(e) => setSearchTerm(e.target.value)}
-                        />
-                        <Button className={"h-8 w-12"}>
-                            <CiSearch className={"h-6 w-6"}/>
-                        </Button>
-                    </section>
-
-                    {/* Mock de ações */}
-                    <div className="py-4">
-                        <CardY
-                            image="http://cdn.wallpapersafari.com/64/4/bzPjgi.jpg"
-                            nomeAcao="Ação 1"
-                            nomeOng="Rua Mockada, 123"
-                            dataAcao="13/10/1999"
-                            endereco="Rua tese, 123"
-                            publicoAlvo={["Crianças", "Idosos"]}
-                            necessidades={["Alimentos", "Roupas"]}
-                        />
-                    </div>
-                    <div className="py-4">
-                        <CardY
-                            image="https://files.usef.org/assets/gB-FFCmn8ug/herdadobestock58776709jpeg_articleshare.jpg"
-                            nomeAcao="Ação 2"
-                            nomeOng="Rua Mockada, 123"
-                            dataAcao="13/10/1999"
-                            endereco="Rua tese, 123"
-                            publicoAlvo={["Crianças", "Idosos"]}
-                            necessidades={["Alimentos", "Roupas"]}
-                        />
-                    </div>
+                <div className="flex flex-col gap-4 pb-20 p-4">
+                    {
+                        acoesData && acoesData.length === 0 && (
+                            <p className={"text-[#61646B] w-full text-center py-4"}>Não há ações no momento</p>
+                        )
+                    }
+                    {acoesData?.map(acao => (
+                        <div key={acao.id} onClick={() => navigate(`/ong/admin/${id}/acoes/${acao.id}`)}>
+                            <CardY
+                                image={(banners[acao.id] ? serverURI + banners[acao.id] : "")}
+                                nomeAcao={acao.nome}
+                                dataAcao={`${acao.dia} de ${acao.mes} de ${acao.ano}`}
+                                duracao={`${acao.inicio} - ${acao.termino}`}
+                                endereco={`${acao.endereco}, ${acao.numero} - ${acao.bairro}`}
+                            />
+                        </div>
+                    ))}
                 </div>
             </main>
         </main>

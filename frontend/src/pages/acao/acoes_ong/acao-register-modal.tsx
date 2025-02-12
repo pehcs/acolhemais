@@ -17,6 +17,7 @@ import {z} from "zod";
 import {ReactNode, useEffect} from "react";
 import {api} from "@/utils/api.ts";
 import {useParams} from "react-router-dom";
+import {useQueryClient} from "react-query";
 
 const acaoOngSchema = z.object({
     nome: z.string().min(3, {message: "Insira um nome maior"}),
@@ -27,8 +28,8 @@ const acaoOngSchema = z.object({
     termino: z.string().min(3, {message: "Informe o término"}),
     cep: z.string(),
     bairro: z.string().min(3, {message: "Informe o bairro"}),
-    endereco: z.string().min(3, {message: "Informe o endereço"}),
-    numero: z.string().min(3, {message: "Informe o número"}),
+    endereco: z.string().min(1, {message: "Informe o endereço"}),
+    numero: z.string().min(1, {message: "Informe o número"}),
     complemento: z.string(),
 })
 
@@ -54,8 +55,10 @@ export default function CreateAcaoModal({trigger}: { trigger: ReactNode }) {
             complemento: ""
         }
     })
+    const queryClient = useQueryClient()
     const onSubmit = async (data: AcaoOngSchema) => {
         await api.post(`/v1/ong/${id}/acoes`, data)
+        await queryClient.invalidateQueries();
     };
     const cep = watch("cep")
     useEffect(() => {

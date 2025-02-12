@@ -12,6 +12,7 @@ export type ONGCompleteResponse = {
     contatos: Contact[]
 }
 export type AcaoResponse = {
+    id: string;
     nome: string;
     dia: number;
     mes: string;
@@ -23,6 +24,9 @@ export type AcaoResponse = {
     endereco: string;
     numero: string;
     complemento?: string;
+    descricao: string,
+    como_participar: string,
+    link_contato: string,
 }
 export type Coordinates = { latitude: number, longitude: number };
 export type Necessidades = { id: string, tipo: string };
