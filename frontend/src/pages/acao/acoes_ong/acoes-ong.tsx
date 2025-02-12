@@ -81,9 +81,7 @@ export default function AcoesOng() {
                     <img className="h-20 w-20" src="/images/logo-white.svg" onClick={() => navigate(`/`)}
                          alt={"Logo acolhe+"}/>
                     <CreateAcaoModal trigger={
-                        <Button>
-                            <FiPlusSquare className="h-6 w-6"/>
-                        </Button>
+                        <FiPlusSquare className="h-6 w-6"/>
                     }/>
                 </div>
 
