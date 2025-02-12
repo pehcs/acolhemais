@@ -312,7 +312,7 @@ export default function AcaoProfileOng() {
                         {isEditMode && (
                             <Dialog>
                                 <DialogTrigger asChild>
-                                    <Button className={"bg-[#AFB1B6]  pb-8"}>Excluir evento</Button>
+                                    <Button className={"bg-[#AFB1B6] mb-8"}>Excluir evento</Button>
                                 </DialogTrigger>
 
                                 <DialogContent className="w-11/12 bg-white rounded-xl">
