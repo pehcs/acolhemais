@@ -91,7 +91,7 @@ export default function CreateAcaoModal({trigger}: { trigger: ReactNode }) {
                 </Button>
             </DialogTrigger>
 
-            <DialogContent className="w-11/12 bg-white rounded-xl overflow-y-scroll">
+            <DialogContent className="max-h-[80vh] w-11/12 bg-white rounded-xl overflow-y-scroll">
                 <DialogHeader className="flex items-start">
                     <DialogTitle>Criar novo evento</DialogTitle>
                 </DialogHeader>
