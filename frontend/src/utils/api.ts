@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const serverURI = import.meta.env.VITE_BASE_URL || "http://192.168.0.103:3001";
+const serverURI = import.meta.env.VITE_BASE_URL || "http://localhost:3001";
 
 const api = axios.create({
     baseURL: serverURI
