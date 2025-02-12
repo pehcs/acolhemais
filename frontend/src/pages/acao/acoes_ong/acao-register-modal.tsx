@@ -59,6 +59,8 @@ export default function CreateAcaoModal({trigger}: { trigger: ReactNode }) {
     const onSubmit = async (data: AcaoOngSchema) => {
         await api.post(`/v1/ong/${id}/acoes`, data)
         await queryClient.invalidateQueries();
+        await queryClient.invalidateQueries();
+        await queryClient.invalidateQueries();
     };
     const cep = watch("cep")
     useEffect(() => {
