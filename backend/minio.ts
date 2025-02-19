@@ -1,6 +1,5 @@
 import {Client} from "minio";
 import dotenv from "dotenv";
-
 dotenv.config();
 
 export const BUCKET_NAME = 'acolhemais';
