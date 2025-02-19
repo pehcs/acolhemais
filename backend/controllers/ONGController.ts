@@ -6,6 +6,8 @@ import ONGMapper from './mappers/ONGMapper';
 import bcrypt from "bcrypt"
 import ONGContactRepository from "../repositories/ONGContactRepository";
 import {BUCKET_NAME, minioClient} from "../minio";
+import ONGUpdateDto from "../repositories/dto/ONGUpdateDto";
+import jwt from "jsonwebtoken";
 
 export default class ONGController {
 
@@ -20,12 +22,37 @@ export default class ONGController {
             if (existsLogin) {
                 return res.status(400).json(basicError("Este email já esta em uso"))
             }
+            const reverseGeoResponse = await fetch(
+                `https://nominatim.openstreetmap.org/reverse?lat=${createONG.localizacao[0]}&lon=${createONG.localizacao[1]}&format=jsonv2`
+            );
+            const reverseGeoData = await reverseGeoResponse.json();
+            createONG.endereco = `${reverseGeoData.address.suburb}, ${reverseGeoData.address.city} - ${reverseGeoData.address.state}` || "Não localizada"
             createONG.senha = await bcrypt.hash(createONG.senha, 10)
             const savedOng = await ONGRepository.save(createONG)
+            try {
+                const token = jwt.sign({id: savedOng.id}, process.env.SECRET_KEY as string, {expiresIn: "30d"});
+
+                res.cookie("AccessToken", token, {
+                    httpOnly: true,
+                    secure: process.env.NODE_ENV === "production",
+                    sameSite: "strict",
+                    maxAge: 30 * 24 * 60 * 60 * 1000,
+                });
+                res.cookie("ongId", savedOng.id, {
+                    httpOnly: false,
+                    secure: process.env.NODE_ENV === "production",
+                    sameSite: "strict",
+                    maxAge: 30 * 24 * 60 * 60 * 1000, // 30 dias
+                });
+            } catch (error) {
+                console.log(error);
+            }
+
             return res.status(201).json(
                 ONGMapper.toCompleteResponse(savedOng)
             )
         } catch (error) {
+            console.log(error)
             return res.status(500).json(basicError("Erro ao tentar salvar ONG, tente novamente mais tarde"));
         }
     }
@@ -33,7 +60,10 @@ export default class ONGController {
     static async updateDescription(req: Request, res: Response): Promise<any> {
         try {
             const {id} = req.params;
-            const {description}: string = req.body
+            let {description}: string = req.body
+            if (!description) {
+                description = "Não há descrição"
+            }
             const savedOng = await ONGRepository.updateDescription(id, description)
             return res.status(200).json(
                 ONGMapper.toCompleteResponse(savedOng)
@@ -43,12 +73,37 @@ export default class ONGController {
         }
     }
 
+    static async updatePassword(req: Request, res: Response): Promise<any> {
+        try {
+            const {id} = req.params;
+            const {password}: string = req.body
+            const hashedPassword = await bcrypt.hash(password, 10)
+            await ONGRepository.updatePassword(id, hashedPassword)
+            return res.status(200).end();
+        } catch (error) {
+            return res.status(500).json(basicError("Erro ao trocar senha da ONG, tente novamente mais tarde"));
+        }
+    }
+
+    static async update(req: Request, res: Response): Promise<any> {
+        try {
+            const {id} = req.params;
+            const ongUpdateDto: ONGUpdateDto = req.body
+            await ONGRepository.update(id, ongUpdateDto)
+            return res.status(200).end();
+        } catch (error) {
+            console.log(error)
+            return res.status(500).json(basicError("Erro ao trocar senha da ONG, tente novamente mais tarde"));
+        }
+    }
+
     static async addContact(req: Request, res: Response): Promise<any> {
         try {
             const {id} = req.params;
             const contact = await ONGContactRepository.addContact(id, req.body)
             res.status(201).json(ONGMapper.toContactResponse(contact))
         } catch (error) {
+            console.log(error)
             return res.status(500).json(basicError("Erro ao tentar salvar o contato da ONG, tente novamente mais tarde"));
         }
     }
@@ -100,6 +155,7 @@ export default class ONGController {
             });
             return res.status(201).end();
         } catch (error) {
+            console.log(error)
             return res.status(500).json(basicError("Erro ao buscar ONG"));
         }
     }
@@ -111,14 +167,15 @@ export default class ONGController {
             if (!ong) {
                 return res.status(404).json(basicError("ONG não encontrada."));
             }
+            res.setHeader('Content-Type', 'image/png');
             minioClient.getObject(BUCKET_NAME, `${id}-logo`, (err, dataStream) => {
                 if (err) {
                     return res.status(404).json({message: 'Arquivo não encontrado', error: err});
                 }
-                res.setHeader('Content-Type', 'image/png');
                 dataStream.pipe(res);
             });
         } catch (error) {
+            console.log(error)
             return res.status(500).json(basicError("Erro ao buscar ONG"));
         }
     }

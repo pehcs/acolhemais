@@ -23,7 +23,9 @@ const MapUpdater = ({position, setPosition, onCoordinatesChange}: {
 
     useMapEvents({
         click: (e) => {
-            onCoordinatesChange({latitude: e.latlng.lat, longitude: e.latlng.lng})
+            if (onCoordinatesChange) {
+                onCoordinatesChange({latitude: e.latlng.lat, longitude: e.latlng.lng});
+            }
             setPosition({latitude: e.latlng.lat, longitude: e.latlng.lng});
         },
     });
@@ -36,7 +38,7 @@ const Map = ({pos, cep, onCoordinatesChange, height}: {
     height?: number,
     onCoordinatesChange?: (newCoordinates: Coordinates) => void
 }) => {
-    const [position, setPosition] = useState<Coordinates>({latitude: 0, longitude: 0});
+    const [position, setPosition] = useState<Coordinates>({latitude: -8.063169, longitude: -34.871139});
     useEffect(() => {
         if (cep) {
             const fetchLocation = async () => {
@@ -45,7 +47,9 @@ const Map = ({pos, cep, onCoordinatesChange, height}: {
                     if (isCep(cep)) {
                         const {latitude, longitude} = await getLatLonFromCep(cep);
                         setPosition({latitude, longitude});
-                        onCoordinatesChange({latitude, longitude})
+                        if (onCoordinatesChange) {
+                            onCoordinatesChange({latitude, longitude})
+                        }
                     }
 
                 } catch (_) {
@@ -58,7 +62,9 @@ const Map = ({pos, cep, onCoordinatesChange, height}: {
     useEffect(() => {
         if (pos) {
             setPosition(pos);
-            onCoordinatesChange(pos)
+            if (onCoordinatesChange) {
+                onCoordinatesChange(pos)
+            }
         }
     }, [pos]);
 
@@ -70,7 +76,10 @@ const Map = ({pos, cep, onCoordinatesChange, height}: {
                         latitude: pos.coords.latitude,
                         longitude: pos.coords.longitude,
                     });
-                    onCoordinatesChange({latitude: pos.coords.latitude, longitude: pos.coords.longitude})
+                    if (onCoordinatesChange) onCoordinatesChange({
+                        latitude: pos.coords.latitude,
+                        longitude: pos.coords.longitude
+                    })
                 },
                 (error) => {
                     console.error(error);
@@ -85,6 +94,48 @@ const Map = ({pos, cep, onCoordinatesChange, height}: {
             console.error("Geolocalização não é suportada pelo navegador.");
         }
     }, []);
+
+    useEffect(() => {
+        const checkPermissionAndGetLocation = async () => {
+            try {
+                const permissionStatus = await navigator.permissions.query({name: "geolocation"});
+
+                if (permissionStatus.state === "granted") {
+                    navigator.geolocation.getCurrentPosition(
+                        (pos) => {
+                            const newPosition = {
+                                latitude: pos.coords.latitude,
+                                longitude: pos.coords.longitude,
+                            };
+                            setPosition(newPosition);
+                            if (onCoordinatesChange) onCoordinatesChange(newPosition);
+                        },
+                        {enableHighAccuracy: true, timeout: 10000, maximumAge: 0}
+                    );
+                }
+
+                permissionStatus.onchange = () => {
+                    if (permissionStatus.state === "granted") {
+                        navigator.geolocation.getCurrentPosition(
+                            (pos) => {
+                                const newPosition = {
+                                    latitude: pos.coords.latitude,
+                                    longitude: pos.coords.longitude,
+                                };
+                                setPosition(newPosition);
+                                if (onCoordinatesChange) onCoordinatesChange(newPosition);
+                            },
+                            {enableHighAccuracy: true, timeout: 10000, maximumAge: 0}
+                        );
+                    }
+                };
+            } catch (error) {
+                console.error(error);
+            }
+        };
+        checkPermissionAndGetLocation();
+    }, []);
+
 
     return (
         <div className={"overflow-none"}>
@@ -101,7 +152,7 @@ const Map = ({pos, cep, onCoordinatesChange, height}: {
 };
 
 
-const getLatLonFromCep = async (cep: string): Promise<AddressLatLon> => {
+const getLatLonFromCep = async (cep: string): Promise<AddressLatLon> | null => {
     try {
         const isValidCep = /^\d{5}-?\d{3}$/.test(cep);
         if (!isValidCep) {
@@ -143,4 +194,4 @@ const getLatLonFromCep = async (cep: string): Promise<AddressLatLon> => {
     }
 };
 
-export {Map, Coordinates} ;
+export {Map, Coordinates, getLatLonFromCep} ;

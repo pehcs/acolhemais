@@ -1,9 +1,12 @@
 import db from '../db.ts'
 import CreateONG from "./dto/ONGCreateDto";
+import ONGUpdateDto from "./dto/ONGUpdateDto";
 
 class ONGRepository {
 
     async save(createONG: CreateONG) {
+        createONG.publico_alvo = [...new Set(createONG.publico_alvo)];
+        createONG.necessidades = [...new Set(createONG.necessidades)];
         await Promise.all([
             Promise.all(
                 createONG.necessidades.map(n =>
@@ -27,6 +30,7 @@ class ONGRepository {
                 descricao: "Não há descrição",
                 nome: createONG.nome,
                 cnpj: createONG.cnpj,
+                endereco: createONG.endereco,
                 data_criacao: createONG.data_criacao,
                 lat: createONG.localizacao[0],
                 lon: createONG.localizacao[1],
@@ -91,6 +95,68 @@ class ONGRepository {
 
     async getImage(id: string): any {
         return db.ongImage.findFirstOrThrow({where: {id: id}});
+    }
+
+    async update(id: string, ongUpdateDto: ONGUpdateDto): Promise<any> {
+        ongUpdateDto.added_publico_alvo = [...new Set(ongUpdateDto.added_publico_alvo)];
+        ongUpdateDto.added_necessidades = [...new Set(ongUpdateDto.added_necessidades)];
+        await Promise.all(ongUpdateDto.removed_necessidades.map(removedNecessidadeId =>
+            db.ongNecessidade.delete(
+                {
+                    where: {
+                        id: removedNecessidadeId
+                    }
+                })
+        ));
+        await Promise.all(ongUpdateDto.removed_publico_alvo.map(removedPublicoAlvoId =>
+            db.ongPublicoAlvo.delete(
+                {
+                    where: {
+                        id: removedPublicoAlvoId
+                    }
+                })
+        ));
+        await Promise.all(ongUpdateDto.added_necessidades.map(necessidade =>
+            db.ongNecessidade.create({
+                data: {
+                    ong: {
+                        connect: {id: id},
+                    },
+                    necessidade: {
+                        connectOrCreate: {
+                            where: {tipo: necessidade},
+                            create: {tipo: necessidade}
+                        }
+                    }
+                }
+            })
+        ));
+        await Promise.all(ongUpdateDto.added_publico_alvo.map(publicoAlvo =>
+            db.ongPublicoAlvo.create({
+                data: {
+                    ong: {
+                        connect: {id: id},
+                    },
+                    publicoAlvo: {
+                        connectOrCreate: {
+                            where: {tipo: publicoAlvo},
+                            create: {tipo: publicoAlvo}
+                        }
+                    }
+                }
+            })
+        ));
+        return db.ong.update({
+            where: {id},
+            data: {nome: ongUpdateDto.nome}
+        });
+    }
+
+    async updatePassword(id: string, hashedPassword: string): any {
+        return db.ong.update({
+            where: {id: id},
+            data: {senha: hashedPassword},
+        });
     }
 
     async deleteImage(id: string): any {
@@ -180,9 +246,18 @@ class ONGRepository {
                             tipoContato: true
                         },
                     },
+                    ongImage: true
                 },
             }
         );
+    }
+
+    async findByLogin(login: string) {
+        return db.ong.findFirst({
+            where: {
+                login: login
+            }
+        });
     }
 }
 

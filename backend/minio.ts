@@ -1,10 +1,13 @@
 import {Client} from "minio";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 export const BUCKET_NAME = 'acolhemais';
 
 const minioClient = new Client({
-    endPoint: 'localhost',
-    port: 9002,
+    endPoint: process.env.MINIO_HOST || "localhost",
+    port: process.env.MINIO_PORT || 9002,
     useSSL: false,
     accessKey: process.env.MINIO_ACCESS_KEY,
     secretKey: process.env.MINIO_SECRET_KEY

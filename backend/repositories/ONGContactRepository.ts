@@ -9,18 +9,24 @@ type AddContact = {
 class ONGContactRepository {
 
     async addContact(ongId: string, addContact: AddContact) {
-        const contactType: any = await db.tipoContato.findUnique({
-            where: {tipo: addContact.tipo},
+        let tipoContato = await db.tipoContato.findUnique({
+            where: {tipo: addContact.tipo}
         });
-
-        if (!contactType) {
-            throw new Error(`Tipo de contato '${addContact.tipo}' não encontrado.`);
+        if (!tipoContato) {
+            throw new Error("Esse tipo de contato não existe")
         }
-
         return db.ongContato.create({
             data: {
-                tipoContatoId: contactType.id,
-                ongId: ongId,
+                tipoContato: {
+                    connect: {
+                        tipo: addContact.tipo
+                    }
+                },
+                ong: {
+                    connect: {
+                        id: ongId,
+                    }
+                },
                 valor: addContact.valor,
             },
             include: {

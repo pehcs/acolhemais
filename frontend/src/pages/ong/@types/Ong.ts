@@ -20,12 +20,15 @@ export type Ong = {
     id: string;
     login: string;
     nome: string;
+    senha: string;
     descricao: string;
     cnpj: string;
     data_criacao: number;
     localizacao: Coordinates;
+    endereco: string;
     necessidades: Necessidade[];
     images: string[];
     publico_alvo: PublicoAlvo[];
     contatos: Contatos[];
 };
+

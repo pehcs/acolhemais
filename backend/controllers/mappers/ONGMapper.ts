@@ -1,4 +1,4 @@
-import {Contact, ONGCompleteResponse} from "../dtos/ONGResponseDtos"
+import {AcaoResponse, Contact, ONGCompleteResponse} from "../dtos/ONGResponseDtos"
 
 export default class ONGMapper {
 
@@ -10,13 +10,14 @@ export default class ONGMapper {
             descricao: ong.descricao,
             cnpj: ong.cnpj,
             data_criacao: ong.data_criacao,
+            endereco: ong.endereco,
             localizacao: {
                 latitude: ong.lat,
                 longitude: ong.lon,
             },
             necessidades: ong?.ongNecessidade?.map(ongNecessidade => (
                 {
-                    id: ongNecessidade.necessidade.id,
+                    id: ongNecessidade.id,
                     tipo: ongNecessidade.necessidade.tipo
                 }
             )) || [],
@@ -25,7 +26,7 @@ export default class ONGMapper {
             ) || [],
             publico_alvo: ong?.ongPublicoAlvo?.map(ongPublicoAlvo => (
                 {
-                    id: ongPublicoAlvo.publicoAlvo.id,
+                    id: ongPublicoAlvo.id,
                     tipo: ongPublicoAlvo.publicoAlvo.tipo
                 }
             )) || [],
@@ -33,6 +34,31 @@ export default class ONGMapper {
                 return ONGMapper.toContactResponse(contato)
             }) || []
         }
+    }
+
+    static toCompleteAcaoResponse(acao): AcaoResponse {
+        return {
+            id: acao.id,
+            nome: acao.nome,
+            dia: acao.dia,
+            mes: acao.mes,
+            ano: acao.ano,
+            inicio: acao.inicio,
+            termino: acao.termino,
+            cep: acao.cep,
+            bairro: acao.bairro,
+            endereco: acao.endereco,
+            numero: acao.numero,
+            complemento: acao.complemento || undefined,
+            descricao: acao.descricao,
+            como_participar: acao.como_participar,
+            link_contato: acao.link_contato,
+        }
+    }
+
+    static toCompleteAcaoResponseList(acao): AcaoResponse[] {
+        return acao.map(o => this.toCompleteAcaoResponse(o)
+        )
     }
 
     static toCompleteResponseList(ong): ONGCompleteResponse[] {
