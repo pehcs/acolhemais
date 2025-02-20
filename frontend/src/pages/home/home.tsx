@@ -2,7 +2,6 @@ import { Button } from "@/components/ui/button.tsx";
 import { useNavigate } from "react-router-dom";
 import { TbLogout2 } from "react-icons/tb";
 import { CiSearch } from "react-icons/ci";
-import { IoLocationOutline } from "react-icons/io5";
 import { useQuery } from "react-query";
 import { Ong } from "@/pages/ong/@types/Ong.ts";
 import { api, serverURI } from "@/utils/api.ts";
@@ -11,6 +10,8 @@ import { useState } from "react";
 import { Input } from "@/components/ui/input.tsx";
 import { CgProfile } from "react-icons/cg";
 import { CardX } from "@/components/ui/cardX";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs.tsx"
+
 
 export default function HomePage() {
     const navigate = useNavigate()
@@ -59,16 +60,49 @@ export default function HomePage() {
                     }
                 </div>
             </header>
+
             <main className={"p-4"}>
-                <section className={"flex gap-2"}>
-                    <Input
-                        className="rounded-full px-4 py-2 border border-gray-300"
-                        placeholder="Pesquise"
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                    />
-                    <Button className={"h-8 w-12"}><CiSearch className={"h-6 w-6"} /></Button>
-                </section>
+
+                <div className="flex w-full">
+                    <Tabs defaultValue="ONGs" className="w-[400px]">
+                        <TabsList>
+                            <TabsTrigger value="ONGs">ONGs</TabsTrigger>
+                            <TabsTrigger value="Ações e Eventos">Ações e Eventos</TabsTrigger>
+                        </TabsList>
+
+                        <TabsContent value="ONGs">
+                            <section className={"flex gap-2"}>
+                                <Input
+                                    className="rounded-full px-4 py-2 border border-gray-300"
+                                    placeholder="Pesquise"
+                                    value={searchTerm}
+                                    onChange={(e) => setSearchTerm(e.target.value)}
+                                />
+                                <Button className={"h-8 w-12"}><CiSearch className={"h-6 w-6"} /></Button>
+                            </section>
+
+
+
+                        </TabsContent>
+
+                        <TabsContent value="Ações e Eventos">
+                            <section className={"flex gap-2"}>
+                                <Input
+                                    className="rounded-full px-4 py-2 border border-gray-300"
+                                    placeholder="Pesquise"
+                                    value={searchTerm}
+                                    onChange={(e) => setSearchTerm(e.target.value)}
+                                />
+                                <Button className={"h-8 w-12"}><CiSearch className={"h-6 w-6"} /></Button>
+                            </section>
+
+
+
+                        </TabsContent>
+                    </Tabs>
+                </div>
+
+
                 {
                     ongList.length === 0 && (
                         <p className={"text-[#61646B] w-full text-center py-4"}>Não há ONGs disponíveis</p>
