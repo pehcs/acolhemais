@@ -1,16 +1,17 @@
-import {Button} from "@/components/ui/button.tsx";
-import {Avatar, AvatarImage} from "@/components/ui/avatar.tsx";
-import {IoHomeOutline} from "react-icons/io5";
-import {MdArrowForwardIos, MdOutlineEmail} from "react-icons/md";
-import {useNavigate, useParams} from "react-router-dom";
-import {useQuery} from "react-query";
-import {api, serverURI} from "@/utils/api.ts";
-import {Ong} from "@/pages/ong/@types/Ong.ts";
-import {Skeleton} from "@/components/ui/skeleton.tsx";
-import {useState} from "react";
-import {FaInstagram, FaPhone, FaWhatsapp} from "react-icons/fa";
-import {z} from "zod";
-import {TbLogout2} from "react-icons/tb";
+import { Button } from "@/components/ui/button.tsx";
+import { Avatar, AvatarImage } from "@/components/ui/avatar.tsx";
+import { IoHomeOutline } from "react-icons/io5";
+import { MdArrowForwardIos, MdOutlineEmail } from "react-icons/md";
+import { useNavigate, useParams } from "react-router-dom";
+import { useQuery } from "react-query";
+import { api, serverURI } from "@/utils/api.ts";
+import { Ong } from "@/pages/ong/@types/Ong.ts";
+import { Skeleton } from "@/components/ui/skeleton.tsx";
+import { useState } from "react";
+import { FaInstagram, FaPhone, FaWhatsapp } from "react-icons/fa";
+import { z } from "zod";
+import { TbLogout2 } from "react-icons/tb";
+import { ChevronLeftIcon } from "@radix-ui/react-icons";
 
 const ongDataSchema = z.object({
     descricao: z.string().min(10, "Dê mais detalhes sobre sua ONG"),
@@ -30,12 +31,12 @@ const contactSchema = z.object({
 export default function OngProfile() {
 
     const [logoURL, setLogoURL] = useState<string>('');
-    const {id} = useParams()
+    const { id } = useParams()
     const ongQuery = useQuery(
         {
             queryKey: "ong_profile",
             queryFn: async (): Ong => {
-                const {data} = await api.get<Ong>(`/v1/ong/${id}`);
+                const { data } = await api.get<Ong>(`/v1/ong/${id}`);
                 try {
                     await api.get(`/v1/ong/${id}/logo`)
                     setLogoURL(`/v1/ong/${id}/logo`)
@@ -45,35 +46,35 @@ export default function OngProfile() {
                 return data
             }
         })
-    const {data: ongData} = ongQuery
+    const { data: ongData } = ongQuery
     const navigate = useNavigate()
 
     if (ongQuery.isLoading) {
         return (
             <>
                 <div className="mt-24 flex w-full flex-col justify-center items-center gap-4">
-                    <Skeleton className="h-24 w-24 rounded-full"/>
-                    <Skeleton className="h-6 w-36 "/>
-                    <Skeleton className="h-4 w-28 "/>
+                    <Skeleton className="h-24 w-24 rounded-full" />
+                    <Skeleton className="h-6 w-36 " />
+                    <Skeleton className="h-4 w-28 " />
                     <div className="mt-8 flex gap-4">
-                        <Skeleton className="h-8 w-24 rounded-full"/>
-                        <Skeleton className="h-8 w-24 rounded-full"/>
-                        <Skeleton className="h-8 w-24 rounded-full"/>
+                        <Skeleton className="h-8 w-24 rounded-full" />
+                        <Skeleton className="h-8 w-24 rounded-full" />
+                        <Skeleton className="h-8 w-24 rounded-full" />
                     </div>
                 </div>
                 <div className="py-4 px-4 mt-6">
-                    <Skeleton className="w-full h-36 rounded-xl"/>
+                    <Skeleton className="w-full h-36 rounded-xl" />
                     <div className="flex gap-4 py-4">
-                        <Skeleton className="w-32 h-24 rounded-xl"/>
-                        <Skeleton className="w-32 h-24 rounded-xl"/>
-                        <Skeleton className="w-32 h-24 rounded-xl"/>
+                        <Skeleton className="w-32 h-24 rounded-xl" />
+                        <Skeleton className="w-32 h-24 rounded-xl" />
+                        <Skeleton className="w-32 h-24 rounded-xl" />
                     </div>
-                    <Skeleton className="w-36 h-12 rounded-full"/>
+                    <Skeleton className="w-36 h-12 rounded-full" />
                 </div>
                 <div className="mt-10 flex flex-col content-start items-start gap-4 px-4">
-                    <Skeleton className="h-6 w-36 "/>
-                    <Skeleton className="h-4 w-28 "/>
-                    <Skeleton className="h-4 w-28 "/>
+                    <Skeleton className="h-6 w-36 " />
+                    <Skeleton className="h-4 w-28 " />
+                    <Skeleton className="h-4 w-28 " />
                 </div>
             </>
         )
@@ -82,12 +83,15 @@ export default function OngProfile() {
     return (
         <main>
             <header className="bg-[url(/images/circle.svg)] w-full h-52 bg-no-repeat bg-contain">
-                <div className="w-1/2 flex justify-between items-center p-2">
+                <div className="w-full flex justify-between items-center p-2">
                     <Button onClick={() => navigate(`/`)}>
-                        <TbLogout2 className="h-6 w-6"/>
+                        <ChevronLeftIcon className="h-6 w-6" />
                     </Button>
-                    <img className="h-20 w-20 -mr-12" src="/images/logo-white.svg" onClick={() => navigate("/")}
-                         alt={"Logo acolhe+"}/>
+                    <img className="h-20 w-20" src="/images/logo-white.svg" onClick={() => navigate("/")}
+                        alt={"Logo acolhe+"} />
+                    <Button className="invisible">
+                        <ChevronLeftIcon className="h-6 w-6" />
+                    </Button>
                 </div>
                 <div className="flex items-center justify-center w-full">
                     <input
@@ -97,9 +101,9 @@ export default function OngProfile() {
                     <Avatar className="w-24 h-24 mt-2 border-2 border-[#2F49F3]">
                         {
                             logoURL ? (
-                                <AvatarImage src={serverURI + `/v1/ong/${id}/logo`}/>
+                                <AvatarImage src={serverURI + `/v1/ong/${id}/logo`} />
                             ) : (
-                                <AvatarImage src={"/images/invalidLogo.png"}/>
+                                <AvatarImage src={"/images/invalidLogo.png"} />
                             )
                         }
                     </Avatar>
@@ -120,7 +124,7 @@ export default function OngProfile() {
                         {
                             ongData?.publico_alvo.map((p, key) => (
                                 <div key={key}
-                                     className={"bg-[#EFEFF0] text-sm text-[#19191B] w-auto py-2  px-6 rounded-full inline-block"}
+                                    className={"bg-[#EFEFF0] text-sm text-[#19191B] w-auto py-2  px-6 rounded-full inline-block"}
                                 >
                                     {p.tipo}
                                 </div>
@@ -129,7 +133,7 @@ export default function OngProfile() {
                         {
                             ongData?.necessidades.map((p, key) => (
                                 <div key={key}
-                                     className={"bg-[#EFEFF0] text-sm text-[#19191B] w-auto py-2  px-6 rounded-full inline-block"}
+                                    className={"bg-[#EFEFF0] text-sm text-[#19191B] w-auto py-2  px-6 rounded-full inline-block"}
                                 >
                                     {p.tipo}
                                 </div>
@@ -153,13 +157,13 @@ export default function OngProfile() {
                                 ongData?.images.map((imageId, key) => (
                                     <div className={"relative"}>
                                         <img key={key} className="h-32 w-52 max-w-52 max-h-32 rounded-xl"
-                                             src={serverURI + `/v1/ong-image/${imageId}`}/>
+                                            src={serverURI + `/v1/ong-image/${imageId}`} />
                                     </div>
                                 ))
                             }
                         </div>
                         <Button className="mt-2 px-6" onClick={() => navigate(`/ong/${id}/acoes`)}>
-                            Eventos e ações <MdArrowForwardIos className="ml-6 h-4 w-4"/>
+                            Eventos e ações <MdArrowForwardIos className="ml-6 h-4 w-4" />
                         </Button>
 
                     </article>
@@ -177,31 +181,31 @@ export default function OngProfile() {
                                         case "EMAIL":
                                             return (
                                                 <div className="flex items-center gap-2 text-sm">
-                                                    <MdOutlineEmail/> {p.valor}
+                                                    <MdOutlineEmail /> {p.valor}
                                                 </div>
                                             );
                                         case "TELEFONE":
                                             return (
                                                 <div className="flex items-center gap-2 text-sm">
-                                                    <FaPhone/> {p.valor}
+                                                    <FaPhone /> {p.valor}
                                                 </div>
                                             );
                                         case "SITE":
                                             return (
                                                 <div className="flex items-center gap-2 text-sm">
-                                                    <IoHomeOutline/> {p.valor}
+                                                    <IoHomeOutline /> {p.valor}
                                                 </div>
                                             );
                                         case "INSTAGRAM":
                                             return (
                                                 <div className="flex items-center gap-2 text-sm">
-                                                    <FaInstagram/> {p.valor}
+                                                    <FaInstagram /> {p.valor}
                                                 </div>
                                             );
                                         case "WHATSAPP":
                                             return (
                                                 <div className="flex items-center gap-2 text-sm">
-                                                    <FaWhatsapp/> {p.valor}
+                                                    <FaWhatsapp /> {p.valor}
                                                 </div>
                                             );
                                     }

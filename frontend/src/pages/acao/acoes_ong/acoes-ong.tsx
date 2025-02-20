@@ -101,8 +101,8 @@ export default function AcoesOng() {
     return (
         <main>
             <header className="bg-[url(/images/circle.svg)] w-full h-52 bg-no-repeat bg-contain">
-                <div className="flex justify-between items-center p-2">
-                    <Button onClick={() => navigate(`/ong/${id}`)}>
+            <div className="flex justify-between items-center p-2">
+                    <Button onClick={() => navigate(`/ong/admin/${id}`)}>
                         <ChevronLeftIcon className="h-6 w-6"/>
                     </Button>
                     <img className="h-20 w-20" src="/images/logo-white.svg" onClick={() => navigate(`/`)}
@@ -113,7 +113,9 @@ export default function AcoesOng() {
                                 <FiPlusSquare className="h-6 w-6"/>
                             }/>
                         ) : (
-                            <div className={"h-12 w-12"}></div>
+                            <Button className="invisible">
+                                <ChevronLeftIcon className="h-6 w-6" />
+                            </Button>
                         )
                     }
 
