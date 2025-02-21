@@ -44,6 +44,7 @@ export default function HomePage() {
     }
     return (
         <>
+
             <header className="w-full h-20 bg-[#2F49F3] bg-contain">
                 <div className={`${ongId ? "w-full " : "w-2/3 "} flex justify-between items-center p-2`}>
                     <Button onClick={() => navigate(`/login`)}>
@@ -107,8 +108,6 @@ export default function HomePage() {
                                             publicoAlvo={ong.publico_alvo?.map((p) => p.tipo) || []}
                                             necessidades={ong.necessidades?.map((n) => n.tipo) || []}
                                         />
-                                        {/* <img src='https://www.mundoecologia.com.br/wp-content/uploads/2019/10/Fotos-de-Cavalo-Puro-Sangue-Lusitano-1.jpg'></img> */}
-
                                     </div>
                                 ))
                             }
@@ -131,10 +130,6 @@ export default function HomePage() {
                         </TabsContent>
                     </Tabs>
                 </div>
-
-
-
-
             </main>
         </>
     )
