@@ -16,7 +16,7 @@ const CardX = ({ image, nome, endereco, descricao, publicoAlvo, necessidades }: 
         <img
           src={image}
           alt={`Imagem da ONG ${nome}`}
-          className="h-32 w-full max-h-32 rounded-xl object-cover"
+          className="h-32 w-full rounded-xl object-cover"
         />
       )}
 
@@ -35,7 +35,7 @@ const CardX = ({ image, nome, endereco, descricao, publicoAlvo, necessidades }: 
         {publicoAlvo.map((item, index) => (
           <div
             key={index}
-            className="bg-[#EFEFF0] text-sm text-[#19191B] w-auto py-2 px-6 rounded-full inline-flex whitespace-nowrap"
+            className="bg-[#EFEFF0] text-sm text-[#19191B] w-full py-2 px-6 rounded-full inline-flex whitespace-nowrap"
           >
             {item}
           </div>
@@ -43,7 +43,7 @@ const CardX = ({ image, nome, endereco, descricao, publicoAlvo, necessidades }: 
         {necessidades.map((item, index) => (
           <div
             key={index}
-            className="bg-[#EFEFF0] text-sm text-[#19191B] w-auto py-2 px-6 rounded-full inline-flex whitespace-nowrap"
+            className="bg-[#EFEFF0] text-sm text-[#19191B] w-full py-2 px-6 rounded-full inline-flex whitespace-nowrap"
           >
             {item}
           </div>

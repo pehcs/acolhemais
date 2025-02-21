@@ -1,6 +1,5 @@
 import {Button} from "@/components/ui/button.tsx";
 import {Avatar, AvatarImage} from "@/components/ui/avatar.tsx";
-
 import {FiEdit} from "react-icons/fi";
 import {IoCheckboxOutline, IoSettingsOutline} from "react-icons/io5";
 import {MdArrowForwardIos, MdOutlineEmail} from "react-icons/md";

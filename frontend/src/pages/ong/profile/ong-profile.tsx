@@ -10,7 +10,6 @@ import { Skeleton } from "@/components/ui/skeleton.tsx";
 import { useState } from "react";
 import { FaInstagram, FaPhone, FaWhatsapp } from "react-icons/fa";
 import { z } from "zod";
-import { TbLogout2 } from "react-icons/tb";
 import { ChevronLeftIcon } from "@radix-ui/react-icons";
 
 const ongDataSchema = z.object({

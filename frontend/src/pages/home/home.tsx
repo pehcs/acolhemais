@@ -61,17 +61,17 @@ export default function HomePage() {
                 </div>
             </header>
 
-            <main className={"p-4"}>
+            <main className={"p-4 max-w-screen"}>
 
-                <div className="flex w-full">
-                    <Tabs defaultValue="ONGs" className="w-[400px]">
+                <div className="flex -mt-2 ">
+                    <Tabs defaultValue="ONGs" className="w-full bg-white">
                         <TabsList>
                             <TabsTrigger value="ONGs">ONGs</TabsTrigger>
                             <TabsTrigger value="Ações e Eventos">Ações e Eventos</TabsTrigger>
                         </TabsList>
 
                         <TabsContent value="ONGs">
-                            <section className={"flex gap-2"}>
+                            <section className={"flex mt-5 gap-2"}>
                                 <Input
                                     className="rounded-full px-4 py-2 border border-gray-300"
                                     placeholder="Pesquise"
@@ -81,12 +81,42 @@ export default function HomePage() {
                                 <Button className={"h-8 w-12"}><CiSearch className={"h-6 w-6"} /></Button>
                             </section>
 
+                            {
+                                ongList.length === 0 && (
+                                    <p className={"text-[#61646B] w-full text-center py-4"}>Não há ONGs disponíveis</p>
+                                )
+                            }
+                            {
+                                filteredOngs?.map((ong: Ong, key) => (
+                                    <div
+                                        key={key}
+                                        className={"pt-4"}
+                                        onClick={() => {
+                                            if (localStorage.getItem("ongId") === ong.id) {
+                                                navigate(`/ong/admin/${ong.id}`);
+                                            } else {
+                                                navigate(`/ong/${ong.id}`);
+                                            }
+                                        }}
+                                    >
+                                        <CardX
+                                            image={ong.images?.length > 0 ? `${serverURI}/v1/ong-image/${ong.images[0]}` : undefined}
+                                            nome={ong.nome}
+                                            endereco={ong.endereco}
+                                            descricao={ong.descricao}
+                                            publicoAlvo={ong.publico_alvo?.map((p) => p.tipo) || []}
+                                            necessidades={ong.necessidades?.map((n) => n.tipo) || []}
+                                        />
+                                        {/* <img src='https://www.mundoecologia.com.br/wp-content/uploads/2019/10/Fotos-de-Cavalo-Puro-Sangue-Lusitano-1.jpg'></img> */}
 
+                                    </div>
+                                ))
+                            }
 
                         </TabsContent>
 
                         <TabsContent value="Ações e Eventos">
-                            <section className={"flex gap-2"}>
+                            <section className={"flex mt-5 gap-2"}>
                                 <Input
                                     className="rounded-full px-4 py-2 border border-gray-300"
                                     placeholder="Pesquise"
@@ -103,35 +133,7 @@ export default function HomePage() {
                 </div>
 
 
-                {
-                    ongList.length === 0 && (
-                        <p className={"text-[#61646B] w-full text-center py-4"}>Não há ONGs disponíveis</p>
-                    )
-                }
-                {
-                    filteredOngs?.map((ong: Ong, key) => (
-                        <div
-                            key={key}
-                            className={"py-4"}
-                            onClick={() => {
-                                if (localStorage.getItem("ongId") === ong.id) {
-                                    navigate(`/ong/admin/${ong.id}`);
-                                } else {
-                                    navigate(`/ong/${ong.id}`);
-                                }
-                            }}
-                        >
-                            <CardX
-                                image={ong.images?.length > 0 ? `${serverURI}/v1/ong-image/${ong.images[0]}` : undefined}
-                                nome={ong.nome}
-                                endereco={ong.endereco}
-                                descricao={ong.descricao}
-                                publicoAlvo={ong.publico_alvo?.map((p) => p.tipo) || []}
-                                necessidades={ong.necessidades?.map((n) => n.tipo) || []}
-                            />
-                        </div>
-                    ))
-                }
+
 
             </main>
         </>
