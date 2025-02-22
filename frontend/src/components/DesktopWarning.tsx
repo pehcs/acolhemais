@@ -19,7 +19,7 @@ export default function DesktopWarning() {
   return (
     <>
       <div className="fixed inset-0 flex items-center justify-center bg-white z-50">
-        <img src="https://jagatplay.com/wp-content/uploads/2014/03/arale.jpeg" alt="Acesse pelo celular" className="max-w-full max-h-full" />
+        <img src="public/images/window_alert.png" alt="Acesse pelo celular" className="max-w-full max-h-full" />
       </div>
       <style>
         {`
