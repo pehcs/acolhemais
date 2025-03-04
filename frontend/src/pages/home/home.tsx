@@ -1,28 +1,15 @@
-<<<<<<< HEAD
-import { CardHome } from "@/components/ui/card-home.tsx";
-
-
-export default function HomeApp() {
-    return (
-    <div className="h-screen px-4 overflow-hidden mt-3">
-        <CardHome></CardHome>
-    </div>
-    );
-}
-=======
-import { Button } from "@/components/ui/button.tsx";
-import { useNavigate } from "react-router-dom";
-import { TbLogout2 } from "react-icons/tb";
-import { CiSearch } from "react-icons/ci";
-import { IoLocationOutline } from "react-icons/io5";
-import { useQuery } from "react-query";
-import { Ong } from "@/pages/ong/@types/Ong.ts";
-import { api, serverURI } from "@/utils/api.ts";
-import { Skeleton } from "@/components/ui/skeleton.tsx";
-import { useState } from "react";
-import { Input } from "@/components/ui/input.tsx";
-import { CgProfile } from "react-icons/cg";
-import { CardX } from "@/components/ui/cardX";
+import {Button} from "@/components/ui/button.tsx";
+import {useNavigate} from "react-router-dom";
+import {TbLogout2} from "react-icons/tb";
+import {CiSearch} from "react-icons/ci";
+import {useQuery} from "react-query";
+import {Ong} from "@/pages/ong/@types/Ong.ts";
+import {api, serverURI} from "@/utils/api.ts";
+import {Skeleton} from "@/components/ui/skeleton.tsx";
+import {useState} from "react";
+import {Input} from "@/components/ui/input.tsx";
+import {CgProfile} from "react-icons/cg";
+import {CardX} from "@/components/ui/cardX";
 
 export default function HomePage() {
     const navigate = useNavigate()
@@ -30,12 +17,12 @@ export default function HomePage() {
         {
             queryKey: "ong_list",
             queryFn: async (): Ong[] => {
-                const { data } = await api.get<Ong>(`/v1/ong/`);
+                const {data} = await api.get<Ong>(`/v1/ong/`);
                 console.log(data);
                 return data
             }
         })
-    const { data: ongList } = ongQuery
+    const {data: ongList} = ongQuery
     const [searchTerm, setSearchTerm] = useState("");
     const filteredOngs = ongList?.filter(ong =>
         ong.nome.toLowerCase().includes(searchTerm.toLowerCase())
@@ -44,12 +31,12 @@ export default function HomePage() {
     if (ongQuery.isLoading) {
         return (
             <>
-                <Skeleton className="h-24 w-full" />
-                <Skeleton className="h-12 w-[90%] rounded-full mx-4 my-4" />
-                <Skeleton className="h-36 w-[90%] rounded-xl mx-4 my-4" />
-                <Skeleton className="h-36 w-[90%] rounded-xl mx-4 my-4" />
-                <Skeleton className="h-36 w-[90%] rounded-xl mx-4 my-4" />
-                <Skeleton className="h-36 w-[90%] rounded-xl mx-4 my-4" />
+                <Skeleton className="h-24 w-full"/>
+                <Skeleton className="h-12 w-[90%] rounded-full mx-4 my-4"/>
+                <Skeleton className="h-36 w-[90%] rounded-xl mx-4 my-4"/>
+                <Skeleton className="h-36 w-[90%] rounded-xl mx-4 my-4"/>
+                <Skeleton className="h-36 w-[90%] rounded-xl mx-4 my-4"/>
+                <Skeleton className="h-36 w-[90%] rounded-xl mx-4 my-4"/>
             </>
         )
     }
@@ -58,14 +45,14 @@ export default function HomePage() {
             <header className="w-full h-20 bg-[#2F49F3] bg-contain">
                 <div className={`${ongId ? "w-full " : "w-2/3 "} flex justify-between items-center p-2`}>
                     <Button onClick={() => navigate(`/login`)}>
-                        <TbLogout2 className="h-6 w-6" />
+                        <TbLogout2 className="h-6 w-6"/>
                     </Button>
                     <img className={`h-20 w-20 ${!ongId && "mr-4 "}`} src="/images/logo-white.svg"
-                        alt={"Logo acolhe+"} />
+                         alt={"Logo acolhe+"}/>
                     {
                         ongId && (
                             <Button onClick={() => navigate(`/ong/admin/${ongId}`)}>
-                                <CgProfile className="h-6 w-6" />
+                                <CgProfile className="h-6 w-6"/>
                             </Button>
                         )
                     }
@@ -79,7 +66,7 @@ export default function HomePage() {
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                     />
-                    <Button className={"h-8 w-12"}><CiSearch className={"h-6 w-6"} /></Button>
+                    <Button className={"h-8 w-12"}><CiSearch className={"h-6 w-6"}/></Button>
                 </section>
                 {
                     ongList.length === 0 && (
@@ -115,4 +102,3 @@ export default function HomePage() {
         </>
     )
 }
->>>>>>> d3ab44e4ec01eda5550663a4c7751a152610ca37
