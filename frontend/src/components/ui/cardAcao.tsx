@@ -3,7 +3,7 @@ import {IoLocationOutline} from "react-icons/io5";
 import {GoClock} from "react-icons/go";
 import {CiImageOn} from "react-icons/ci";
 
-interface CardXProps {
+interface CardAcaoProps {
     image?: string;
     nomeAcao: string;
     nomeOng: string;
@@ -14,7 +14,16 @@ interface CardXProps {
     necessidades: string[];
 }
 
-const CardY = ({image, nomeAcao, nomeOng, duracao, dataAcao, endereco, publicoAlvo, necessidades}: CardXProps) => (
+const CardAcao = ({
+                      image,
+                      nomeAcao,
+                      nomeOng,
+                      duracao,
+                      dataAcao,
+                      endereco,
+                      publicoAlvo,
+                      necessidades
+                  }: CardAcaoProps) => (
     <div className="flex flex-col gap-2 p-3 border border-[#EFEFF0] rounded-xl pb-4">
         {image ? (
             <img
@@ -68,4 +77,4 @@ const CardY = ({image, nomeAcao, nomeOng, duracao, dataAcao, endereco, publicoAl
     </div>
 )
 
-export {CardY};
+export {CardAcao};

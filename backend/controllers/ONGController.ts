@@ -22,11 +22,17 @@ export default class ONGController {
             if (existsLogin) {
                 return res.status(400).json(basicError("Este email já esta em uso"))
             }
-            const reverseGeoResponse = await fetch(
-                `https://nominatim.openstreetmap.org/reverse?lat=${createONG.localizacao[0]}&lon=${createONG.localizacao[1]}&format=jsonv2`
-            );
-            const reverseGeoData = await reverseGeoResponse.json();
-            createONG.endereco = `${reverseGeoData.address.suburb}, ${reverseGeoData.address.city} - ${reverseGeoData.address.state}` || "Não localizada"
+            try {
+                const reverseGeoResponse = await fetch(
+                    `https://nominatim.openstreetmap.org/reverse?lat=${createONG.localizacao[0]}&lon=${createONG.localizacao[1]}&format=jsonv2`
+                );
+                const reverseGeoData = await reverseGeoResponse.json();
+                createONG.endereco = `${reverseGeoData.address.suburb}, ${reverseGeoData.address.city} - ${reverseGeoData.address.state}` || "Não localizada"
+            } catch (ee) {
+                console.error(ee);
+                createONG.endereco = "Não localizada"
+            }
+
             createONG.senha = await bcrypt.hash(createONG.senha, 10)
             const savedOng = await ONGRepository.save(createONG)
             try {

@@ -7,11 +7,11 @@ import {api, serverURI} from "@/utils/api.ts";
 import {Skeleton} from "@/components/ui/skeleton.tsx";
 import {useEffect, useState} from "react";
 import {CgProfile} from "react-icons/cg";
-import {CardX} from "@/components/ui/cardX";
+import {CardONG} from "@/components/ui/cardONG.tsx";
 import {Tabs, TabsContent, TabsList, TabsTrigger} from "@/components/ui/tabs.tsx";
 import {SearchAndFilters} from "@/components/SearchAndFilters.tsx";
 import {Acao} from "@/pages/acao/acoes_ong/@types/Acao.ts";
-import {CardY} from "@/components/ui/cardY.tsx";
+import {CardAcao} from "@/components/ui/cardAcao.tsx";
 
 export default function HomePage() {
     const navigate = useNavigate();
@@ -156,7 +156,7 @@ export default function HomePage() {
                                         }
                                     }}
                                 >
-                                    <CardX
+                                    <CardONG
                                         image={
                                             ong.images?.length > 0
                                                 ? `${serverURI}/v1/ong-image/${ong.images[0]}`
@@ -191,7 +191,7 @@ export default function HomePage() {
                                         navigate(`/ong/${ongId}/acoes/${acao.id}`);
                                     }}
                                 >
-                                    <CardY
+                                    <CardAcao
                                         image={(banners[acao.id] ? serverURI + banners[acao.id] : "")}
                                         nomeAcao={acao.nome}
                                         dataAcao={`${acao.dia} de ${acao.mes} de ${acao.ano}`}

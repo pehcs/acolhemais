@@ -7,7 +7,7 @@ import {Ong} from "@/pages/ong/@types/Ong.ts";
 import {Skeleton} from "@/components/ui/skeleton.tsx";
 import {useEffect, useState} from "react";
 import {ChevronLeftIcon} from '@radix-ui/react-icons';
-import {CardY} from "@/components/ui/cardY.tsx";
+import {CardAcao} from "@/components/ui/cardAcao.tsx";
 import CreateAcaoModal from "@/pages/acao/acoes_ong/acao-register-modal.tsx";
 import {FiPlusSquare} from "react-icons/fi";
 import {Acao} from "@/pages/acao/acoes_ong/@types/Acao.ts";
@@ -157,7 +157,7 @@ export default function AcoesOng() {
                     }
                     {acoesData?.map(acao => (
                         <div key={acao.id} onClick={() => navigate(`/ong/${id}/acoes/${acao.id}`)}>
-                            <CardY
+                            <CardAcao
                                 image={(banners[acao.id] ? serverURI + banners[acao.id] : "")}
                                 nomeAcao={acao.nome}
                                 dataAcao={`${acao.dia} de ${acao.mes} de ${acao.ano}`}
