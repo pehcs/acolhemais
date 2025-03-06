@@ -21,6 +21,8 @@ router.delete('/v1/ong/contact/:id', authMiddleware, ONGController.removeContact
 
 router.post('/v1/ong/:id/acoes', authMiddleware, ONGAcaoController.create);
 router.get('/v1/ong/:id/acoes', ONGAcaoController.findAllByOng);
+
+router.get('/v1/acoes', ONGAcaoController.findAll);
 router.get('/v1/acoes/:id', ONGAcaoController.findById);
 router.delete('/v1/acoes/:id', authMiddleware, ONGAcaoController.delete);
 router.put('/v1/acoes/:id', authMiddleware, ONGAcaoController.update);

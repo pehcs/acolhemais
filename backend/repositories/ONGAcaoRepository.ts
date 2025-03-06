@@ -26,6 +26,9 @@ class ONGRepository {
                     },
                 },
             },
+            include: {
+                ong: true
+            },
         });
     }
 
@@ -33,6 +36,16 @@ class ONGRepository {
         return db.acao.findMany({
             where: {
                 ongId: ongId,
+            }, include: {
+                ong: true
+            }
+        });
+    }
+
+    async findAll() {
+        return db.acao.findMany({
+            include: {
+                ong: true
             }
         });
     }
@@ -41,6 +54,8 @@ class ONGRepository {
         return db.acao.findFirstOrThrow({
             where: {
                 id: id,
+            }, include: {
+                ong: true
             }
         });
     }

@@ -13,5 +13,6 @@ export type Acao = {
     complemento?: string;
     descricao: string,
     como_participar: string,
+    ongId: string,
     link_contato?: string,
 }

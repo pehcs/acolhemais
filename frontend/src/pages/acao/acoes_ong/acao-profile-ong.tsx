@@ -1,24 +1,24 @@
-import { Button } from "@/components/ui/button.tsx";
-import { Avatar, AvatarImage } from "@/components/ui/avatar.tsx";
-import { useNavigate, useParams } from "react-router-dom";
-import { useQuery, useQueryClient } from "react-query";
-import { api, serverURI } from "@/utils/api.ts";
-import { Ong } from "@/pages/ong/@types/Ong.ts";
-import { Skeleton } from "@/components/ui/skeleton.tsx";
-import { ChangeEvent, useRef, useState } from "react";
-import { CalendarIcon, ChevronLeftIcon } from '@radix-ui/react-icons';
-import { FiEdit } from "react-icons/fi";
-import { Acao } from "@/pages/acao/acoes_ong/@types/Acao.ts";
-import { GoClock } from "react-icons/go";
-import { IoCheckboxOutline, IoLocationOutline, IoSettingsOutline } from "react-icons/io5";
-import { Textarea } from "@/components/ui/textarea.tsx";
-import { toast } from "react-toastify";
-import { CiImageOn } from "react-icons/ci";
-import { Label } from "@/components/ui/label.tsx";
-import { Input } from "@/components/ui/input.tsx";
-import { z } from "zod";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
+import {Button} from "@/components/ui/button.tsx";
+import {Avatar, AvatarImage} from "@/components/ui/avatar.tsx";
+import {useNavigate, useParams} from "react-router-dom";
+import {useQuery, useQueryClient} from "react-query";
+import {api, serverURI} from "@/utils/api.ts";
+import {Ong} from "@/pages/ong/@types/Ong.ts";
+import {Skeleton} from "@/components/ui/skeleton.tsx";
+import {ChangeEvent, useRef, useState} from "react";
+import {CalendarIcon, ChevronLeftIcon} from '@radix-ui/react-icons';
+import {FiEdit} from "react-icons/fi";
+import {Acao} from "@/pages/acao/acoes_ong/@types/Acao.ts";
+import {GoClock} from "react-icons/go";
+import {IoCheckboxOutline, IoLocationOutline} from "react-icons/io5";
+import {Textarea} from "@/components/ui/textarea.tsx";
+import {toast} from "react-toastify";
+import {CiImageOn} from "react-icons/ci";
+import {Label} from "@/components/ui/label.tsx";
+import {Input} from "@/components/ui/input.tsx";
+import {z} from "zod";
+import {useForm} from "react-hook-form";
+import {zodResolver} from "@hookform/resolvers/zod";
 import {
     Dialog,
     DialogClose,
@@ -30,8 +30,8 @@ import {
 } from "@/components/ui/dialog.tsx";
 
 const updateAcaoSchema = z.object({
-    descricao: z.string().min(3, { message: "Insira um nome maior" }),
-    como_participar: z.number().min(1, { message: "Escolha uma data válida" }).max(31, { message: "Escolha uma data válida" }),
+    descricao: z.string().min(3, {message: "Insira um nome maior"}),
+    como_participar: z.number().min(1, {message: "Escolha uma data válida"}).max(31, {message: "Escolha uma data válida"}),
     link_contato: z.string(),
 })
 type UpdateAcaoSchema = z.infer<typeof updateAcaoSchema>
@@ -39,7 +39,7 @@ export default function AcaoProfileOng() {
 
     const [logoURL, setLogoURL] = useState<string>('');
     const [bannerURL, setBannerURL] = useState<string>('');
-    const { id: ongId, acaoId } = useParams();
+    const {id: ongId, acaoId} = useParams();
     const bannerInputRef = useRef<HTMLInputElement | null>(null);
     const [isEditMode, setEditMode] = useState<boolean>(false);
     const navigate = useNavigate();
@@ -47,7 +47,7 @@ export default function AcaoProfileOng() {
         {
             queryKey: ["ong_profile", ongId],
             queryFn: async (): Promise<Ong> => {
-                const { data } = await api.get<Ong>(`/v1/ong/${ongId}`);
+                const {data} = await api.get<Ong>(`/v1/ong/${ongId}`);
                 try {
                     await api.get(`/v1/ong/${ongId}/logo`);
                     setLogoURL(`/v1/ong/${ongId}/logo`);
@@ -69,12 +69,12 @@ export default function AcaoProfileOng() {
         {
             queryKey: ["ong_acao", acaoId],
             queryFn: async (): Promise<Acao> => {
-                const { data } = await api.get<Acao>(`/v1/acoes/${acaoId}`);
+                const {data} = await api.get<Acao>(`/v1/acoes/${acaoId}`);
                 return data;
             }
         }
     );
-    const { data: acaoData, refetch } = acaoQuery
+    const {data: acaoData, refetch} = acaoQuery
     const {
         register,
         getValues
@@ -121,28 +121,28 @@ export default function AcaoProfileOng() {
         return (
             <>
                 <div className="mt-24 flex w-full flex-col justify-center items-center gap-4">
-                    <Skeleton className="h-24 w-24 rounded-full" />
-                    <Skeleton className="h-6 w-36 " />
-                    <Skeleton className="h-4 w-28 " />
+                    <Skeleton className="h-24 w-24 rounded-full"/>
+                    <Skeleton className="h-6 w-36 "/>
+                    <Skeleton className="h-4 w-28 "/>
                     <div className="mt-8 flex gap-4">
-                        <Skeleton className="h-8 w-24 rounded-full" />
-                        <Skeleton className="h-8 w-24 rounded-full" />
-                        <Skeleton className="h-8 w-24 rounded-full" />
+                        <Skeleton className="h-8 w-24 rounded-full"/>
+                        <Skeleton className="h-8 w-24 rounded-full"/>
+                        <Skeleton className="h-8 w-24 rounded-full"/>
                     </div>
                 </div>
                 <div className="py-4 px-4 mt-6">
-                    <Skeleton className="w-full h-36 rounded-xl" />
+                    <Skeleton className="w-full h-36 rounded-xl"/>
                     <div className="flex gap-4 py-4">
-                        <Skeleton className="w-32 h-24 rounded-xl" />
-                        <Skeleton className="w-32 h-24 rounded-xl" />
-                        <Skeleton className="w-32 h-24 rounded-xl" />
+                        <Skeleton className="w-32 h-24 rounded-xl"/>
+                        <Skeleton className="w-32 h-24 rounded-xl"/>
+                        <Skeleton className="w-32 h-24 rounded-xl"/>
                     </div>
-                    <Skeleton className="w-36 h-12 rounded-full" />
+                    <Skeleton className="w-36 h-12 rounded-full"/>
                 </div>
                 <div className="mt-10 flex flex-col content-start items-start gap-4 px-4">
-                    <Skeleton className="h-6 w-36 " />
-                    <Skeleton className="h-4 w-28 " />
-                    <Skeleton className="h-4 w-28 " />
+                    <Skeleton className="h-6 w-36 "/>
+                    <Skeleton className="h-4 w-28 "/>
+                    <Skeleton className="h-4 w-28 "/>
                 </div>
             </>
         )
@@ -155,22 +155,22 @@ export default function AcaoProfileOng() {
                     localStorage.getItem("ongId") === ongId ? (
                         <>
                             <div className="w-full flex justify-between items-center p-2">
-                                <Button onClick={() => navigate(`/ong/${ongId}/acoes`)}>
-                                    <ChevronLeftIcon className="h-6 w-6" />
+                                <Button onClick={() => window.history.back()}>
+                                    <ChevronLeftIcon className="h-6 w-6"/>
                                 </Button>
                                 <img className="h-20 w-20" src="/images/logo-white.svg" onClick={() => navigate("/")}
-                                    alt={"Logo acolhe+"} />
+                                     alt={"Logo acolhe+"}/>
                                 {
                                     isEditMode ? (
                                         <Button onClick={async () => {
                                             await onSubmit()
                                             setEditMode(false)
                                         }}>
-                                            <IoCheckboxOutline className="h-6 w-6" />
+                                            <IoCheckboxOutline className="h-6 w-6"/>
                                         </Button>
                                     ) : (
                                         <Button onClick={() => setEditMode(true)}>
-                                            <FiEdit className="h-6 w-6" />
+                                            <FiEdit className="h-6 w-6"/>
                                         </Button>
                                     )
                                 }
@@ -179,12 +179,12 @@ export default function AcaoProfileOng() {
                     ) : (
                         <div className="w-full flex justify-between items-center p-2">
                             <Button onClick={() => navigate(`/ong/${ongId}/acoes`)}>
-                                <ChevronLeftIcon className="h-6 w-6" />
+                                <ChevronLeftIcon className="h-6 w-6"/>
                             </Button>
                             <img className="h-20 w-20" src="/images/logo-white.svg" onClick={() => navigate("/")}
-                                alt={"Logo acolhe+"} />
+                                 alt={"Logo acolhe+"}/>
                             <Button className="invisible">
-                                <ChevronLeftIcon className="h-6 w-6" />
+                                <ChevronLeftIcon className="h-6 w-6"/>
                             </Button>
                         </div>
                     )
@@ -194,13 +194,15 @@ export default function AcaoProfileOng() {
                     <input
                         className={"hidden"}
                         type="file"
+                        ref={bannerInputRef}
+                        onChange={handleChangeBanner}
                     />
                     <Avatar className="w-28 h-28 mt-2 border-2 border-[#2F49F3]">
                         {
                             logoURL ? (
-                                <AvatarImage src={serverURI + `/v1/ong/${ongId}/logo`} />
+                                <AvatarImage src={serverURI + `/v1/ong/${ongId}/logo`}/>
                             ) : (
-                                <AvatarImage src={"/images/invalidLogo.png"} />
+                                <AvatarImage src={"/images/invalidLogo.png"}/>
                             )
                         }
                     </Avatar>
@@ -229,7 +231,7 @@ export default function AcaoProfileOng() {
                                         }
                                     }}
                                     className={"flex justify-center items-center absolute bg-black w-full h-32 max-h-32 mt-4 rounded-xl z-50 bg-opacity-40"}>
-                                    <FiEdit className="h-6 w-6 text-white" />
+                                    <FiEdit className="h-6 w-6 text-white"/>
                                 </button>
                             )
                         }
@@ -243,7 +245,7 @@ export default function AcaoProfileOng() {
                                 <div
                                     className="h-32 w-full max-h-32 rounded-xl object-cover mt-4 bg-[#AFB1B6] flex justify-center items-center"
                                 >
-                                    <CiImageOn className={"h-12 w-12 text-white"} />
+                                    <CiImageOn className={"h-12 w-12 text-white"}/>
                                 </div>
                             )
                         }
@@ -252,18 +254,18 @@ export default function AcaoProfileOng() {
                     <div className={"flex flex-col gap-1"}>
                         <h3 className="text-sm font-medium mb-1">Sobre o evento</h3>
                         <div className="flex gap-1 items-center">
-                            <CalendarIcon className="text-[#61646B]" />
+                            <CalendarIcon className="text-[#61646B]"/>
                             <span
                                 className="text-sm text-[#61646B]">{`${acaoData?.dia} de ${acaoData?.mes} de ${acaoData?.ano}`}</span>
                         </div>
                         <div className="flex gap-1 items-center">
-                            <GoClock className="text-[#61646B]" />
+                            <GoClock className="text-[#61646B]"/>
                             <span
                                 className="text-sm text-[#61646B]">{`${acaoData?.inicio} - ${acaoData?.termino}`}</span>
                         </div>
 
                         <div className="flex gap-1 items-center">
-                            <IoLocationOutline className="text-[#61646B]" />
+                            <IoLocationOutline className="text-[#61646B]"/>
                             <span
                                 className="text-sm text-[#61646B]">{`${acaoData?.endereco}, ${acaoData?.numero} - ${acaoData?.bairro}`}</span>
                         </div>
@@ -271,7 +273,7 @@ export default function AcaoProfileOng() {
                             isEditMode ? (
                                 <div className={"py-4"}>
                                     <Textarea className={"text-sm -mb-4"}
-                                        defaultValue={acaoData?.descricao} {...register("descricao")} />
+                                              defaultValue={acaoData?.descricao} {...register("descricao")} />
                                 </div>
                             ) : (
                                 <p className={"text-sm py-4"}>
@@ -288,7 +290,7 @@ export default function AcaoProfileOng() {
                                 isEditMode ? (
                                     <div className={"py-4"}>
                                         <Textarea className={"text-sm"}
-                                            defaultValue={acaoData?.como_participar} {...register("como_participar")} />
+                                                  defaultValue={acaoData?.como_participar} {...register("como_participar")} />
                                     </div>
                                 ) : (
                                     <p className={"text-sm"}>
@@ -302,7 +304,7 @@ export default function AcaoProfileOng() {
                                 <div className={"pb-4"}>
                                     <Label>Link de contato</Label>
                                     <Input className={"text-sm"} placeholder={"Adicione um link de whatsapp, site e etc."}
-                                        defaultValue={acaoData?.link_contato} {...register("link_contato")} />
+                                           defaultValue={acaoData?.link_contato} {...register("link_contato")} />
                                 </div>
                             )
                         }

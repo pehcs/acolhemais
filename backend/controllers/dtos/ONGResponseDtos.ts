@@ -12,7 +12,7 @@ export type ONGCompleteResponse = {
     contatos: Contact[]
 }
 export type AcaoResponse = {
-    id: string;
+    id?: string;
     nome: string;
     dia: number;
     mes: string;
@@ -20,6 +20,7 @@ export type AcaoResponse = {
     inicio: string;
     termino: string;
     cep: string;
+    ongId: string;
     bairro: string;
     endereco: string;
     numero: string;

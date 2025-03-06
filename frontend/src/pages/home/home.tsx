@@ -1,34 +1,47 @@
-import { Button } from "@/components/ui/button.tsx";
-import { useNavigate } from "react-router-dom";
-import { TbLogout2 } from "react-icons/tb";
-import { useQuery } from "react-query";
-import { Ong } from "@/pages/ong/@types/Ong.ts";
-import { api, serverURI } from "@/utils/api.ts";
-import { Skeleton } from "@/components/ui/skeleton.tsx";
-import { useState } from "react";
-import { CgProfile } from "react-icons/cg";
-import { CardX } from "@/components/ui/cardX";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs.tsx";
-import { SearchAndFilters } from "@/components/SearchAndFilters.tsx";
+import {Button} from "@/components/ui/button.tsx";
+import {useNavigate} from "react-router-dom";
+import {TbLogout2} from "react-icons/tb";
+import {useQuery} from "react-query";
+import {Ong} from "@/pages/ong/@types/Ong.ts";
+import {api, serverURI} from "@/utils/api.ts";
+import {Skeleton} from "@/components/ui/skeleton.tsx";
+import {useEffect, useState} from "react";
+import {CgProfile} from "react-icons/cg";
+import {CardX} from "@/components/ui/cardX";
+import {Tabs, TabsContent, TabsList, TabsTrigger} from "@/components/ui/tabs.tsx";
+import {SearchAndFilters} from "@/components/SearchAndFilters.tsx";
+import {Acao} from "@/pages/acao/acoes_ong/@types/Acao.ts";
+import {CardY} from "@/components/ui/cardY.tsx";
 
 export default function HomePage() {
     const navigate = useNavigate();
     const [searchTerm, setSearchTerm] = useState("");
+    const [banners, setBanners] = useState<{ [key: string]: string }>({});
     const [causePosition, setCausePosition] = useState("");
     const [regionPosition, setRegionPosition] = useState("");
     const [sortPosition, setSortPosition] = useState("");
 
- 
+
     const ongQuery = useQuery({
         queryKey: "ong_list",
         queryFn: async (): Promise<Ong[]> => {
-            const { data } = await api.get<Ong[]>("/v1/ong/");
-            console.log(data);
+            const {data} = await api.get<Ong[]>("/v1/ong/");
             return data;
         },
     });
 
-    const { data: ongList } = ongQuery;
+    const acoesQuery = useQuery({
+        queryKey: "acoes_list",
+        queryFn: async (): Promise<Ong[]> => {
+            const {data} = await api.get<Acao[]>("/v1/acoes");
+            console.log(data)
+            return data;
+        },
+    });
+
+    const {data: ongList} = ongQuery;
+    const {data: acoesList} = acoesQuery;
+
     const filteredOngs = ongList?.filter((ong) =>
         ong.nome.toLowerCase().includes(searchTerm.toLowerCase())
     );
@@ -52,16 +65,35 @@ export default function HomePage() {
         setCausePosition("");
         setRegionPosition("");
     };
+    useEffect(() => {
+        const fetchBanners = async () => {
+            const bannersMap: { [key: string]: string } = {};
+            await Promise.all(
+                acoesList?.map(async (acao) => {
+                    try {
+                        await api.get(`/v1/acoes/${acao.id}/banner`);
+                        bannersMap[acao.id] = `/v1/acoes/${acao.id}/banner`;
+                    } catch {
+                        bannersMap[acao.id] = "";
+                    }
+                }) || []
+            );
+            setBanners(bannersMap);
+        };
 
+        if (acoesList?.length) {
+            fetchBanners();
+        }
+    }, [acoesList]);
     if (ongQuery.isLoading) {
         return (
             <>
-                <Skeleton className="h-24 w-full" />
-                <Skeleton className="h-12 w-[90%] rounded-full mx-4 my-4" />
-                <Skeleton className="h-36 w-[90%] rounded-xl mx-4 my-4" />
-                <Skeleton className="h-36 w-[90%] rounded-xl mx-4 my-4" />
-                <Skeleton className="h-36 w-[90%] rounded-xl mx-4 my-4" />
-                <Skeleton className="h-36 w-[90%] rounded-xl mx-4 my-4" />
+                <Skeleton className="h-24 w-full"/>
+                <Skeleton className="h-12 w-[90%] rounded-full mx-4 my-4"/>
+                <Skeleton className="h-36 w-[90%] rounded-xl mx-4 my-4"/>
+                <Skeleton className="h-36 w-[90%] rounded-xl mx-4 my-4"/>
+                <Skeleton className="h-36 w-[90%] rounded-xl mx-4 my-4"/>
+                <Skeleton className="h-36 w-[90%] rounded-xl mx-4 my-4"/>
             </>
         );
     }
@@ -71,7 +103,7 @@ export default function HomePage() {
             <header className="w-full h-20 bg-[#2F49F3] bg-contain">
                 <div className={`${ongId ? "w-full " : "w-2/3 "} flex justify-between items-center p-2`}>
                     <Button onClick={() => navigate("/login")}>
-                        <TbLogout2 className="h-6 w-6" />
+                        <TbLogout2 className="h-6 w-6"/>
                     </Button>
                     <img
                         className={`h-20 w-20 ${!ongId && "mr-4 "}`}
@@ -80,7 +112,7 @@ export default function HomePage() {
                     />
                     {ongId && (
                         <Button onClick={() => navigate(`/ong/admin/${ongId}`)}>
-                            <CgProfile className="h-6 w-6" />
+                            <CgProfile className="h-6 w-6"/>
                         </Button>
                     )}
                 </div>
@@ -151,11 +183,23 @@ export default function HomePage() {
                                 sortPosition={sortPosition}
                                 onSortChange={handleSortChange}
                             />
-
-                            {/* LISTA DE AÇÕES E EVENTOS VEM AQUI */}
-                            <p className={"text-[#61646B] w-full text-center py-4"}>
-                                Ações e Eventos serão exibidos aqui.
-                            </p>
+                            {acoesList?.map((acao: Acao, key) => (
+                                <div
+                                    key={key}
+                                    className={"pt-4"}
+                                    onClick={() => {
+                                        navigate(`/ong/${ongId}/acoes/${acao.id}`);
+                                    }}
+                                >
+                                    <CardY
+                                        image={(banners[acao.id] ? serverURI + banners[acao.id] : "")}
+                                        nomeAcao={acao.nome}
+                                        dataAcao={`${acao.dia} de ${acao.mes} de ${acao.ano}`}
+                                        duracao={`${acao.inicio} - ${acao.termino}`}
+                                        endereco={`${acao.endereco}, ${acao.numero} - ${acao.bairro}`}
+                                    />
+                                </div>
+                            ))}
                         </TabsContent>
                     </Tabs>
                 </div>

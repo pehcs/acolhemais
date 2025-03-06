@@ -14,7 +14,7 @@ export default class ONGAcaoController {
             createAcao.ondId = id
             return res.status(201).json(
                 ONGMapper.toCompleteAcaoResponse(
-                    ONGAcaoRepository.save(createAcao),
+                    await ONGAcaoRepository.save(createAcao),
                 )
             )
         } catch (error) {
@@ -26,9 +26,22 @@ export default class ONGAcaoController {
     static async findAllByOng(req: Request, res: Response): Promise<any> {
         try {
             const {id} = req.params
-            return res.status(201).json(
+            return res.status(200).json(
                 ONGMapper.toCompleteAcaoResponseList(
                     await ONGAcaoRepository.findAllByOng(id),
+                )
+            )
+        } catch (error) {
+            console.log(error)
+            return res.status(500).json(basicError("Erro ao tentar salvar ação, tente novamente mais tarde"));
+        }
+    }
+
+    static async findAll(req: Request, res: Response): Promise<any> {
+        try {
+            return res.status(200).json(
+                ONGMapper.toCompleteAcaoResponseList(
+                    await ONGAcaoRepository.findAll(),
                 )
             )
         } catch (error) {
@@ -40,7 +53,7 @@ export default class ONGAcaoController {
     static async findById(req: Request, res: Response): Promise<any> {
         try {
             const {id} = req.params
-            return res.status(201).json(
+            return res.status(200).json(
                 ONGMapper.toCompleteAcaoResponse(
                     await ONGAcaoRepository.findById(id),
                 )
@@ -49,6 +62,7 @@ export default class ONGAcaoController {
             console.log(error)
             return res.status(500).json(basicError("Erro ao tentar salvar ação, tente novamente mais tarde"));
         }
+
     }
 
     static async changeBanner(req: Request, res: Response): Promise<any> {
@@ -58,7 +72,7 @@ export default class ONGAcaoController {
             if (!acao) {
                 return res.status(404).json(basicError("Ação não encontrada."));
             }
-            minioClient.putObject(BUCKET_NAME, `${id}-banner`, req.file.buffer, (err, etag) => {
+            minioClient.putObject(BUCKET_NAME, `${id}-banner`, req.file.buffer, (err, _) => {
                 if (err) {
                     return res.status(500).json({message: 'Erro ao enviar o arquivo para o MinIO', error: err});
                 }
