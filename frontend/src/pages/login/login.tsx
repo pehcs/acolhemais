@@ -43,8 +43,8 @@ export default function LoginApp() {
     const onSubmit = async (data: LoginSchema) => {
         try {
             const {data: credentials}: Credentials = await api.post("/login", data);
-            localStorage.setItem("token", credentials.token);
-            localStorage.setItem("ongId", credentials.ongId);
+            await localStorage.setItem("token", credentials.token);
+            await localStorage.setItem("ongId", credentials.ongId);
             navigate("/")
         } catch (error) {
             setError("senha", {message: `Credenciais inválidas`});
