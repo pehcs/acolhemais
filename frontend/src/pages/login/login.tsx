@@ -24,6 +24,8 @@ export default function LoginApp() {
         resolver: zodResolver(loginSchema),
         mode: "all",
     })
+    localStorage.removeItem("token");
+    localStorage.removeItem("ongId");
     const navigate = useNavigate();
     const circle = {
         svg: (
@@ -38,7 +40,7 @@ export default function LoginApp() {
         token: string;
         ongId: string;
     }
-    
+
     const onSubmit = async (data: LoginSchema) => {
         try {
             const {data: credentials}: Credentials = await api.post("/login", data);
