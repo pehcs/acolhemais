@@ -24,8 +24,7 @@ export default function LoginApp() {
         resolver: zodResolver(loginSchema),
         mode: "all",
     })
-    localStorage.removeItem("token");
-    localStorage.removeItem("ongId");
+
     const navigate = useNavigate();
     const circle = {
         svg: (

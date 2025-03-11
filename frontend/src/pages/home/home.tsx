@@ -103,6 +103,8 @@ export default function HomePage() {
             <header className="w-full h-20 bg-[#2F49F3] bg-contain">
                 <div className={`${ongId ? "w-full " : "w-2/3 "} flex justify-between items-center p-2`}>
                     <Button onClick={() => {
+                        localStorage.removeItem("token");
+                        localStorage.removeItem("ongId");
                         navigate("/login")
                     }}>
                         <TbLogout2 className="h-6 w-6"/>
